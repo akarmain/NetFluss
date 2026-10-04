@@ -121,6 +121,8 @@ internal sealed class TaskbarOverlayWindow : Window
         _baseWidth = settings.ReadoutStyle switch
         {
             ReadoutStyle.Total => (int)(settings.ReadoutFontSize * 8),
+            ReadoutStyle.Dashboard => (int)(settings.ReadoutFontSize * 19),
+            ReadoutStyle.DashboardBasic => (int)(settings.ReadoutFontSize * 12),
             ReadoutStyle.Stacked => (int)(settings.ReadoutFontSize * 9),
             _ => (int)(settings.ReadoutFontSize * 17),
         };
@@ -130,7 +132,7 @@ internal sealed class TaskbarOverlayWindow : Window
         Reanchor();
     }
 
-    internal void Update(RateTotals totals, bool useBits) => _readout.Update(totals, useBits);
+    internal void Update(RateTotals totals, bool useBits, DashboardMetrics? dashboard = null) => _readout.Update(totals, useBits, dashboard);
 
     /// <summary>Shows or clears the VPN mark and country, widening the overlay to fit them.</summary>
     internal void SetAccessories(MeterAccessories? accessories, double fontSize)

@@ -63,6 +63,15 @@ public enum ReadoutStyle
 
     /// <summary>Combined throughput only, for the narrowest placements.</summary>
     Total,
+
+    /// <summary>
+    /// The macOS <c>dashboard</c>: a dark capsule with a utilisation ring, the combined
+    /// total, then download and upload. Uses router-wide traffic when a router reports it.
+    /// </summary>
+    Dashboard,
+
+    /// <summary>The macOS <c>dashboardBasic</c>: the capsule with download and upload only.</summary>
+    DashboardBasic,
 }
 
 /// <summary>

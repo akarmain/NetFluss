@@ -129,7 +129,7 @@ internal sealed class FloatingWidgetWindow : Window
         _frame.BorderThickness = new Thickness(1);
     }
 
-    internal void Update(RateTotals totals, bool useBits) => _readout.Update(totals, useBits);
+    internal void Update(RateTotals totals, bool useBits, DashboardMetrics? dashboard = null) => _readout.Update(totals, useBits, dashboard);
 
     /// <summary>The VPN mark and country after the rates; the widget sizes to its content.</summary>
     internal void SetAccessories(MeterAccessories? accessories) => _readout.SetAccessories(accessories);

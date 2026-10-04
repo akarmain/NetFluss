@@ -35,6 +35,7 @@ public partial class NetFlussApplication : Application
     private PrivilegedActions? _privileged;
     private StatisticsService? _statistics;
     private RouterService? _routers;
+    private IDisposable? _dashboardRouters;
     private StatisticsWindow? _statisticsWindow;
     private NetworkSliceWindow? _sliceWindow;
     private AboutWindow? _aboutWindow;
@@ -385,8 +386,17 @@ public partial class NetFlussApplication : Application
             return;
         }
 
-        _overlay?.Update(_monitor.Totals, _store.Settings.UseBits);
-        _widget?.Update(_monitor.Totals, _store.Settings.UseBits);
+        // Dashboard prefers the router's view of the whole line, as on macOS.
+        DashboardMetrics? dashboard = null;
+        if (_store.Settings.ReadoutStyle is ReadoutStyle.Dashboard or ReadoutStyle.DashboardBasic)
+        {
+            dashboard = _routers?.DashboardSource() is { } router
+                ? DashboardMetrics.Router(router.Bandwidth, router.Key)
+                : DashboardMetrics.Local(_monitor.Totals);
+        }
+
+        _overlay?.Update(_monitor.Totals, _store.Settings.UseBits, dashboard);
+        _widget?.Update(_monitor.Totals, _store.Settings.UseBits, dashboard);
     }
 
     private TrayMeterOptions BuildMeterOptions()
@@ -441,6 +451,20 @@ public partial class NetFlussApplication : Application
         _monitor.AdapterNames = settings.AdapterCustomNames;
         _monitor.AdapterOrder = settings.AdapterOrder;
         _monitor.Refresh();
+
+        // The Dashboard style reads router-wide traffic, so routers are polled for it even
+        // while the popover is closed — as on macOS — but only then.
+        var dashboardWantsRouters = settings.ReadoutStyle == ReadoutStyle.Dashboard && settings.AnyRouterEnabled &&
+                                    (settings.MeterSurface == MeterSurface.TaskbarOverlay || settings.ShowFloatingWidget);
+        if (dashboardWantsRouters && _dashboardRouters is null)
+        {
+            _dashboardRouters = _routers?.Acquire();
+        }
+        else if (!dashboardWantsRouters && _dashboardRouters is not null)
+        {
+            _dashboardRouters.Dispose();
+            _dashboardRouters = null;
+        }
 
         var (systemDownload, systemUpload) = SystemTheme.DefaultInk();
         var (download, upload) = settings.ResolveRateColors(systemDownload, systemUpload);

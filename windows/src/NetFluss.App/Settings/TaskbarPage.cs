@@ -50,12 +50,15 @@ internal static class TaskbarPage
 
         page.Children.Add(Kit.Card(
             Kit.L("Taskbar and widget layout"),
-            Kit.L("One line has room for full units; stacked matches the notification area."),
+            Kit.L("One line has room for full units; stacked matches the notification area.") + " " +
+            Kit.L("Dashboard uses router-wide traffic when Fritz!Box, UniFi, OpenWRT, or OPNsense bandwidth is enabled and available."),
             Kit.Combo(settings, nameof(AppSettings.ReadoutStyle),
             [
                 new Choice(ReadoutStyle.Unified, Kit.L("One line")),
                 new Choice(ReadoutStyle.Stacked, Kit.L("Two lines")),
                 new Choice(ReadoutStyle.Total, Kit.L("Combined total")),
+                new Choice(ReadoutStyle.Dashboard, Kit.L("Dashboard")),
+                new Choice(ReadoutStyle.DashboardBasic, Kit.L("Dashboard Basic")),
             ])));
 
         page.Children.Add(Kit.Card(

@@ -27,6 +27,25 @@ internal sealed class MeterReadout : UserControl
 
     private ReadoutStyle _style = ReadoutStyle.Unified;
 
+    // The Dashboard styles' own parts: a dark capsule, the ring, and compact numbers.
+    private readonly Border _capsule = new()
+    {
+        CornerRadius = new CornerRadius(10),
+        BorderThickness = new Thickness(1),
+        Padding = new Thickness(8, 1, 8, 1),
+        VerticalAlignment = VerticalAlignment.Center,
+        Background = Frozen(Color.FromArgb(0xC7, 0, 0, 0)),
+        BorderBrush = Frozen(Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF)),
+    };
+
+    private readonly RingGauge _ring = new();
+    private readonly TextBlock _dashTotal = new();
+    private readonly TextBlock _dashDown = new();
+    private readonly TextBlock _dashUp = new();
+    private readonly DashboardRing _ringProgress = new();
+    private Color _downloadColor = Colors.DodgerBlue;
+    private Color _uploadColor = Colors.SeaGreen;
+
     /// <summary>The VPN mark and exit country, right of the rates — the 2.6 menu bar accessories.</summary>
     private readonly StackPanel _accessories = new()
     {
@@ -208,11 +227,27 @@ internal sealed class MeterReadout : UserControl
             block.FontSize = Math.Max(8, effective - 1);
         }
 
+        // The macOS dashboard: numbers a point smaller, the total a point larger and semibold.
+        _downloadColor = Color.FromRgb(download.R, download.G, download.B);
+        _uploadColor = Color.FromRgb(upload.R, upload.G, upload.B);
+        _dashDown.FontSize = _dashUp.FontSize = Math.Max(8, fontSize - 1);
+        _dashTotal.FontSize = Math.Min(18, fontSize + 1);
+        _ring.Width = _ring.Height = Math.Max(12, Math.Round((fontSize - 1) * 1.35) + 1);
+        if (_style is ReadoutStyle.Dashboard or ReadoutStyle.DashboardBasic)
+        {
+            BuildLayout();
+        }
+
         _ = secondaryBrush;
     }
 
-    internal void Update(RateTotals totals, bool useBits)
+    internal void Update(RateTotals totals, bool useBits, DashboardMetrics? dashboard = null)
     {
+        if (_style is ReadoutStyle.Dashboard or ReadoutStyle.DashboardBasic)
+        {
+            UpdateDashboard(dashboard ?? DashboardMetrics.Local(totals), useBits);
+            return;
+        }
         if (_style == ReadoutStyle.Total)
         {
             _downloadText.Text = RateFormatter.FormatRate(totals.RxRateBps + totals.TxRateBps, useBits);
@@ -231,6 +266,10 @@ internal sealed class MeterReadout : UserControl
 
         switch (_style)
         {
+            case ReadoutStyle.Dashboard or ReadoutStyle.DashboardBasic:
+                _root.Children.Add(BuildDashboard());
+                break;
+
             case ReadoutStyle.Total:
                 _root.Children.Add(Row(_downloadArrow, _downloadText, showArrow: false));
                 break;
@@ -262,6 +301,87 @@ internal sealed class MeterReadout : UserControl
                 _root.Children.Add(unified);
                 break;
         }
+    }
+
+    /// <summary>"◔  Σ 12.4  |  ↓ 11.0  |  ↑ 1.4" in the capsule; Basic drops the ring and the total.</summary>
+    private FrameworkElement BuildDashboard()
+    {
+        var white = Frozen(Color.FromArgb(0xF2, 0xFF, 0xFF, 0xFF));
+        var dim = Frozen(Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF));
+        var size = Math.Max(8, _fontSize - 1);
+
+        TextBlock Part(string text, Brush brush, double fontSize)
+        {
+            var block = new TextBlock { Text = text, Foreground = brush, FontSize = fontSize, VerticalAlignment = VerticalAlignment.Center };
+            TextOptions.SetTextFormattingMode(block, TextFormattingMode.Display);
+            return block;
+        }
+
+        foreach (var block in new[] { _dashTotal, _dashDown, _dashUp })
+        {
+            (block.Parent as Panel)?.Children.Remove(block);
+            block.VerticalAlignment = VerticalAlignment.Center;
+            block.FontFamily = _downloadText.FontFamily;
+            TextOptions.SetTextFormattingMode(block, TextFormattingMode.Display);
+        }
+
+        (_ring.Parent as Panel)?.Children.Remove(_ring);
+        _dashTotal.Foreground = white;
+        _dashTotal.FontWeight = FontWeights.SemiBold;
+
+        var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        if (_style == ReadoutStyle.Dashboard)
+        {
+            _ring.Margin = new Thickness(0, 0, 6, 0);
+            _ring.VerticalAlignment = VerticalAlignment.Center;
+            row.Children.Add(_ring);
+            row.Children.Add(Part("Σ ", white, Math.Min(18, _fontSize + 1)));
+            row.Children.Add(_dashTotal);
+            row.Children.Add(Part("  |  ", dim, size));
+        }
+
+        row.Children.Add(Part("↓ ", Frozen(_downloadColor), size));
+        row.Children.Add(_dashDown);
+        row.Children.Add(Part("  |  ", dim, size));
+        row.Children.Add(Part("↑ ", Frozen(_uploadColor), size));
+        row.Children.Add(_dashUp);
+
+        _capsule.Child = row;
+        _capsule.HorizontalAlignment = HorizontalAlignment.Center;
+        return _capsule;
+    }
+
+    private void UpdateDashboard(DashboardMetrics metrics, bool useBits)
+    {
+        var (total, down, up) = metrics.CompactTexts(useBits);
+        _dashTotal.Text = total;
+        _dashDown.Text = down;
+        _dashUp.Text = up;
+        _dashDown.Foreground = Frozen(_downloadColor);
+        _dashUp.Foreground = Frozen(_uploadColor);
+        _capsule.ToolTip = metrics.SourceKey.StartsWith("router:", StringComparison.Ordinal)
+            ? Localization.L("Router traffic in {0}", metrics.Unit(useBits))
+            : metrics.Unit(useBits);
+
+        if (_style == ReadoutStyle.Dashboard)
+        {
+            // The ring blends from the download ink to the upload ink by upload's share.
+            var share = metrics.Total > 0 ? metrics.Tx / metrics.Total : 0.5;
+            _ring.Set(_ringProgress.Progress(metrics, DateTimeOffset.UtcNow), Blend(_downloadColor, _uploadColor, share));
+        }
+    }
+
+    private static Color Blend(Color from, Color to, double amount)
+    {
+        byte Mix(byte a, byte b) => (byte)Math.Round(a + ((b - a) * Math.Clamp(amount, 0, 1)));
+        return Color.FromRgb(Mix(from.R, to.R), Mix(from.G, to.G), Mix(from.B, to.B));
+    }
+
+    private static SolidColorBrush Frozen(Color color)
+    {
+        var brush = new SolidColorBrush(color);
+        brush.Freeze();
+        return brush;
     }
 
     private static StackPanel Row(TextBlock arrow, TextBlock value, bool showArrow)
@@ -323,5 +443,63 @@ internal sealed record MeterAccessories(string? VpnKind, bool VpnActive, ThemeCo
         var active = AccentPalette.Resolve(settings.VpnIndicatorColor, settings.VpnIndicatorColorHex, green) ?? green;
 
         return new MeterAccessories(showVpn ? settings.VpnIndicator : null, vpnActive, active, idle, showCountry ? country : null);
+    }
+}
+
+/// <summary>The Dashboard ring: a faint full circle and an arc clockwise from twelve o'clock.</summary>
+internal sealed class RingGauge : FrameworkElement
+{
+    private double _progress;
+    private Color _color = Colors.DodgerBlue;
+
+    internal void Set(double progress, Color color)
+    {
+        if (Math.Abs(progress - _progress) < 0.005 && color == _color)
+        {
+            return;
+        }
+
+        _progress = progress;
+        _color = color;
+        InvalidateVisual();
+    }
+
+    protected override void OnRender(DrawingContext dc)
+    {
+        var size = Math.Min(ActualWidth, ActualHeight);
+        if (size <= 4)
+        {
+            return;
+        }
+
+        const double Stroke = 2;
+        var radius = (size / 2) - (Stroke / 2);
+        var center = new Point(ActualWidth / 2, ActualHeight / 2);
+
+        var track = new Pen(new SolidColorBrush(Color.FromArgb(0x40, 0xFF, 0xFF, 0xFF)), Stroke);
+        track.Freeze();
+        dc.DrawEllipse(null, track, center, radius, radius);
+
+        if (_progress <= 0)
+        {
+            return;
+        }
+
+        var pen = new Pen(new SolidColorBrush(_color), Stroke) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+        pen.Freeze();
+        if (_progress >= 0.999)
+        {
+            dc.DrawEllipse(null, pen, center, radius, radius);
+            return;
+        }
+
+        var angle = _progress * 2 * Math.PI;
+        var start = new Point(center.X, center.Y - radius);
+        var end = new Point(center.X + (radius * Math.Sin(angle)), center.Y - (radius * Math.Cos(angle)));
+        var figure = new PathFigure { StartPoint = start, IsClosed = false };
+        figure.Segments.Add(new ArcSegment(end, new Size(radius, radius), 0, _progress > 0.5, SweepDirection.Clockwise, true));
+        var geometry = new PathGeometry([figure]);
+        geometry.Freeze();
+        dc.DrawGeometry(null, pen, geometry);
     }
 }

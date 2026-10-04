@@ -344,11 +344,18 @@ internal sealed class RouterService : IDisposable
     /// The router reading the Dashboard meter style uses instead of this PC's own traffic,
     /// in the macOS order of preference: Fritz!Box, UniFi, then OpenWRT.
     /// </summary>
-    internal RouterBandwidth? DashboardSource()
-        => new[] { RouterKind.FritzBox, RouterKind.UniFi, RouterKind.OpenWrt }
-            .Where(IsEnabled)
-            .Select(k => State(k).Bandwidth)
-            .FirstOrDefault(b => b is not null);
+    internal (RouterBandwidth Bandwidth, string Key)? DashboardSource()
+    {
+        foreach (var kind in new[] { RouterKind.FritzBox, RouterKind.UniFi, RouterKind.OpenWrt })
+        {
+            if (IsEnabled(kind) && State(kind).Bandwidth is { } bandwidth)
+            {
+                return (bandwidth, kind.CredentialService());
+            }
+        }
+
+        return null;
+    }
 
     public void Dispose()
     {
