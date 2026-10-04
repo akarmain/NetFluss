@@ -9,7 +9,7 @@ using Xunit;
 namespace NetFluss.Core.Tests;
 
 /// <summary>
-/// Pins both halves of the case-collision contract between <c>strings2resx.py</c> and
+/// Pins both halves of the case-collision contract between <c>windows/tools/StringsToResx</c> and
 /// <see cref="Localization"/>.
 ///
 /// <para>macOS .strings keys are case-sensitive; .NET resource names are not. NetFluss has
@@ -114,7 +114,7 @@ public class LocalizationCaseCollisionTests : IDisposable
             Assert.False(
                 seen.TryGetValue(folded, out var existing),
                 $"{culture}: '{name}' and '{existing}' are the same resource name to .NET; " +
-                "regenerate with windows/tools/strings2resx.py");
+                "regenerate with dotnet run --project windows/tools/StringsToResx");
 
             seen[folded] = name;
         }

@@ -18,7 +18,7 @@ public enum AppLanguage
 /// <summary>
 /// String lookup. Keys are the English source strings, exactly as on macOS — the .resx
 /// files are generated from the same Localizable.strings catalogues by
-/// <c>windows/tools/strings2resx.py</c>, so a key that works on the Mac works here.
+/// <c>windows/tools/StringsToResx</c>, so a key that works on the Mac works here.
 ///
 /// <para>A missing key returns the key itself, which is what <c>NSLocalizedString</c> does
 /// and what keeps a half-translated build readable rather than blank.</para>
@@ -37,14 +37,14 @@ public static class Localization
     /// sentence-case control label, and both halves must stay reachable in German and
     /// Chinese.
     ///
-    /// <para><c>strings2resx.py</c> therefore keeps the first of each colliding group
+    /// <para>The generator therefore keeps the first of each colliding group
     /// under its exact name and appends "~2", "~3", … to the rest. Probing those suffixes
     /// on a miss reverses it, which keeps the promise above: call sites pass the macOS key
     /// verbatim and never learn that any of this happened.</para>
     /// </summary>
     private const char CollisionSuffix = '~';
 
-    /// <summary>Must stay equal to <c>COLLISION_LIMIT</c> in <c>strings2resx.py</c>.</summary>
+    /// <summary>Must stay equal to <c>CollisionLimit</c> in <c>windows/tools/StringsToResx</c>.</summary>
     private const int CollisionLimit = 9;
 
     public static AppLanguage Current { get; private set; } = AppLanguage.System;

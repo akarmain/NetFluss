@@ -268,18 +268,24 @@ Two pieces of state are deliberately **not** in that file:
 
 ## Localization
 
-The macOS `Localizable.strings` catalogues are the **single source of truth for both
-platforms**. Do not hand-edit the `.resx` files:
+The macOS `Localizable.strings` catalogues are the **single source of truth for every
+string the two apps share**. Strings that only exist on Windows ("Start with Windows", the
+taskbar placements) live in `windows/Localization/<lang>.lproj/Windows.strings`, in the same
+format and the same four languages. Do not hand-edit the `.resx` files:
 
 ```
-python3 windows/tools/strings2resx.py
+dotnet run --project windows/tools/StringsToResx
 ```
 
 It rewrites Cocoa `%@` specifiers to .NET `{0}` items and writes
 `src/NetFluss.Core/Resources/platform-review.md` listing every string that mentions a
 platform-specific concept — "Menu bar icon style" needs a Windows word, and the report is
-where those decisions get tracked. CI runs the script with `--check` and fails if the
-generated files are stale.
+where those decisions get tracked. A key in `Windows.strings` that also exists in the Mac
+catalogue **overrides** it, which is how such a string gets its Windows wording without the
+Mac app changing. CI runs the tool with `--check` and fails if the generated files are stale.
+
+The tool is a C# port of the original `strings2resx.py`, written so regenerating needs only
+the .NET SDK. It was verified by regenerating every file and diffing nothing.
 
 **Case-folded resource names.** .NET treats two resource names differing only in
 capitalization as the same name; macOS `.strings` keys are case-sensitive, and NetFluss has
@@ -291,7 +297,7 @@ text leaking into German and Chinese.
 
 The generator resolves it: the first key of each colliding group keeps its exact name and the
 rest are stored as `key~2`, `key~3`, …, which `Localization.L` probes for when an exact lookup
-misses. Call sites still pass the macOS key verbatim. `COLLISION_LIMIT` in the script and
+misses. Call sites still pass the macOS key verbatim. `CollisionLimit` in the generator and
 `CollisionLimit` in `Localization.cs` must move together, and `LocalizationCaseCollisionTests`
 fails if they don't. `MSB3568` is promoted to an error in `Directory.Build.props` so a future
 collision breaks the build instead of warning — note it only fires on a full resgen, so

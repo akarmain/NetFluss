@@ -32,7 +32,7 @@ jobs:
         # The macOS .strings files are the single source of truth for both platforms.
         # If someone edits a translation without regenerating, this fails here rather
         # than shipping a Windows build with stale German.
-        run: python3 windows/tools/strings2resx.py --check
+        run: dotnet run --project windows/tools/StringsToResx --configuration Release -- --check
 
       - name: Restore
         run: dotnet restore windows/NetFluss.sln

@@ -71,7 +71,7 @@
 # GitHub presentation
 # ---------------------------------------------------------------------------
 
-# Generated from the macOS Localizable.strings by windows/tools/strings2resx.py.
+# Generated from the macOS Localizable.strings by windows/tools/StringsToResx.
 # Collapsing them keeps a translation change from burying the real diff, and keeps
 # 200 KB of generated XML out of the repository's language statistics.
 windows/src/NetFluss.Core/Resources/*.resx          linguist-generated=true

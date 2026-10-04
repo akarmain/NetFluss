@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Generates the NetFluss.Core .resx files from the macOS Localizable.strings catalogues
+    plus the Windows-only catalogue under windows/Localization. A C# port of the original
+    strings2resx.py, so regenerating needs nothing beyond the .NET SDK the rest of the
+    port already requires.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>NetFluss.Tools.StringsToResx</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>
