@@ -58,6 +58,7 @@ internal sealed class TrafficService : IDisposable
     private readonly HelperClient _helper;
     private KernelNetworkTrace? _local;
     private int _demand;
+    private int _flowDemand;
     private bool _helperStreaming;
     private bool _localUnavailable;
 
@@ -110,17 +111,33 @@ internal sealed class TrafficService : IDisposable
         }
     }
 
-    /// <summary>Takes a share of the demand; sampling runs while any share is held.</summary>
-    internal IDisposable Acquire()
+    /// <summary>
+    /// Takes a share of the demand; sampling runs while any share is held. A share with
+    /// <paramref name="flows"/> also asks for per-flow detail, which only the Network Slice
+    /// needs and which costs the helper a larger message every second.
+    /// </summary>
+    internal IDisposable Acquire(bool flows = false)
     {
         _demand++;
+        if (flows)
+        {
+            _flowDemand++;
+            _helper.SetWantsFlows(true);
+        }
+
         Reevaluate();
-        return new Lease(this);
+        return new Lease(this, flows);
     }
 
-    private void Release()
+    private void Release(bool flows)
     {
         _demand = Math.Max(0, _demand - 1);
+        if (flows)
+        {
+            _flowDemand = Math.Max(0, _flowDemand - 1);
+            _helper.SetWantsFlows(_flowDemand > 0);
+        }
+
         Reevaluate();
     }
 
@@ -249,7 +266,7 @@ internal sealed class TrafficService : IDisposable
         _helper.TrafficReceived -= OnHelperTraffic;
     }
 
-    private sealed class Lease(TrafficService owner) : IDisposable
+    private sealed class Lease(TrafficService owner, bool flows) : IDisposable
     {
         private bool _released;
 
@@ -261,7 +278,7 @@ internal sealed class TrafficService : IDisposable
             }
 
             _released = true;
-            owner.Release();
+            owner.Release(flows);
         }
     }
 }

@@ -35,6 +35,7 @@ public partial class NetFlussApplication : Application
     private PrivilegedActions? _privileged;
     private StatisticsService? _statistics;
     private StatisticsWindow? _statisticsWindow;
+    private NetworkSliceWindow? _sliceWindow;
     private AboutWindow? _aboutWindow;
     private DiagnosticsWindow? _diagnosticsWindow;
     private UpdateNotifier? _updates;
@@ -277,6 +278,20 @@ public partial class NetFlussApplication : Application
             }
 
             window = speedTest;
+        }
+        else if (target.StartsWith("slice", StringComparison.Ordinal) && _store is not null && _monitor is not null && _traffic is not null && _helper is not null)
+        {
+            // "slice:demo[:host|service|app]" fills the window with generated traffic and,
+            // optionally, opens the drill-down for that column's top row.
+            var parts = target.Split(':');
+            var slice = CreateSliceWindow(parts.Contains("demo"));
+            var detail = parts.Contains("host") ? SliceKind.Host : parts.Contains("service") ? SliceKind.Service : parts.Contains("app") ? SliceKind.App : (SliceKind?)null;
+            if (detail is { } kind)
+            {
+                slice.Loaded += (_, _) => slice.PreviewDetail(kind);
+            }
+
+            window = slice;
         }
         else if (target.StartsWith("statistics", StringComparison.Ordinal) && _store is not null && _statistics is not null)
         {
@@ -594,7 +609,18 @@ public partial class NetFlussApplication : Application
 
     private void ShowNetworkSlice()
     {
-        // Lands with the Network Slice window.
+        if (_store is null || _monitor is null || _traffic is null || _helper is null)
+        {
+            return;
+        }
+
+        Open(() => _sliceWindow, w => _sliceWindow = w, () => CreateSliceWindow(StatisticsService.DemoAvailable && Environment.GetEnvironmentVariable("NETFLUSS_SAMPLE_SLICE") == "1"));
+    }
+
+    private NetworkSliceWindow CreateSliceWindow(bool demo)
+    {
+        var (surface, download, upload) = Palette();
+        return new NetworkSliceWindow(_monitor!, _traffic!, _helper!, _store!, surface, download, upload, demo);
     }
 
     private void ShowAbout()

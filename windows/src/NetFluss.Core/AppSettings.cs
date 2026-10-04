@@ -127,6 +127,9 @@ public sealed class AppSettings : INotifyPropertyChanged
     private bool _automaticUpdateChecks = true;
     private string _speedTestProvider = "mlab";
     private bool _speedTestMLabConsent;
+    private bool _networkSliceHostsLive;
+    private bool _networkSliceServicesLive;
+    private bool _networkSliceAppsLive;
     private string _lastNotifiedVersion = string.Empty;
     private DateTimeOffset? _lastUpdateCheck;
     private bool _popoverPinned;
@@ -788,6 +791,27 @@ public sealed class AppSettings : INotifyPropertyChanged
     {
         get => _speedTestMLabConsent;
         set => Set(ref _speedTestMLabConsent, value);
+    }
+
+    // ================================== Network Slice ==================================
+
+    /// <summary>The hosts column shows the last few seconds rather than the session's totals.</summary>
+    public bool NetworkSliceHostsLive
+    {
+        get => _networkSliceHostsLive;
+        set => Set(ref _networkSliceHostsLive, value);
+    }
+
+    public bool NetworkSliceServicesLive
+    {
+        get => _networkSliceServicesLive;
+        set => Set(ref _networkSliceServicesLive, value);
+    }
+
+    public bool NetworkSliceAppsLive
+    {
+        get => _networkSliceAppsLive;
+        set => Set(ref _networkSliceAppsLive, value);
     }
 
     // ===================================== Pinning =====================================

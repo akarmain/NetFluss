@@ -27,6 +27,14 @@ internal static class Glyph
     internal const string Lock = "";
     internal const string Copy = "";
     internal const string Edit = "";
+    internal const string Home = "";
+    internal const string Tag = "";
+    internal const string Apps = "";
+    internal const string Bolt = "";
+    internal const string Back = "";
+    internal const string Pulse = "";
+    internal const string Play = "";
+    internal const string Pause = "";
     internal const string Check = "";
     internal const string CheckCircle = "";
     internal const string Circle = "";
