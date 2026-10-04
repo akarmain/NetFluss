@@ -31,13 +31,13 @@ public static class WifiProfile
     {
         if (string.IsNullOrEmpty(ssid) || Encoding.UTF8.GetByteCount(ssid) > 32)
         {
-            return new WifiProfileResult(null, "That network name cannot be used.");
+            return new WifiProfileResult(null, Localization.L("That network name cannot be used."));
         }
 
         var (authentication, encryption, needsKey) = Map(authAlgorithm, cipherAlgorithm);
         if (authentication is null)
         {
-            return new WifiProfileResult(null, "Enterprise networks need to be joined from Windows Settings.");
+            return new WifiProfileResult(null, Localization.L("Enterprise networks need to be joined from Windows Settings."));
         }
 
         string? keyType = null;
@@ -45,7 +45,7 @@ public static class WifiProfile
         {
             if (string.IsNullOrEmpty(password))
             {
-                return new WifiProfileResult(null, "Enter the network password.");
+                return new WifiProfileResult(null, Localization.L("Enter the network password."));
             }
 
             if (encryption == "WEP")
@@ -54,7 +54,7 @@ public static class WifiProfile
                 keyType = "networkKey";
                 if (password.Length is not (5 or 13 or 10 or 26))
                 {
-                    return new WifiProfileResult(null, "A WEP key is 5 or 13 characters, or 10 or 26 hex digits.");
+                    return new WifiProfileResult(null, Localization.L("A WEP key is 5 or 13 characters, or 10 or 26 hex digits."));
                 }
             }
             else if (password.Length == 64 && password.All(Uri.IsHexDigit))
@@ -66,7 +66,7 @@ public static class WifiProfile
                 keyType = "passPhrase";
                 if (password.Length is < 8 or > 63)
                 {
-                    return new WifiProfileResult(null, "Wi-Fi passwords are 8 to 63 characters long.");
+                    return new WifiProfileResult(null, Localization.L("Wi-Fi passwords are 8 to 63 characters long."));
                 }
             }
         }

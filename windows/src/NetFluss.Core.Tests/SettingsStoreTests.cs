@@ -144,8 +144,9 @@ public class SettingsStoreTests : IDisposable
     }
 
     [Theory]
-    [InlineData(0, 1)]
-    [InlineData(0.2, 1)]
+    [InlineData(0, 0.5)]
+    [InlineData(0.2, 0.5)]
+    [InlineData(0.5, 0.5)]
     [InlineData(3, 3)]
     [InlineData(99, 5)]
     public void RefreshInterval_IsClampedToTheOfferedRange(double set, double expected)

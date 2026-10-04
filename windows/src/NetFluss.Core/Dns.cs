@@ -87,7 +87,7 @@ public static class DnsValidator
     {
         if (servers.Count > MaximumServers)
         {
-            return DnsValidation.Fail($"At most {MaximumServers} servers.");
+            return DnsValidation.Fail(Localization.L("At most {0} servers.", MaximumServers));
         }
 
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -96,29 +96,29 @@ public static class DnsValidator
         {
             if (string.IsNullOrWhiteSpace(server))
             {
-                return DnsValidation.Fail("Blank server address.");
+                return DnsValidation.Fail(Localization.L("Blank server address."));
             }
 
             if (!IPAddress.TryParse(server, out var address))
             {
-                return DnsValidation.Fail($"'{server}' is not an IP address.");
+                return DnsValidation.Fail(Localization.L("'{0}' is not an IP address.", server));
             }
 
             // Round-trip: TryParse accepts some forms whose canonical text differs from the
             // input, and only the canonical form is ever passed onward.
             if (!string.Equals(address.ToString(), server, StringComparison.OrdinalIgnoreCase))
             {
-                return DnsValidation.Fail($"Write '{server}' as '{address}'.");
+                return DnsValidation.Fail(Localization.L("Write '{0}' as '{1}'.", server, address));
             }
 
             if (address.AddressFamily is not (AddressFamily.InterNetwork or AddressFamily.InterNetworkV6))
             {
-                return DnsValidation.Fail($"'{server}' is not IPv4 or IPv6.");
+                return DnsValidation.Fail(Localization.L("'{0}' is not IPv4 or IPv6.", server));
             }
 
             if (!seen.Add(server))
             {
-                return DnsValidation.Fail($"'{server}' is listed twice.");
+                return DnsValidation.Fail(Localization.L("'{0}' is listed twice.", server));
             }
         }
 

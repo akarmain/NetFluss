@@ -137,13 +137,13 @@ public sealed class AppSettings : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
-    /// Tick interval. The macOS app offers 1–5 s and so does this; anything faster buys no
+    /// Tick interval. The macOS app offers 0.5–5 s and so does this; anything faster buys no
     /// visible precision and costs battery on a machine that is otherwise idle.
     /// </summary>
     public double RefreshIntervalSeconds
     {
         get => _refreshIntervalSeconds;
-        set => Set(ref _refreshIntervalSeconds, Math.Clamp(value, 1, 5));
+        set => Set(ref _refreshIntervalSeconds, Math.Clamp(value, 0.5, 5));
     }
 
     /// <summary>Bits per second rather than bytes. Off by default, as on macOS.</summary>
@@ -332,12 +332,12 @@ public sealed class AppSettings : INotifyPropertyChanged
         var trimmed = name?.Trim();
         if (string.IsNullOrEmpty(trimmed))
         {
-            return DnsValidation.Fail("Give the preset a name.");
+            return DnsValidation.Fail(Localization.L("Give the preset a name."));
         }
 
         if (servers.Count == 0)
         {
-            return DnsValidation.Fail("Give the preset at least one server.");
+            return DnsValidation.Fail(Localization.L("Give the preset at least one server."));
         }
 
         var validation = DnsValidator.Validate(servers);
@@ -348,7 +348,7 @@ public sealed class AppSettings : INotifyPropertyChanged
 
         if (AllDnsPresets().Any(preset => string.Equals(preset.Name, trimmed, StringComparison.OrdinalIgnoreCase)))
         {
-            return DnsValidation.Fail($"'{trimmed}' already exists.");
+            return DnsValidation.Fail(Localization.L("'{0}' already exists.", trimmed));
         }
 
         CustomDnsPresets =

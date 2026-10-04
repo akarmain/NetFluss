@@ -78,6 +78,38 @@ internal sealed class TrafficService : IDisposable
 
     internal TrafficAvailability Availability { get; private set; } = TrafficAvailability.Idle;
 
+    private readonly Dictionary<string, DateTime> _recentNames = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Apps that moved data in the last minute, for the "hide an app" picker — the Mac's
+    /// "Apps that used bandwidth in the last 60 seconds".
+    /// </summary>
+    internal IReadOnlyList<string> RecentAppNames()
+    {
+        var cutoff = DateTime.UtcNow.AddSeconds(-60);
+        return [.. _recentNames.Where(p => p.Value >= cutoff).Select(p => p.Key).Order(StringComparer.CurrentCultureIgnoreCase)];
+    }
+
+    private void Remember(TrafficSample sample)
+    {
+        var now = DateTime.UtcNow;
+        foreach (var process in sample.Processes)
+        {
+            if (process.Received + process.Sent > 0)
+            {
+                _recentNames[process.Name] = now;
+            }
+        }
+
+        if (_recentNames.Count > 512)
+        {
+            foreach (var stale in _recentNames.Where(p => p.Value < now.AddMinutes(-10)).Select(p => p.Key).ToList())
+            {
+                _recentNames.Remove(stale);
+            }
+        }
+    }
+
     /// <summary>Takes a share of the demand; sampling runs while any share is held.</summary>
     internal IDisposable Acquire()
     {
@@ -186,13 +218,16 @@ internal sealed class TrafficService : IDisposable
             names.TryAdd(flow.ProcessId, _names.Resolve(flow.ProcessId));
         }
 
-        Sampled?.Invoke(this, new TrafficSample(snapshot.Elapsed, processes, snapshot.ByFlow, names));
+        var sample = new TrafficSample(snapshot.Elapsed, processes, snapshot.ByFlow, names);
+        Remember(sample);
+        Sampled?.Invoke(this, sample);
     }
 
     private void OnHelperTraffic(object? sender, TrafficSample sample)
     {
         if (_helperStreaming)
         {
+            Remember(sample);
             Sampled?.Invoke(this, sample);
         }
     }

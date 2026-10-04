@@ -250,7 +250,7 @@ public partial class NetFlussApplication : Application
         Window? window = null;
         if (target.StartsWith("preferences", StringComparison.Ordinal) && _store is not null && _monitor is not null)
         {
-            var preferences = new PreferencesWindow(_store, _monitor);
+            var preferences = new PreferencesWindow(PreferencesContext());
             var colon = target.IndexOf(':');
             if (colon > 0)
             {
@@ -610,6 +610,17 @@ public partial class NetFlussApplication : Application
         });
     }
 
+    private PreferencesContext PreferencesContext() => new()
+    {
+        Store = _store!,
+        Monitor = _monitor!,
+        Helper = _helper!,
+        Privileged = _privileged!,
+        Statistics = _statistics!,
+        Traffic = _traffic!,
+        Commands = _commands!,
+    };
+
     private void ShowPreferences(string? tab = null)
     {
         if (_store is null)
@@ -617,7 +628,7 @@ public partial class NetFlussApplication : Application
             return;
         }
 
-        Open(() => _preferences, w => _preferences = w, () => new PreferencesWindow(_store, _monitor!));
+        Open(() => _preferences, w => _preferences = w, () => new PreferencesWindow(PreferencesContext()));
         if (tab is not null)
         {
             _preferences?.SelectTab(tab);
