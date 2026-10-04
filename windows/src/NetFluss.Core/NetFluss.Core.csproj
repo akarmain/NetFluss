@@ -10,4 +10,8 @@
     <RootNamespace>NetFluss.Core</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="NetFluss.Core.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -50,6 +50,7 @@ public partial class PopoverWindow : Window
             new DnsSection(context),
             new WifiSection(context),
             new TopAppsSection(context),
+            new UsageSection(context),
         ];
 
         Width = context.Settings.PopoverWidth;
@@ -116,40 +117,8 @@ public partial class PopoverWindow : Window
     /// </summary>
     public void ApplyTheme(SurfacePalette surface, ThemeColor download, ThemeColor upload)
     {
-        void Set(string key, Color color) => Resources[key] = new SolidColorBrush(color);
-
-        static Color Rgb(ThemeColor c) => Color.FromRgb(c.R, c.G, c.B);
-        static Color Alpha(byte a, ThemeColor c) => Color.FromArgb(a, c.R, c.G, c.B);
-
-        var ink = surface.IsDark ? ThemeColor.FromHex("FFFFFF") : ThemeColor.FromHex("000000");
-        var accent = surface.IsDark ? ThemeColor.FromHex("4CC2FF") : ThemeColor.FromHex("005FB8");
-
-        Set("PopoverBackgroundBrush", Rgb(surface.Background));
-        Set("PopoverCardBrush", Rgb(surface.Card));
-        Set("PopoverTextBrush", Rgb(surface.TextPrimary));
-        Set("PopoverSecondaryBrush", Rgb(surface.TextSecondary));
-        Set("PopoverTertiaryBrush", Alpha(0xA0, surface.TextSecondary));
-        Set("PopoverDividerBrush", Alpha(surface.IsDark ? (byte)0x26 : (byte)0x1A, ink));
-        Set("PopoverBorderBrush", Alpha(surface.IsDark ? (byte)0x33 : (byte)0x22, ink));
-        Set("PopoverHoverBrush", Alpha(surface.IsDark ? (byte)0x14 : (byte)0x0D, ink));
-        Set("PopoverPressedBrush", Alpha(surface.IsDark ? (byte)0x0A : (byte)0x08, ink));
-        Set("PopoverTrackBrush", Alpha(surface.IsDark ? (byte)0x1F : (byte)0x14, ink));
-        Set("PopoverInputBrush", Alpha(surface.IsDark ? (byte)0x1A : (byte)0x0F, ink));
-        Set("PopoverAccentBrush", Rgb(accent));
-        Set("PopoverAccentSoftBrush", Alpha(0x24, accent));
-        Set("PopoverDownloadBrush", Color.FromRgb(download.R, download.G, download.B));
-        Set("PopoverUploadBrush", Color.FromRgb(upload.R, upload.G, upload.B));
-        Set("PopoverGreenBrush", surface.IsDark ? Color.FromRgb(0x6C, 0xCB, 0x5F) : Color.FromRgb(0x0F, 0x7B, 0x0F));
-        Set("PopoverOrangeBrush", surface.IsDark ? Color.FromRgb(0xFC, 0xB7, 0x5D) : Color.FromRgb(0x9D, 0x5D, 0x00));
-
-        // The DWM frame follows the window's own light/dark flag, not the brushes.
-        var handle = new WindowInteropHelper(this).Handle;
-        if (handle != nint.Zero)
-        {
-            var dark = surface.IsDark ? 1 : 0;
-            _ = DwmSetWindowAttribute(handle, DwmwaUseImmersiveDarkMode, ref dark, sizeof(int));
-        }
-
+        ThemeBrushes.Apply(Resources, surface, download, upload);
+        ThemeBrushes.ApplyFrame(this, surface.IsDark);
         _darkFrame = surface.IsDark;
     }
 

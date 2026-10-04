@@ -130,6 +130,37 @@ public static class RateFormatter
         return string.Concat(adjusted.ToString(format, CultureInfo.InvariantCulture), units[unitIndex]);
     }
 
+    /// <summary>
+    /// A transferred amount, "345 MB" or "1.24 GB" — the macOS <c>ByteCountFormatter</c> in
+    /// its adaptive decimal style: no fraction for KB, one for MB, two above.
+    ///
+    /// <para>Locale-aware, unlike the rates. A total in a sentence or a table should read the
+    /// way the reader writes numbers; the rates stay invariant because they sit side by side
+    /// with the Mac's in screenshots and bug reports.</para>
+    /// </summary>
+    public static string FormatBytes(ulong bytes, IFormatProvider? culture = null)
+    {
+        culture ??= CultureInfo.CurrentCulture;
+        string[] units = ["KB", "MB", "GB", "TB", "PB"];
+
+        var value = bytes / 1000.0;
+        var index = 0;
+        while (value >= 1000 && index < units.Length - 1)
+        {
+            value /= 1000;
+            index++;
+        }
+
+        var format = index switch
+        {
+            0 => "0",
+            1 => "0.#",
+            _ => "0.##",
+        };
+
+        return string.Concat(value.ToString(format, culture), " ", units[index]);
+    }
+
     private static string Format(double value, string[] units, int decimals)
     {
         var (adjusted, unit) = Scale(value, units);

@@ -49,6 +49,9 @@ public static class Localization
 
     public static AppLanguage Current { get; private set; } = AppLanguage.System;
 
+    /// <summary>The culture text should be formatted in: the chosen language, or Windows' own.</summary>
+    public static CultureInfo Culture => _override ?? CultureInfo.CurrentCulture;
+
     public static void Use(AppLanguage language)
     {
         Current = language;

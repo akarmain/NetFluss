@@ -22,6 +22,8 @@ internal sealed class PopoverContext
 
     internal required PrivilegedActions Privileged { get; init; }
 
+    internal required StatisticsService Statistics { get; init; }
+
     internal required AppCommands Commands { get; init; }
 
     internal AppSettings Settings => Store.Settings;

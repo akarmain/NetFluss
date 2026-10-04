@@ -2,7 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <!--
+      The Windows 10 2004 SDK projection, for the per-app data-usage records behind app
+      statistics (Windows.Networking.Connectivity). 2004 is also the floor for
+      SetInterfaceDnsSettings, so it costs no supported system.
+    -->
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <UseWPF>true</UseWPF>
     <RootNamespace>NetFluss.App</RootNamespace>
     <AssemblyName>NetFluss</AssemblyName>

@@ -33,6 +33,8 @@ public partial class NetFlussApplication : Application
     private WifiService? _wifi;
     private DnsSwitcher? _dns;
     private PrivilegedActions? _privileged;
+    private StatisticsService? _statistics;
+    private StatisticsWindow? _statisticsWindow;
     private AppCommands? _commands;
     private TrayIconHost? _tray;
     private PopoverWindow? _popover;
@@ -79,6 +81,7 @@ public partial class NetFlussApplication : Application
         _wifi = new WifiService(_store);
         _privileged = new PrivilegedActions(_helper);
         _dns = new DnsSwitcher(_store, _monitor, _privileged);
+        _statistics = new StatisticsService(_store, _monitor);
 
         _commands = new AppCommands
         {
@@ -206,6 +209,25 @@ public partial class NetFlussApplication : Application
         {
             window = new SpeedTestWindow(_store.Settings.Theme.Surface(SystemTheme.IsAppLight()));
         }
+        else if (target.StartsWith("statistics", StringComparison.Ordinal) && _store is not null && _statistics is not null)
+        {
+            // "statistics:demo:30d" previews the generated year at a given range.
+            var parts = target.Split(':');
+            _statistics.SetDemo(parts.Contains("demo"));
+            var settings = _store.Settings;
+            var (systemDownload, systemUpload) = SystemTheme.DefaultInk();
+            var (download, upload) = settings.ResolveRateColors(systemDownload, systemUpload);
+            var statisticsWindow = new StatisticsWindow(_statistics, _store, settings.Theme.Surface(SystemTheme.IsAppLight()), download, upload, () => { });
+            foreach (var range in Enum.GetValues<StatisticsRange>())
+            {
+                if (parts.Contains(range.Code().ToLowerInvariant()))
+                {
+                    statisticsWindow.InitialRange = range;
+                }
+            }
+
+            window = statisticsWindow;
+        }
 
         if (window is null)
         {
@@ -220,6 +242,7 @@ public partial class NetFlussApplication : Application
         await Task.Delay(delayMilliseconds);
         Snapshot.Save(window, path);
         window.Close();
+        _statistics?.SetDemo(false);
     }
 
     /// <summary>Where the popover opens when nothing was clicked: the meter, or the tray corner.</summary>
@@ -425,7 +448,25 @@ public partial class NetFlussApplication : Application
 
     private void ShowStatistics()
     {
-        // Lands with the statistics store.
+        if (_store is null || _statistics is null)
+        {
+            return;
+        }
+
+        if (_statisticsWindow is { IsLoaded: true })
+        {
+            _statisticsWindow.Activate();
+            return;
+        }
+
+        var settings = _store.Settings;
+        var (systemDownload, systemUpload) = SystemTheme.DefaultInk();
+        var (download, upload) = settings.ResolveRateColors(systemDownload, systemUpload);
+
+        _statisticsWindow = new StatisticsWindow(_statistics, _store, settings.Theme.Surface(SystemTheme.IsAppLight()), download, upload, () => ShowPreferences("statistics"));
+        _statisticsWindow.Closed += (_, _) => _statisticsWindow = null;
+        _statisticsWindow.Show();
+        _statisticsWindow.Activate();
     }
 
     private void ShowNetworkSlice()
@@ -507,6 +548,7 @@ public partial class NetFlussApplication : Application
                 Traffic = _traffic!,
                 Helper = _helper!,
                 Privileged = _privileged!,
+                Statistics = _statistics!,
                 Commands = _commands!,
             });
 
@@ -543,6 +585,7 @@ public partial class NetFlussApplication : Application
         _widget?.Close();
         _tray?.Dispose();
         _traffic?.Dispose();
+        _statistics?.Dispose();
         _helper?.Dispose();
         _monitor?.Dispose();
         _instance?.Dispose();
