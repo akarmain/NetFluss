@@ -145,13 +145,35 @@ public sealed class TrayIconHost : IDisposable
         UpdateTooltip(totals, options);
     }
 
+    /// <summary>
+    /// VPN state for the tooltip while the VPN indicator is switched on; null leaves it out.
+    /// The 16 px icon has no room for the mark itself, so the tooltip carries it.
+    /// </summary>
+    public void SetVpnStatus((bool Active, string? Country)? status)
+    {
+        _vpnStatus = status;
+        UpdateTooltip(_monitor.Totals, Options);
+    }
+
+    private (bool Active, string? Country)? _vpnStatus;
+
     /// <summary>Upload above download, matching the order of the rows in the icon itself.</summary>
     private void UpdateTooltip(RateTotals totals, TrayMeterOptions options)
-        => _icon.ToolTipText = string.Concat(
+    {
+        var text = string.Concat(
             "NetFluss\n↑ ",
             RateFormatter.FormatRate(totals.TxRateBps, options.UseBits),
             "\n↓ ",
             RateFormatter.FormatRate(totals.RxRateBps, options.UseBits));
+
+        if (_vpnStatus is { } vpn)
+        {
+            var state = Localization.L(vpn.Active ? "VPN connected" : "No VPN connected");
+            text += "\n" + (vpn.Country is { Length: > 0 } country ? $"{state} ({country})" : state);
+        }
+
+        _icon.ToolTipText = text;
+    }
 
     public void Dispose()
     {

@@ -17,6 +17,7 @@ public enum PopoverSection
     Wifi,
     Vpn,
     TopApps,
+    Timer,
 }
 
 public static class PopoverSections
@@ -33,6 +34,7 @@ public static class PopoverSections
         PopoverSection.Vpn,
         PopoverSection.TopApps,
         PopoverSection.Usage,
+        PopoverSection.Timer,
     ];
 
     /// <summary>The stored id — the macOS raw value.</summary>
@@ -47,6 +49,7 @@ public static class PopoverSections
         PopoverSection.Wifi => "wifi",
         PopoverSection.Vpn => "vpn",
         PopoverSection.TopApps => "topApps",
+        PopoverSection.Timer => "timer",
         _ => section.ToString(),
     };
 
@@ -62,6 +65,7 @@ public static class PopoverSections
         PopoverSection.Wifi => "Wi-Fi Networks",
         PopoverSection.Vpn => "VPN",
         PopoverSection.TopApps => "Top Apps",
+        PopoverSection.Timer => "Traffic Timer",
         _ => section.ToString(),
     };
 

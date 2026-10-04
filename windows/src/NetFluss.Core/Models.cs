@@ -117,6 +117,12 @@ public static class AdapterClassifier
         "wan miniport (l2tp)",
         "wan miniport (pptp)",
         "wan miniport (sstp)",
+        // Enterprise clients whose adapters say neither "VPN" nor "tunnel".
+        "anyconnect",
+        "pangp",
+        "globalprotect",
+        "zscaler",
+        "mullvad",
     ];
 
     public static AdapterType ClassifyType(uint ifType, string description)

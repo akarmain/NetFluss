@@ -131,6 +131,9 @@ internal sealed class FloatingWidgetWindow : Window
 
     internal void Update(RateTotals totals, bool useBits) => _readout.Update(totals, useBits);
 
+    /// <summary>The VPN mark and country after the rates; the widget sizes to its content.</summary>
+    internal void SetAccessories(MeterAccessories? accessories) => _readout.SetAccessories(accessories);
+
     internal void Place()
     {
         if (_settings.FloatingWidgetLeft is { } left && _settings.FloatingWidgetTop is { } top)

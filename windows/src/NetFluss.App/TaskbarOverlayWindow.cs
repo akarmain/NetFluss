@@ -42,6 +42,8 @@ internal sealed class TaskbarOverlayWindow : Window
     private uint _taskbarCreatedMessage;
     private TaskbarPlacement? _placement;
     private int _desiredWidth = 150;
+    private int _baseWidth = 150;
+    private int _accessoryWidth;
 
     internal TaskbarOverlayWindow(NetworkMonitorService monitor)
     {
@@ -116,18 +118,32 @@ internal sealed class TaskbarOverlayWindow : Window
 
         // Width follows the style and the type size: "↓ 999 MB/s ↑ 999 MB/s" needs room the
         // stacked layout does not, and a fixed width would either clip or waste taskbar.
-        _desiredWidth = settings.ReadoutStyle switch
+        _baseWidth = settings.ReadoutStyle switch
         {
             ReadoutStyle.Total => (int)(settings.ReadoutFontSize * 8),
             ReadoutStyle.Stacked => (int)(settings.ReadoutFontSize * 9),
             _ => (int)(settings.ReadoutFontSize * 17),
         };
+        _desiredWidth = _baseWidth + _accessoryWidth;
 
         Update(_monitor.Totals, settings.UseBits);
         Reanchor();
     }
 
     internal void Update(RateTotals totals, bool useBits) => _readout.Update(totals, useBits);
+
+    /// <summary>Shows or clears the VPN mark and country, widening the overlay to fit them.</summary>
+    internal void SetAccessories(MeterAccessories? accessories, double fontSize)
+    {
+        _readout.SetAccessories(accessories);
+        _accessoryWidth = (int)Math.Ceiling(MeterReadout.AccessoryWidth(accessories, fontSize));
+        var width = _baseWidth + _accessoryWidth;
+        if (width != _desiredWidth)
+        {
+            _desiredWidth = width;
+            Reanchor();
+        }
+    }
 
     internal void Start()
     {

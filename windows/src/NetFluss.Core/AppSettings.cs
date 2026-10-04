@@ -462,6 +462,7 @@ public sealed class AppSettings : INotifyPropertyChanged
         PopoverSection.Wifi => ShowWifiSwitcher,
         PopoverSection.Vpn => false,
         PopoverSection.TopApps => ShowTopApps,
+        PopoverSection.Timer => ShowTrafficTimer,
         _ => false,
     };
 
@@ -497,6 +498,9 @@ public sealed class AppSettings : INotifyPropertyChanged
                 break;
             case PopoverSection.TopApps:
                 ShowTopApps = enabled;
+                break;
+            case PopoverSection.Timer:
+                ShowTrafficTimer = enabled;
                 break;
         }
     }
@@ -665,6 +669,69 @@ public sealed class AppSettings : INotifyPropertyChanged
         get => _adapterGraceSeconds;
         set => Set(ref _adapterGraceSeconds, Math.Clamp(value, 1, 60));
     }
+
+    // ================================== Traffic Timer ==================================
+
+    private bool _showTrafficTimer;
+
+    /// <summary>The 2.6 Traffic Timer section. Off by default, as on macOS.</summary>
+    public bool ShowTrafficTimer
+    {
+        get => _showTrafficTimer;
+        set => Set(ref _showTrafficTimer, value);
+    }
+
+    /// <summary>The saved timer, restored paused on the next launch; null when idle.</summary>
+    public TrafficTimerSession? TrafficTimerSession { get; set; }
+
+    // ================================== VPN indicator ==================================
+
+    private string _vpnIndicator = "off";
+    private string _vpnIndicatorColor = "green";
+    private string _vpnIndicatorColorHex = string.Empty;
+    private bool _vpnShowWhenOff = true;
+    private bool _showCountryFlag;
+
+    /// <summary>
+    /// "off", "dot" or "shield": a mark after the rates showing whether any VPN is up —
+    /// NetFluss's own or any other client's (the macOS 2.6 menu bar VPN indicator).
+    /// </summary>
+    public string VpnIndicator
+    {
+        get => _vpnIndicator;
+        set => Set(ref _vpnIndicator, value is "dot" or "shield" ? value : "off");
+    }
+
+    /// <summary>Accent name, "system" or "custom" (with <see cref="VpnIndicatorColorHex"/>).</summary>
+    public string VpnIndicatorColor
+    {
+        get => _vpnIndicatorColor;
+        set => Set(ref _vpnIndicatorColor, string.IsNullOrWhiteSpace(value) ? "green" : value);
+    }
+
+    public string VpnIndicatorColorHex
+    {
+        get => _vpnIndicatorColorHex;
+        set => Set(ref _vpnIndicatorColorHex, value ?? string.Empty);
+    }
+
+    /// <summary>Keep the mark visible, dimmed, while no VPN is connected.</summary>
+    public bool VpnShowWhenOff
+    {
+        get => _vpnShowWhenOff;
+        set => Set(ref _vpnShowWhenOff, value);
+    }
+
+    /// <summary>Show the country the public IP is in after the rates.</summary>
+    public bool ShowCountryFlag
+    {
+        get => _showCountryFlag;
+        set => Set(ref _showCountryFlag, value);
+    }
+
+    /// <summary>Whether anything on the meter needs VPN detection at all.</summary>
+    [JsonIgnore]
+    public bool NeedsVpnDetection => VpnIndicator != "off" || ShowCountryFlag;
 
     // =================================== Statistics ===================================
 

@@ -38,6 +38,7 @@ public partial class NetFlussApplication : Application
     private AboutWindow? _aboutWindow;
     private DiagnosticsWindow? _diagnosticsWindow;
     private UpdateNotifier? _updates;
+    private readonly TrafficTimer _timer = new();
     private AppCommands? _commands;
     private TrayIconHost? _tray;
     private PopoverWindow? _popover;
@@ -114,6 +115,24 @@ public partial class NetFlussApplication : Application
             {
                 PushTotals();
             }
+            else if (args.PropertyName is nameof(NetworkMonitorService.Addresses) or nameof(NetworkMonitorService.PublicAddress))
+            {
+                PushAccessories();
+            }
+        };
+
+        // The Traffic Timer counts whether or not the popover is open, and comes back paused
+        // after a restart: traffic while NetFluss was not running cannot be counted.
+        _timer.Restore(_store.Settings.TrafficTimerSession);
+        _monitor.Ticked += (_, _) => _timer.Ingest(_monitor.LastSample, _store.Settings.ExcludeTunnelAdapters);
+        var lastTimerState = _timer.State;
+        _timer.Changed += (_, _) =>
+        {
+            if (_timer.State != lastTimerState)
+            {
+                lastTimerState = _timer.State;
+                SaveTimer();
+            }
         };
 
         ApplySettings();
@@ -125,6 +144,19 @@ public partial class NetFlussApplication : Application
         // opened later already knows whether per-app traffic is available.
         _helper.EnsureConnecting();
         _updates.Start();
+
+        // Sign-out, shutdown and sleep must not lose the last few minutes of history or a
+        // running timer: OnExit is not guaranteed to run when Windows ends the session, and
+        // a machine that never wakes from sleep never exits at all.
+        SessionEnding += (_, _) => PersistState();
+        Microsoft.Win32.SystemEvents.PowerModeChanged += (_, args) =>
+        {
+            // Raised on a SystemEvents thread; the settings write fans out to WPF objects.
+            if (args.Mode == Microsoft.Win32.PowerModes.Suspend)
+            {
+                Dispatcher.Invoke(PersistState);
+            }
+        };
 
         HandleCommand(e.Args);
     }
@@ -170,6 +202,21 @@ public partial class NetFlussApplication : Application
                 break;
             case "--quit":
                 Shutdown();
+                break;
+            case "--timer" when args.Length > 1:
+                switch (args[1].ToLowerInvariant())
+                {
+                    case "start":
+                        _timer.Start();
+                        break;
+                    case "pause":
+                        _timer.Pause();
+                        break;
+                    case "reset":
+                        _timer.Reset();
+                        break;
+                }
+
                 break;
             case "--snapshot" when args.Length >= 3:
                 var delay = args.Length > 3 && int.TryParse(args[3], out var ms) ? ms : 3000;
@@ -272,6 +319,38 @@ public partial class NetFlussApplication : Application
             : Screens.CursorAnchor();
     }
 
+    private void SaveTimer() => _store?.Batch(settings => settings.TrafficTimerSession = _timer.Save());
+
+    /// <summary>
+    /// The VPN mark and exit country after the rates on the taskbar meter and the widget.
+    /// Each draws its dimmed state in its own secondary ink: the taskbar's, or the theme's.
+    /// </summary>
+    private void PushAccessories()
+    {
+        if (_store is null || _monitor is null)
+        {
+            return;
+        }
+
+        var settings = _store.Settings;
+        var vpn = _monitor.Addresses.IsVpnActive;
+        var country = _monitor.PublicAddress?.CountryCode;
+
+        if (_overlay is not null)
+        {
+            var taskbarIdle = SystemTheme.IsShellLight() ? ThemeColor.FromHex("5D5D5D") : ThemeColor.FromHex("C5C5C5");
+            _overlay.SetAccessories(MeterAccessories.From(settings, vpn, country, taskbarIdle), settings.ReadoutFontSize);
+        }
+
+        if (_widget is not null)
+        {
+            var surface = settings.Theme.Surface(SystemTheme.IsAppLight());
+            _widget.SetAccessories(MeterAccessories.From(settings, vpn, country, surface.TextSecondary));
+        }
+
+        _tray?.SetVpnStatus(settings.VpnIndicator != "off" ? (vpn, country) : null);
+    }
+
     private void PushTotals()
     {
         if (_store is null || _monitor is null)
@@ -318,6 +397,8 @@ public partial class NetFlussApplication : Application
         _monitor.TotalsFromVisibleAdaptersOnly = settings.TotalsFromVisibleAdaptersOnly;
         _monitor.AdapterGraceSeconds = settings.AdapterGraceEnabled ? settings.AdapterGraceSeconds : null;
         _monitor.PreferIPv6 = settings.ExternalIPv6;
+        _monitor.DetectVpn = settings.NeedsVpnDetection;
+        _monitor.MeterShowsCountry = settings.ShowCountryFlag;
 
         // Switching IPv4/IPv6 must show the other address now, not after the five-minute
         // cache runs out — on macOS the setting change triggers the same refetch.
@@ -359,6 +440,7 @@ public partial class NetFlussApplication : Application
         _tray.IsVisible = !(settings.HideTrayIcon && overlayCarriesTheMeter);
 
         PushTotals();
+        PushAccessories();
     }
 
     private void ApplyOverlay(AppSettings settings, ThemeColor download, ThemeColor upload)
@@ -598,6 +680,7 @@ public partial class NetFlussApplication : Application
                 Helper = _helper!,
                 Privileged = _privileged!,
                 Statistics = _statistics!,
+                Timer = _timer,
                 Commands = _commands!,
             });
 
@@ -631,6 +714,13 @@ public partial class NetFlussApplication : Application
         _popover.ShowAt(anchor);
     }
 
+    /// <summary>Writes everything that lives in memory between periodic saves.</summary>
+    private void PersistState()
+    {
+        SaveTimer();
+        _statistics?.Flush();
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
         _overlay?.Stop();
@@ -638,6 +728,7 @@ public partial class NetFlussApplication : Application
         _widget?.Close();
         _tray?.Dispose();
         _traffic?.Dispose();
+        SaveTimer();
         _statistics?.Dispose();
         _helper?.Dispose();
         _monitor?.Dispose();

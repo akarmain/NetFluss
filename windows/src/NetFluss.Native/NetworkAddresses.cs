@@ -16,9 +16,17 @@ public sealed record LocalAddresses(
     string? InternalIp,
     string? GatewayIp,
     string? PrimaryAdapterId,
-    IReadOnlyList<TunnelAddress> Tunnels)
+    IReadOnlyList<TunnelAddress> Tunnels,
+    string Fingerprint)
 {
-    public static readonly LocalAddresses Empty = new(null, null, null, []);
+    public static readonly LocalAddresses Empty = new(null, null, null, [], string.Empty);
+
+    /// <summary>
+    /// Any VPN is up — NetFluss's own or anyone else's. A tunnel adapter only counts once it
+    /// holds a routable address; one that is merely installed, or up with only a link-local
+    /// address, is not carrying anything.
+    /// </summary>
+    public bool IsVpnActive => Tunnels.Count > 0;
 }
 
 /// <summary>
@@ -46,8 +54,9 @@ public static class NetworkAddresses
 
         var bestIndex = BestInterfaceIndex();
 
-        (NetworkInterface Nic, IPInterfaceProperties Props, int Metric, string Ip, string Gateway)? primary = null;
+        (NetworkInterface Nic, int Metric, string Ip, string Gateway)? primary = null;
         var tunnels = new List<TunnelAddress>();
+        var fingerprint = new List<string>();
 
         foreach (var nic in interfaces)
         {
@@ -67,56 +76,78 @@ public static class NetworkAddresses
                 continue;
             }
 
-            var ipv4 = props.UnicastAddresses
+            var routable = props.UnicastAddresses
                 .Select(u => u.Address)
-                .FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(a) && !IsLinkLocal(a));
+                .Where(IsRoutable)
+                .ToList();
 
-            if (ipv4 is null)
+            if (routable.Count == 0)
             {
                 continue;
             }
 
+            fingerprint.AddRange(routable.Select(a => $"{nic.Id}={a}"));
+
+            var ipv4 = routable.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
             var description = nic.Description ?? string.Empty;
             var isTunnel = nic.NetworkInterfaceType is NetworkInterfaceType.Ppp or NetworkInterfaceType.Tunnel ||
                            AdapterClassifier.IsTunnelInterface(0, 0, description);
+
+            if (isTunnel)
+            {
+                // IPv4 preferred, as on macOS; an IPv6-only tunnel still counts.
+                var address = ipv4 ?? routable[0];
+                var id = Guid.TryParse(nic.Id, out var tunnelGuid) ? tunnelGuid.ToString("B") : nic.Id;
+                tunnels.Add(new TunnelAddress(id, nic.Name, address.ToString()));
+                continue;
+            }
 
             var gateway = props.GatewayAddresses
                 .Select(g => g.Address)
                 .FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork && !a.Equals(IPAddress.Any));
 
-            if (isTunnel)
-            {
-                tunnels.Add(new TunnelAddress(Guid.TryParse(nic.Id, out var tunnelGuid) ? tunnelGuid.ToString("B") : nic.Id, nic.Name, ipv4.ToString()));
-                continue;
-            }
-
-            if (gateway is null)
+            if (ipv4 is null || gateway is null)
             {
                 continue;
             }
 
-            var index = SafeIndex(props);
-            var metric = index == bestIndex ? int.MinValue : SafeMetric(nic);
-
+            var metric = SafeIndex(props) == bestIndex ? int.MinValue : SafeMetric(nic);
             if (primary is null || metric < primary.Value.Metric)
             {
-                primary = (nic, props, metric, ipv4.ToString(), gateway.ToString());
+                primary = (nic, metric, ipv4.ToString(), gateway.ToString());
             }
         }
+
+        fingerprint.Sort(StringComparer.Ordinal);
+        var print = string.Join(',', fingerprint);
 
         if (primary is not { } chosen)
         {
-            return new LocalAddresses(null, null, null, tunnels);
+            return new LocalAddresses(null, null, null, tunnels, print);
         }
 
-        var id = Guid.TryParse(chosen.Nic.Id, out var guid) ? guid.ToString("B") : chosen.Nic.Id;
-        return new LocalAddresses(chosen.Ip, chosen.Gateway, id, tunnels);
+        var primaryId = Guid.TryParse(chosen.Nic.Id, out var guid) ? guid.ToString("B") : chosen.Nic.Id;
+        return new LocalAddresses(chosen.Ip, chosen.Gateway, primaryId, tunnels, print);
     }
 
-    private static bool IsLinkLocal(IPAddress address)
+    /// <summary>
+    /// Excludes what never indicates a real uplink: unspecified, loopback, IPv4 link-local
+    /// (169.254/16) and IPv6 link-local (fe80::/10) — the macOS VPNDetector rule.
+    /// </summary>
+    internal static bool IsRoutable(IPAddress address)
     {
-        var bytes = address.GetAddressBytes();
-        return bytes.Length == 4 && bytes[0] == 169 && bytes[1] == 254;
+        if (IPAddress.IsLoopback(address) || address.Equals(IPAddress.Any) || address.Equals(IPAddress.IPv6Any))
+        {
+            return false;
+        }
+
+        if (address.AddressFamily == AddressFamily.InterNetwork)
+        {
+            var bytes = address.GetAddressBytes();
+            return !(bytes[0] == 169 && bytes[1] == 254);
+        }
+
+        return address.AddressFamily == AddressFamily.InterNetworkV6 && !address.IsIPv6LinkLocal;
     }
 
     private static int SafeIndex(IPInterfaceProperties props)

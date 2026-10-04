@@ -102,6 +102,7 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
         {
             if (Equals(_addresses, value) || (_addresses.InternalIp == value.InternalIp &&
                                                _addresses.GatewayIp == value.GatewayIp &&
+                                               _addresses.Fingerprint == value.Fingerprint &&
                                                _addresses.Tunnels.SequenceEqual(value.Tunnels)))
             {
                 return;
@@ -168,12 +169,13 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
     public bool PreferIPv6 { get; set; }
 
     /// <summary>
-    /// Whether a flag is on screen. Only then is the external address geolocated — a lookup
-    /// per refresh would give a third party a log of every network for no visible benefit.
+    /// Whether a country is on screen. Only then is the external address geolocated — a
+    /// lookup per refresh would give a third party a log of every network for no visible
+    /// benefit.
     /// </summary>
     public bool WantsCountry
     {
-        get => _publicIpWantsCountry;
+        get => _publicIpWantsCountry || _meterShowsCountry;
         set
         {
             if (_publicIpWantsCountry == value)
@@ -188,6 +190,35 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
             }
         }
     }
+
+    /// <summary>
+    /// The meter shows a VPN mark or the exit country, so tunnels are watched even while
+    /// the popover is closed — cheaply, every few seconds, the 2.6 VPN indicator's cadence.
+    /// </summary>
+    public bool DetectVpn { get; set; }
+
+    /// <summary>The meter shows the exit country, so the public address is kept fresh.</summary>
+    public bool MeterShowsCountry
+    {
+        get => _meterShowsCountry;
+        set
+        {
+            if (_meterShowsCountry == value)
+            {
+                return;
+            }
+
+            _meterShowsCountry = value;
+            if (value && _publicAddress is not { CountryCode: not null })
+            {
+                _lastPublicIpRefresh = DateTime.MinValue;
+            }
+        }
+    }
+
+    private bool _meterShowsCountry;
+    private DateTime? _settleRefreshAt;
+    private static readonly TimeSpan VpnInterval = TimeSpan.FromSeconds(5);
 
     /// <summary>
     /// True while the popover, a pinned popover or another detail view is on screen. The
@@ -256,13 +287,33 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
             RefreshWifiDetails();
         }
 
-        if (_detailMonitoring && now - _lastAddressRefresh >= AddressInterval)
+        // Addresses are read while the popover is open, and — on a faster cadence — whenever
+        // the meter shows a VPN mark or the exit country, since those change with the network
+        // whether or not anything else is on screen.
+        var addressInterval = DetectVpn ? VpnInterval : AddressInterval;
+        if ((_detailMonitoring || DetectVpn) && now - _lastAddressRefresh >= addressInterval)
         {
             _lastAddressRefresh = now;
+            var previous = _addresses.Fingerprint;
             Addresses = NetworkAddresses.Read();
+
+            // A different set of local addresses means a VPN came up or went down or the
+            // network changed: the public address and its country follow now, and once more
+            // a moment later because routes and DNS take a little while to settle.
+            if (_meterShowsCountry && previous.Length > 0 && previous != _addresses.Fingerprint)
+            {
+                _lastPublicIpRefresh = DateTime.MinValue;
+                _settleRefreshAt = now + TimeSpan.FromSeconds(2.5);
+            }
         }
 
-        if (_detailMonitoring && !_publicIpInFlight && now - _lastPublicIpRefresh >= PublicIpInterval)
+        if (_settleRefreshAt is { } settle && now >= settle && !_publicIpInFlight)
+        {
+            _settleRefreshAt = null;
+            _lastPublicIpRefresh = DateTime.MinValue;
+        }
+
+        if ((_detailMonitoring || _meterShowsCountry) && !_publicIpInFlight && now - _lastPublicIpRefresh >= PublicIpInterval)
         {
             _lastPublicIpRefresh = now;
             _ = RefreshPublicAddressAsync();
@@ -427,7 +478,7 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
         _publicIpInFlight = true;
         try
         {
-            var result = await _publicIp.LookupAsync(PreferIPv6, _publicIpWantsCountry);
+            var result = await _publicIp.LookupAsync(PreferIPv6, WantsCountry);
 
             // A failed lookup clears the address rather than leaving the last network's on
             // screen: after a move from home to a café, showing the home address as "current"

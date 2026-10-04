@@ -24,6 +24,8 @@ internal sealed class PopoverContext
 
     internal required StatisticsService Statistics { get; init; }
 
+    internal required TrafficTimer Timer { get; init; }
+
     internal required AppCommands Commands { get; init; }
 
     internal AppSettings Settings => Store.Settings;
