@@ -1,0 +1,245 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Shared look for the popover and the windows that borrow its palette. Every colour is
+        a DynamicResource so a theme change repaints in place; the values below are only the
+        System-dark defaults the window replaces in ApplyTheme before it is ever shown.
+    -->
+    <SolidColorBrush x:Key="PopoverBackgroundBrush" Color="#202020" />
+    <SolidColorBrush x:Key="PopoverCardBrush" Color="#2E2E2E" />
+    <SolidColorBrush x:Key="PopoverTextBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="PopoverSecondaryBrush" Color="#C5C5C5" />
+    <SolidColorBrush x:Key="PopoverTertiaryBrush" Color="#8A8A8A" />
+    <SolidColorBrush x:Key="PopoverDividerBrush" Color="#33FFFFFF" />
+    <SolidColorBrush x:Key="PopoverBorderBrush" Color="#33FFFFFF" />
+    <SolidColorBrush x:Key="PopoverHoverBrush" Color="#14FFFFFF" />
+    <SolidColorBrush x:Key="PopoverPressedBrush" Color="#0AFFFFFF" />
+    <SolidColorBrush x:Key="PopoverAccentBrush" Color="#4CC2FF" />
+    <SolidColorBrush x:Key="PopoverAccentSoftBrush" Color="#1F4CC2FF" />
+    <SolidColorBrush x:Key="PopoverDownloadBrush" Color="#4CC2FF" />
+    <SolidColorBrush x:Key="PopoverUploadBrush" Color="#6CCB5F" />
+    <SolidColorBrush x:Key="PopoverGreenBrush" Color="#6CCB5F" />
+    <SolidColorBrush x:Key="PopoverOrangeBrush" Color="#FCB75D" />
+    <SolidColorBrush x:Key="PopoverTrackBrush" Color="#1FFFFFFF" />
+    <SolidColorBrush x:Key="PopoverInputBrush" Color="#1AFFFFFF" />
+
+    <FontFamily x:Key="NfUiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="NfIconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+    <!-- A flat, round-cornered glyph button: the toolbar idiom of Windows 11 flyouts. -->
+    <Style x:Key="NfIconButton" TargetType="Button">
+        <Setter Property="Width" Value="26" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="FontFamily" Value="{StaticResource NfIconFont}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource PopoverSecondaryBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome" Background="Transparent" CornerRadius="4">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource PopoverHoverBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource PopoverTextBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource PopoverPressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A whole-row button for lists the user picks from: DNS presets, Wi-Fi networks. -->
+    <Style x:Key="NfRowButton" TargetType="Button">
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsEnabled" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource PopoverHoverBrush}" />
+                        </MultiTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource PopoverPressedBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- An accent-coloured text action, for the one-line "Open settings…" style links. -->
+    <Style x:Key="NfLinkButton" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="FontFamily" Value="{StaticResource NfUiFont}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource PopoverAccentBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent" Padding="0,2">
+                        <ContentPresenter x:Name="Text" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" Value="0.8" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A filled accent button: Join, Connect. -->
+    <Style x:Key="NfAccentButton" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FontFamily" Value="{StaticResource NfUiFont}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Background="{DynamicResource PopoverAccentBrush}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.9" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.8" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A quiet secondary button: Cancel. -->
+    <Style x:Key="NfSubtleButton" TargetType="Button" BasedOn="{StaticResource NfAccentButton}">
+        <Setter Property="Foreground" Value="{DynamicResource PopoverTextBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Background="{DynamicResource PopoverInputBrush}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource PopoverHoverBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NfInput" TargetType="Control">
+        <Setter Property="FontFamily" Value="{StaticResource NfUiFont}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource PopoverTextBrush}" />
+        <Setter Property="Background" Value="{DynamicResource PopoverInputBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource PopoverDividerBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="6,4" />
+    </Style>
+
+    <Style TargetType="ToolTip">
+        <Setter Property="FontFamily" Value="{StaticResource NfUiFont}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource PopoverTextBrush}" />
+        <Setter Property="Background" Value="{DynamicResource PopoverCardBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource PopoverDividerBrush}" />
+        <Setter Property="Padding" Value="8,4" />
+    </Style>
+
+    <!--
+        A thin overlay-style scrollbar. The stock WPF bar is a grey Windows 7 gutter that
+        looks broken on every dark theme; Windows 11 flyouts use a hairline thumb.
+    -->
+    <Style x:Key="NfScrollThumb" TargetType="Thumb">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border CornerRadius="3" Background="{DynamicResource PopoverTertiaryBrush}" Opacity="0.6" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Width" Value="6" />
+        <Setter Property="MinWidth" Value="6" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="Transparent" Margin="0,2">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource NfScrollThumb}" />
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height" Value="6" />
+                <Setter Property="MinHeight" Value="6" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Grid Background="Transparent" Margin="2,0">
+                                <Track x:Name="PART_Track">
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource NfScrollThumb}" />
+                                    </Track.Thumb>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

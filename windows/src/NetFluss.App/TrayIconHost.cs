@@ -29,7 +29,7 @@ public sealed class TrayIconHost : IDisposable
     private int _lastRenderedSize;
     private string _lastRenderedText = string.Empty;
 
-    public TrayIconHost(NetworkMonitorService monitor, TrayMeterOptions options)
+    internal TrayIconHost(NetworkMonitorService monitor, TrayMeterOptions options, Popover.AppCommands commands)
     {
         _monitor = monitor;
         Options = options;
@@ -37,7 +37,7 @@ public sealed class TrayIconHost : IDisposable
         _icon = new TaskbarIcon
         {
             ToolTipText = "NetFluss",
-            ContextMenu = BuildContextMenu(),
+            ContextMenu = SurfaceMenu.Build(commands),
         };
 
         _icon.TrayLeftMouseUp += (_, _) => LeftClicked?.Invoke(this, EventArgs.Empty);
@@ -55,12 +55,6 @@ public sealed class TrayIconHost : IDisposable
     }
 
     public event EventHandler? LeftClicked;
-
-    public event EventHandler? PreferencesRequested;
-
-    public event EventHandler? SpeedTestRequested;
-
-    public event EventHandler? QuitRequested;
 
     public TrayMeterOptions Options { get; set; }
 
@@ -138,13 +132,6 @@ public sealed class TrayIconHost : IDisposable
             RateFormatter.FormatRate(totals.TxRateBps, options.UseBits),
             "\n↓ ",
             RateFormatter.FormatRate(totals.RxRateBps, options.UseBits));
-
-    /// <summary>Built by <see cref="SurfaceMenu"/>, so every surface offers the same commands.</summary>
-    private ContextMenu BuildContextMenu()
-        => SurfaceMenu.Build(
-            () => PreferencesRequested?.Invoke(this, EventArgs.Empty),
-            () => SpeedTestRequested?.Invoke(this, EventArgs.Empty),
-            () => QuitRequested?.Invoke(this, EventArgs.Empty));
 
     public void Dispose()
     {

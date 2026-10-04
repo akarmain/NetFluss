@@ -201,6 +201,7 @@ public class ThemeColorTests
         => Assert.Null(AccentPalette.Resolve("system", string.Empty, AppTheme.System.DownloadColor));
 }
 
+[Collection(LocalizationCollection.Name)]
 public class LocalizationTests
 {
     [Theory]

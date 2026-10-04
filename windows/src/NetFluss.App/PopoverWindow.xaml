@@ -2,93 +2,79 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="NetFluss"
-        Width="320"
-        Height="460"
-        MinWidth="280"
-        MinHeight="220"
+        Width="340"
+        MinWidth="300"
+        MinHeight="140"
+        SizeToContent="Height"
         WindowStyle="None"
         ResizeMode="CanResize"
         ShowInTaskbar="False"
         Topmost="True"
-        AllowsTransparency="True"
-        Background="Transparent">
+        Background="{DynamicResource PopoverBackgroundBrush}"
+        FontFamily="Segoe UI Variable Text, Segoe UI"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display">
 
-    <Border CornerRadius="8"
-            Background="{DynamicResource PopoverBackgroundBrush}"
-            BorderBrush="{DynamicResource PopoverBorderBrush}"
-            BorderThickness="1"
-            Padding="14">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <!-- Header totals, matching the macOS popover header. -->
-            <Grid Grid.Row="0" Margin="0,0,0,12">
+    <Window.Resources>
+        <ResourceDictionary Source="PopoverResources.xaml" />
+    </Window.Resources>
+
+    <!--
+        WindowChrome rather than AllowsTransparency. A layered window is rendered in software
+        and gets neither the DWM shadow nor Windows 11's rounded corners; this way the popover
+        is an ordinary frame with its caption removed, so the shell draws both, and the resize
+        border comes from the system instead of a hand-written hit test.
+    -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0"
+                      ResizeBorderThickness="6"
+                      GlassFrameThickness="0,0,0,1"
+                      CornerRadius="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <DockPanel>
+        <!-- Header: the pin button top-right, as on macOS. Doubles as the drag handle when pinned. -->
+        <Grid x:Name="Header" DockPanel.Dock="Top" Margin="10,6,8,0" Background="Transparent">
+            <TextBlock x:Name="PinnedTitle"
+                       Text="NetFluss"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"
+                       Margin="4,0,0,0"
+                       Visibility="Collapsed"
+                       Foreground="{DynamicResource PopoverSecondaryBrush}" />
+            <Button x:Name="PinButton"
+                    HorizontalAlignment="Right"
+                    Style="{StaticResource NfIconButton}"
+                    Width="24"
+                    Height="24"
+                    FontSize="11" />
+        </Grid>
+
+        <!-- Footer: quick access to the app's windows, Preferences and Quit. -->
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PopoverDividerBrush}">
+            <Grid Margin="8,4,8,4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Download" Foreground="{DynamicResource PopoverSecondaryBrush}" FontSize="11" />
-                    <TextBlock x:Name="DownloadText"
-                               Foreground="{DynamicResource PopoverDownloadBrush}"
-                               FontSize="20"
-                               FontFamily="Consolas"
-                               Text="—" />
-                </StackPanel>
-
-                <StackPanel Grid.Column="1">
-                    <TextBlock Text="Upload" Foreground="{DynamicResource PopoverSecondaryBrush}" FontSize="11" />
-                    <TextBlock x:Name="UploadText"
-                               Foreground="{DynamicResource PopoverUploadBrush}"
-                               FontSize="20"
-                               FontFamily="Consolas"
-                               Text="—" />
-                </StackPanel>
+                <TextBlock x:Name="FooterStatus"
+                           Grid.Column="0"
+                           FontSize="11"
+                           VerticalAlignment="Center"
+                           Margin="6,0,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource PopoverTertiaryBrush}" />
+                <StackPanel x:Name="FooterButtons" Grid.Column="1" Orientation="Horizontal" />
             </Grid>
+        </Border>
 
-            <TextBlock Grid.Row="1" Text="Adapters" Foreground="{DynamicResource PopoverSecondaryBrush}" FontSize="11" Margin="0,0,0,6" />
-
-            <!--
-                Fills whatever height the window has been dragged to. It used to be capped
-                at a fixed 300, which was the right call while the window could not be
-                resized and is the wrong one now that it can — a resized popover would have
-                grown a band of empty background under a still-scrolling list.
-            -->
-            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                <ItemsControl x:Name="AdapterList">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="{DynamicResource PopoverCardBrush}" CornerRadius="6" Padding="10,8" Margin="0,0,0,6">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource PopoverTextBrush}" FontSize="13" />
-                                        <TextBlock Text="{Binding Description}"
-                                                   Foreground="{DynamicResource PopoverSecondaryBrush}"
-                                                   FontSize="10"
-                                                   TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                        <TextBlock Foreground="{DynamicResource PopoverDownloadBrush}" FontSize="11" FontFamily="Consolas"
-                                                   Text="{Binding RxRateBps, StringFormat={}↓ {0:N0} B/s}" />
-                                        <TextBlock Foreground="{DynamicResource PopoverUploadBrush}" FontSize="11" FontFamily="Consolas"
-                                                   Text="{Binding TxRateBps, StringFormat={}↑ {0:N0} B/s}" />
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-        </Grid>
-    </Border>
+        <ScrollViewer x:Name="Scroller"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Focusable="False">
+            <StackPanel x:Name="SectionHost" />
+        </ScrollViewer>
+    </DockPanel>
 </Window>

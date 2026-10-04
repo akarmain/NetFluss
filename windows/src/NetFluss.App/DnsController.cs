@@ -79,6 +79,70 @@ internal sealed class DnsController : IDnsApplier
         return states;
     }
 
+    /// <summary>
+    /// The resolvers configured <em>statically</em> on an adapter, IPv4 then IPv6; empty
+    /// means the adapter takes DNS from DHCP.
+    ///
+    /// <para>This is what decides which preset gets the checkmark, and the live list from
+    /// <see cref="Read"/> cannot: an adapter on automatic DNS still reports the resolver DHCP
+    /// handed it — usually the router — so "System Default" would never match and the
+    /// checkmark would never be shown for the most common configuration of all. Windows keeps
+    /// the static list separately in the TCP/IP parameters, readable without elevation.</para>
+    /// </summary>
+    internal static IReadOnlyList<string> StaticServers(string adapterId)
+    {
+        if (!Guid.TryParse(adapterId, out var guid))
+        {
+            return [];
+        }
+
+        var servers = new List<string>();
+        foreach (var stack in new[] { "Tcpip", "Tcpip6" })
+        {
+            try
+            {
+                using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
+                    $@"SYSTEM\CurrentControlSet\Services\{stack}\Parameters\Interfaces\{guid:B}");
+
+                if (key?.GetValue("NameServer") is string value)
+                {
+                    servers.AddRange(DnsValidator.Parse(value));
+                }
+            }
+            catch (Exception e) when (e is System.Security.SecurityException or UnauthorizedAccessException or IOException)
+            {
+                // Unreadable means unknown, which the UI shows as no checkmark at all —
+                // better than a confident wrong one.
+            }
+        }
+
+        return servers;
+    }
+
+    /// <summary>The Windows connection name for an interface GUID, which is what netsh addresses.</summary>
+    internal static string? AdapterName(string adapterId)
+    {
+        if (!Guid.TryParse(adapterId, out var wanted))
+        {
+            return null;
+        }
+
+        try
+        {
+            return NetworkInterface.GetAllNetworkInterfaces()
+                .FirstOrDefault(nic => Guid.TryParse(nic.Id, out var id) && id == wanted)
+                ?.Name;
+        }
+        catch (NetworkInformationException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>The preset whose servers are exactly the adapter's static list, if any.</summary>
+    internal static string? ActivePresetId(IReadOnlyList<DnsPreset> presets, IReadOnlyList<string> staticServers)
+        => presets.FirstOrDefault(preset => preset.Matches(staticServers))?.Id;
+
     public async Task<DnsApplyResult> ApplyAsync(string adapterName, IReadOnlyList<string> servers)
     {
         // Validated again here, not only in the UI. This method builds a command line for a
@@ -87,7 +151,7 @@ internal sealed class DnsController : IDnsApplier
         var validation = DnsValidator.Validate(servers);
         if (!validation.IsValid)
         {
-            return DnsApplyResult.Fail(validation.Error ?? "Invalid servers.");
+            return DnsApplyResult.Fail(validation.Error ?? Localization.L("Invalid servers."));
         }
 
         // The adapter name reaches the command line too, so it must be one Windows itself
@@ -95,12 +159,12 @@ internal sealed class DnsController : IDnsApplier
         // close the argument and append commands to an elevated shell.
         if (!NetworkInterface.GetAllNetworkInterfaces().Any(nic => nic.Name == adapterName))
         {
-            return DnsApplyResult.Fail($"No adapter named '{adapterName}'.");
+            return DnsApplyResult.Fail(Localization.L("No adapter named '{0}'.", adapterName));
         }
 
         if (adapterName.Contains('"') || adapterName.Contains('%'))
         {
-            return DnsApplyResult.Fail("That adapter's name cannot be used from a script.");
+            return DnsApplyResult.Fail(Localization.L("That adapter's name cannot be used from a script."));
         }
 
         var script = BuildScript(adapterName, servers);
@@ -125,22 +189,22 @@ internal sealed class DnsController : IDnsApplier
             using var process = Process.Start(info);
             if (process is null)
             {
-                return DnsApplyResult.Fail("Could not start the elevated helper.");
+                return DnsApplyResult.Fail(Localization.L("Could not start the elevated helper."));
             }
 
             await process.WaitForExitAsync();
 
             return process.ExitCode == 0
                 ? DnsApplyResult.Ok(servers.Count == 0
-                    ? $"{adapterName} is back on automatic DNS."
-                    : $"{adapterName} now uses {string.Join(", ", servers)}.")
-                : DnsApplyResult.Fail($"netsh exited with code {process.ExitCode}.");
+                    ? Localization.L("{0} is back on automatic DNS.", adapterName)
+                    : Localization.L("{0} now uses {1}.", adapterName, string.Join(", ", servers)))
+                : DnsApplyResult.Fail(Localization.L("netsh exited with code {0}.", process.ExitCode));
         }
         catch (System.ComponentModel.Win32Exception e) when (e.NativeErrorCode == 1223)
         {
             // ERROR_CANCELLED — the user dismissed the UAC prompt. Not a failure worth
             // dressing up as one.
-            return DnsApplyResult.Fail("Cancelled. DNS was not changed.");
+            return DnsApplyResult.Fail(Localization.L("Cancelled. DNS was not changed."));
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {

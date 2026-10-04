@@ -149,7 +149,7 @@ public class AdapterVisibilitySettingsTests
     [Theory]
     [InlineData(10, 220)]
     [InlineData(460, 460)]
-    [InlineData(9000, 1200)]
+    [InlineData(9000, 2000)]
     public void PopoverHeight_IsClamped(double set, double expected)
         => Assert.Equal(expected, new AppSettings { PopoverHeight = set }.PopoverHeight);
 

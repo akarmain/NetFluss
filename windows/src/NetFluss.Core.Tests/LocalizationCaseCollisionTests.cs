@@ -23,6 +23,7 @@ namespace NetFluss.Core.Tests;
 /// <see cref="ResourceNames_DoNotFoldTogether"/> fails if a new collision is ever shipped
 /// unresolved — which is the failure that started all this.</para>
 /// </summary>
+[Collection(LocalizationCollection.Name)]
 public class LocalizationCaseCollisionTests : IDisposable
 {
     private static readonly string[] Cultures = ["en", "de", "zh-Hans", "zh-Hant"];

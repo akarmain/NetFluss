@@ -2,6 +2,7 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using NetFluss.Core;
@@ -13,29 +14,58 @@ namespace NetFluss.App;
 /// Windows counterpart of the macOS <c>NetworkMonitor</c>: one timer on the UI dispatcher
 /// drives one <see cref="InterfaceSampler"/> pass and republishes adapters and totals.
 ///
-/// Deliberately a single timer, as on macOS. The energy lesson from the Mac side applies
-/// verbatim — anything expensive (per-process ETW aggregation, reverse DNS) must be gated
-/// on a window actually being open, never bolted onto this tick.
+/// <para>Deliberately a single timer, as on macOS, and the energy rule from the Mac side
+/// carries over verbatim: anything beyond the counters — Wi-Fi radio details, addresses,
+/// the public IP — is only refreshed while something that shows it is open
+/// (<see cref="DetailMonitoring"/>), and each on its own slower cadence. A tray meter that
+/// queried the radio every second all day would be a battery defect.</para>
 /// </summary>
 public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
 {
+    private static readonly TimeSpan WifiDetailInterval = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan AddressInterval = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan PublicIpInterval = TimeSpan.FromMinutes(5);
+
     private readonly InterfaceSampler _sampler = new();
     private readonly DispatcherTimer _timer;
+    private readonly PublicIpLookup _publicIp = new();
+    private readonly Dictionary<string, DateTimeOffset> _graceDeadlines = new(StringComparer.OrdinalIgnoreCase);
 
     private RateTotals _totals = RateTotals.Zero;
     private AdapterVisibilityOptions _visibility = new();
     private bool _excludeTunnelAdapters;
     private bool _totalsFromVisibleOnly;
+    private bool _detailMonitoring;
+    private IReadOnlyDictionary<string, WifiDetail> _wifiDetails = new Dictionary<string, WifiDetail>();
+    private WlanAccess _wifiAccess = WlanAccess.Ok;
+    private LocalAddresses _addresses = LocalAddresses.Empty;
+    private PublicIp? _publicAddress;
+    private DateTime _lastWifiRefresh = DateTime.MinValue;
+    private DateTime _lastAddressRefresh = DateTime.MinValue;
+    private DateTime _lastPublicIpRefresh = DateTime.MinValue;
+    private bool _publicIpInFlight;
+    private bool _publicIpWantsCountry;
+    private volatile bool _networkChanged;
+    private IReadOnlyList<AdapterStatus> _lastSample = [];
 
     public NetworkMonitorService(TimeSpan interval)
     {
         _timer = new DispatcherTimer(DispatcherPriority.Background) { Interval = interval };
         _timer.Tick += (_, _) => Refresh();
+
+        // An address change is the one moment the slow caches are certainly stale: a new
+        // network, a VPN coming up, a cable unplugged. Refresh on the next tick rather than
+        // waiting out the interval.
+        NetworkChange.NetworkAddressChanged += OnNetworkChanged;
+        NetworkChange.NetworkAvailabilityChanged += OnNetworkChanged;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    /// <summary>The adapters that pass the visibility filter, in traffic order.</summary>
+    /// <summary>Raised after every refresh, once all the published properties are current.</summary>
+    public event EventHandler? Ticked;
+
+    /// <summary>The adapters that pass the visibility filter, in user order.</summary>
     public ObservableCollection<AdapterStatus> Adapters { get; } = [];
 
     /// <summary>
@@ -46,6 +76,9 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
     /// row the moment it was unticked and leave no way to ever tick it back.</para>
     /// </summary>
     public ObservableCollection<AdapterStatus> AllAdapters { get; } = [];
+
+    /// <summary>The raw last sample, every interface included, for consumers that do their own filtering.</summary>
+    public IReadOnlyList<AdapterStatus> LastSample => _lastSample;
 
     public RateTotals Totals
     {
@@ -61,6 +94,41 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
             OnPropertyChanged();
         }
     }
+
+    public LocalAddresses Addresses
+    {
+        get => _addresses;
+        private set
+        {
+            if (Equals(_addresses, value) || (_addresses.InternalIp == value.InternalIp &&
+                                               _addresses.GatewayIp == value.GatewayIp &&
+                                               _addresses.Tunnels.SequenceEqual(value.Tunnels)))
+            {
+                return;
+            }
+
+            _addresses = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public PublicIp? PublicAddress
+    {
+        get => _publicAddress;
+        private set
+        {
+            if (Equals(_publicAddress, value))
+            {
+                return;
+            }
+
+            _publicAddress = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>Why Wi-Fi details are missing, when they are.</summary>
+    public WlanAccess WifiAccess => _wifiAccess;
 
     public TimeSpan Interval
     {
@@ -93,6 +161,62 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
         set => _visibility = value;
     }
 
+    /// <summary>Seconds an adapter stays listed after it goes quiet, or null when the grace period is off.</summary>
+    public double? AdapterGraceSeconds { get; set; }
+
+    /// <summary>Show the IPv6 external address rather than the IPv4 one.</summary>
+    public bool PreferIPv6 { get; set; }
+
+    /// <summary>
+    /// Whether a flag is on screen. Only then is the external address geolocated — a lookup
+    /// per refresh would give a third party a log of every network for no visible benefit.
+    /// </summary>
+    public bool WantsCountry
+    {
+        get => _publicIpWantsCountry;
+        set
+        {
+            if (_publicIpWantsCountry == value)
+            {
+                return;
+            }
+
+            _publicIpWantsCountry = value;
+            if (value && _publicAddress is { CountryCode: null })
+            {
+                _lastPublicIpRefresh = DateTime.MinValue;
+            }
+        }
+    }
+
+    /// <summary>
+    /// True while the popover, a pinned popover or another detail view is on screen. The
+    /// macOS <c>setDetailMonitoringEnabled</c>: switching it on forces an immediate refresh of
+    /// everything, so the first frame is never a page of stale or empty fields.
+    /// </summary>
+    public bool DetailMonitoring
+    {
+        get => _detailMonitoring;
+        set
+        {
+            if (_detailMonitoring == value)
+            {
+                return;
+            }
+
+            _detailMonitoring = value;
+            if (value)
+            {
+                _lastWifiRefresh = DateTime.MinValue;
+                _lastAddressRefresh = DateTime.MinValue;
+                Refresh();
+            }
+        }
+    }
+
+    /// <summary>Forgets the public address so the next detail tick fetches it again.</summary>
+    public void InvalidatePublicAddress() => _lastPublicIpRefresh = DateTime.MinValue;
+
     public void Start()
     {
         // Prime the counters so the first visible tick already has a delta to work from.
@@ -104,13 +228,56 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
 
     public void Refresh()
     {
-        var sampled = _sampler.Sample();
+        IReadOnlyList<AdapterStatus> sampled;
+        try
+        {
+            sampled = _sampler.Sample();
+        }
+        catch (InvalidOperationException)
+        {
+            // GetIfTable2 can fail transiently while a driver is being reloaded. Skip the
+            // tick rather than take the meter down; the next one recovers.
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+
+        if (_networkChanged)
+        {
+            _networkChanged = false;
+            _lastAddressRefresh = DateTime.MinValue;
+            _lastWifiRefresh = DateTime.MinValue;
+            _lastPublicIpRefresh = DateTime.MinValue;
+        }
+
+        if (_detailMonitoring && now - _lastWifiRefresh >= WifiDetailInterval)
+        {
+            _lastWifiRefresh = now;
+            RefreshWifiDetails();
+        }
+
+        if (_detailMonitoring && now - _lastAddressRefresh >= AddressInterval)
+        {
+            _lastAddressRefresh = now;
+            Addresses = NetworkAddresses.Read();
+        }
+
+        if (_detailMonitoring && !_publicIpInFlight && now - _lastPublicIpRefresh >= PublicIpInterval)
+        {
+            _lastPublicIpRefresh = now;
+            _ = RefreshPublicAddressAsync();
+        }
+
+        sampled = AttachWifi(sampled);
+        _lastSample = sampled;
+
+        var visibility = WithGrace(sampled, now);
 
         Totals = AdapterTotalsFilter.Totals(
             sampled,
             _totalsFromVisibleOnly,
             _excludeTunnelAdapters,
-            _visibility);
+            visibility);
 
         // Custom names are applied to the user-facing list only. AllAdapters below stays as
         // Windows reports it, because the rename field in Preferences has to be able to show
@@ -119,7 +286,7 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
         // following its Windows name again.
         var visible = AdapterTotalsFilter.InUserOrder(
             AdapterTotalsFilter.WithCustomNames(
-                AdapterTotalsFilter.VisibleAdapters(sampled, _visibility),
+                AdapterTotalsFilter.VisibleAdapters(sampled, visibility),
                 AdapterNames),
             AdapterOrder);
 
@@ -154,9 +321,134 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
         }
 
         OnPropertyChanged(nameof(AllAdapters));
+        Ticked?.Invoke(this, EventArgs.Empty);
     }
 
-    public void Dispose() => _timer.Stop();
+    /// <summary>
+    /// The visibility options with the grace deadlines filled in. An adapter carrying traffic
+    /// pushes its deadline out; one that has been quiet past its deadline drops off.
+    /// </summary>
+    private AdapterVisibilityOptions WithGrace(IReadOnlyList<AdapterStatus> sampled, DateTime now)
+    {
+        if (AdapterGraceSeconds is not { } seconds)
+        {
+            _graceDeadlines.Clear();
+            return _visibility with { GraceEnabled = false };
+        }
+
+        var nowOffset = new DateTimeOffset(now, TimeSpan.Zero);
+        foreach (var adapter in sampled)
+        {
+            if (adapter.HasTraffic)
+            {
+                _graceDeadlines[adapter.Id] = nowOffset.AddSeconds(seconds);
+            }
+        }
+
+        foreach (var expired in _graceDeadlines.Where(pair => pair.Value <= nowOffset).Select(pair => pair.Key).ToList())
+        {
+            _graceDeadlines.Remove(expired);
+        }
+
+        return _visibility with
+        {
+            GraceEnabled = true,
+            GraceDeadlines = new Dictionary<string, DateTimeOffset>(_graceDeadlines, StringComparer.OrdinalIgnoreCase),
+        };
+    }
+
+    private void RefreshWifiDetails()
+    {
+        using var client = WlanClient.TryOpen();
+        if (client is null)
+        {
+            _wifiAccess = WlanAccess.NoAdapter;
+            _wifiDetails = new Dictionary<string, WifiDetail>();
+            return;
+        }
+
+        var details = new Dictionary<string, WifiDetail>(StringComparer.OrdinalIgnoreCase);
+        var access = WlanAccess.Ok;
+
+        foreach (var radio in client.Interfaces())
+        {
+            if (!radio.IsConnected)
+            {
+                continue;
+            }
+
+            var detail = client.CurrentConnection(radio.Id, out var radioAccess);
+            if (radioAccess == WlanAccess.LocationDenied)
+            {
+                access = WlanAccess.LocationDenied;
+            }
+
+            if (detail is not null)
+            {
+                details[radio.Id.ToString("B")] = detail;
+            }
+        }
+
+        _wifiAccess = access;
+        _wifiDetails = details;
+    }
+
+    private IReadOnlyList<AdapterStatus> AttachWifi(IReadOnlyList<AdapterStatus> sampled)
+    {
+        if (_wifiDetails.Count == 0)
+        {
+            return sampled;
+        }
+
+        var result = new List<AdapterStatus>(sampled.Count);
+        foreach (var adapter in sampled)
+        {
+            if (adapter.Type == AdapterType.WiFi && adapter.IsUp && _wifiDetails.TryGetValue(adapter.Id, out var detail))
+            {
+                result.Add(adapter with
+                {
+                    Wifi = detail,
+                    WifiSsid = detail.Ssid,
+                    WifiTxRateMbps = detail.TxRateMbps,
+                    WifiMode = detail.Band is { } band ? $"Wi-Fi ({WifiFormat.BandLabel(band)})" : "Wi-Fi",
+                });
+            }
+            else
+            {
+                result.Add(adapter);
+            }
+        }
+
+        return result;
+    }
+
+    private async Task RefreshPublicAddressAsync()
+    {
+        _publicIpInFlight = true;
+        try
+        {
+            var result = await _publicIp.LookupAsync(PreferIPv6, _publicIpWantsCountry);
+
+            // A failed lookup clears the address rather than leaving the last network's on
+            // screen: after a move from home to a café, showing the home address as "current"
+            // would be worse than showing a dash.
+            PublicAddress = result;
+        }
+        finally
+        {
+            _publicIpInFlight = false;
+        }
+    }
+
+    private void OnNetworkChanged(object? sender, EventArgs e) => _networkChanged = true;
+
+    public void Dispose()
+    {
+        _timer.Stop();
+        NetworkChange.NetworkAddressChanged -= OnNetworkChanged;
+        NetworkChange.NetworkAvailabilityChanged -= OnNetworkChanged;
+        _publicIp.Dispose();
+    }
 
     private void OnPropertyChanged([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

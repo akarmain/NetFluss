@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The NetFluss helper: a LocalSystem service hosting what an unelevated app cannot do
+    itself — the Kernel-Network ETW trace behind Top Apps and the Network Slice, DNS changes
+    without a UAC prompt each time, and adapter resets. The Windows counterpart of the macOS
+    NetflussPrivilegedHelper, and optional in the same way: the app is fully useful without it.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>NetFluss.Service</RootNamespace>
+    <AssemblyName>NetFluss.Service</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- A service that idles nearly all day should not hold a server GC heap per core. -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../NetFluss.Core/NetFluss.Core.csproj" />
+    <ProjectReference Include="../NetFluss.Native/NetFluss.Native.csproj" />
+  </ItemGroup>
+
+</Project>

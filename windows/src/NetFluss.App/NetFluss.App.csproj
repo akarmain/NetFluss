@@ -37,6 +37,23 @@
     <ProjectReference Include="../NetFluss.Core/NetFluss.Core.csproj" />
     <ProjectReference Include="../NetFluss.Native/NetFluss.Native.csproj" />
     <ProjectReference Include="../NetFluss.Tray/NetFluss.Tray.csproj" />
+    <!--
+      Built first but not referenced: the helper is a separate executable that runs as a
+      service, and it ships in a folder of its own beside the app so its installer can copy
+      exactly that folder into Program Files.
+    -->
+    <ProjectReference Include="../NetFluss.Service/NetFluss.Service.csproj"
+                      ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true" />
   </ItemGroup>
+
+  <Target Name="CopyHelper" AfterTargets="Build">
+    <ItemGroup>
+      <HelperFiles Include="$(MSBuildProjectDirectory)\..\NetFluss.Service\bin\$(Configuration)\net10.0-windows\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(HelperFiles)"
+          DestinationFiles="@(HelperFiles->'$(OutDir)Helper\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

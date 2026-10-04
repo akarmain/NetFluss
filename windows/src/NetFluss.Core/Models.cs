@@ -64,6 +64,9 @@ public sealed record AdapterStatus
 
     public double? WifiTxRateMbps { get; init; }
 
+    /// <summary>Radio details for a connected Wi-Fi adapter; null otherwise or when not yet read.</summary>
+    public WifiDetail? Wifi { get; init; }
+
     public required ulong RxBytes { get; init; }
 
     public required ulong TxBytes { get; init; }

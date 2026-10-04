@@ -1,230 +1,544 @@
 // Copyright (C) 2026 Rana GmbH — GPLv3. See LICENSE at the repository root.
 
-using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using NetFluss.App.Popover;
 using NetFluss.Core;
 
 namespace NetFluss.App;
 
 /// <summary>
-/// The popover. Phase 0 shows only header totals and adapter cards; the remaining
-/// sections (IP/flow, DNS, Wi-Fi, Router, Top Apps, Data Usage) land in Phase 1.
+/// The popover: every enabled section in the user's order, between a pin button and a
+/// footer. Port of the macOS <c>MenuBarView</c> inside its <c>NSPopover</c>.
+///
+/// <para><b>Height.</b> The popover hugs its content and grows up to a limit, as the macOS
+/// one does: dragging the bottom edge sets the limit rather than a fixed height, so a short
+/// popover is never padded out with empty background and a long one scrolls.</para>
+///
+/// <para><b>Placement.</b> Beside whichever surface was clicked, on whichever edge the
+/// taskbar is docked to, kept fully inside that monitor's work area — the Windows form of
+/// the Mac's edge-aware placement under the status item.</para>
 /// </summary>
 public partial class PopoverWindow : Window
 {
-    private readonly NetworkMonitorService _monitor;
-    private readonly AppSettings _settings;
+    /// <summary>Gap between the popover and the taskbar, matching Windows 11 flyouts.</summary>
+    private const double EdgeMarginDips = 12;
 
-    public PopoverWindow(NetworkMonitorService monitor, AppSettings settings)
+    private readonly PopoverContext _context;
+    private readonly List<IPopoverSection> _sections;
+    private IReadOnlyList<PopoverSection> _shownOrder = [];
+    private Rect _anchor;
+    private TaskbarEdge _edge = TaskbarEdge.Bottom;
+    private bool _keepOpen;
+    private bool _active;
+    private bool _heightDragged;
+
+    internal PopoverWindow(PopoverContext context)
     {
         InitializeComponent();
 
-        _monitor = monitor;
-        _settings = settings;
-        AdapterList.ItemsSource = monitor.Adapters;
-        monitor.PropertyChanged += OnMonitorChanged;
+        _context = context;
+        _sections =
+        [
+            new TotalsSection(context),
+            new AdaptersSection(context),
+            new ConnectionSection(context),
+            new DnsSection(context),
+            new WifiSection(context),
+            new TopAppsSection(context),
+        ];
 
-        Width = settings.PopoverWidth;
-        Height = settings.PopoverHeight;
+        Width = context.Settings.PopoverWidth;
+        BuildFooter();
 
-        // A borderless window gets no resize hit-testing of its own; the hook below supplies
-        // it. Installed here rather than in a constructor body because it needs the handle.
-        SourceInitialized += (_, _) =>
-            HwndSource.FromHwnd(new WindowInteropHelper(this).Handle)?.AddHook(ResizeHook);
+        PinButton.Click += (_, _) => TogglePin();
 
-        // Remembered on every change rather than on close: the popover is dismissed by
-        // deactivating, which is not a close, so waiting for one would never save anything.
-        SizeChanged += (_, _) =>
+        // Pinned, the header is the title bar: drag it to move the window.
+        Header.MouseLeftButtonDown += (_, e) =>
         {
-            if (!IsLoaded)
+            if (_context.Settings.PopoverPinned && e.ButtonState == MouseButtonState.Pressed)
             {
-                return;
+                DragMove();
+                _context.Settings.PinnedLeft = Left;
+                _context.Settings.PinnedTop = Top;
             }
-
-            _settings.PopoverWidth = ActualWidth;
-            _settings.PopoverHeight = ActualHeight;
         };
 
-        // Dismiss-on-deactivate, matching NSPopover.
+        // Dismiss-on-deactivate, matching NSPopover — except while pinned, and while a DNS
+        // change is waiting on its UAC prompt, which takes the focus away by design.
         Deactivated += (_, _) =>
         {
-            if (!IsVisible)
+            if (!IsVisible || _context.Settings.PopoverPinned || _keepOpen)
             {
                 return;
             }
 
-            Hide();
-            Hidden?.Invoke(this, EventArgs.Empty);
+            HideAndNotify();
         };
+
+        _context.Dns.ApplyingChanged += (_, applying) =>
+        {
+            _keepOpen = applying;
+            if (!applying && IsVisible && !_context.Settings.PopoverPinned)
+            {
+                // Back from the elevation prompt: take focus again so clicking away still
+                // dismisses the popover.
+                Activate();
+            }
+        };
+
+        _context.Monitor.Ticked += (_, _) => RefreshSections();
+        SizeChanged += (_, _) => KeepAnchored();
+
+        SourceInitialized += (_, _) =>
+        {
+            var handle = new WindowInteropHelper(this).Handle;
+            RoundCorners(handle);
+            HwndSource.FromHwnd(handle)?.AddHook(WndProc);
+        };
+
+        ApplyLayout();
     }
 
     /// <summary>Raised after a dismiss, so the tray toggle can suppress an instant reopen.</summary>
     public event EventHandler? Hidden;
 
+    internal bool IsPinned => _context.Settings.PopoverPinned;
+
     /// <summary>
-    /// Repaints the popover for the selected theme.
-    ///
-    /// <para>The colours were hardcoded dark in XAML, which meant the popover ignored both
-    /// the chosen theme and Windows' own light mode — a Dracula or Solarized user got the
-    /// same near-black panel as everyone else, which is most of what "the theme is not
-    /// reflected in the app" looked like.</para>
-    ///
-    /// <para>Card and border are derived from the palette rather than carried in it: they
-    /// are the same surface lifted or dropped a little, and asking every theme to specify
-    /// them would be four more chances to leave one out.</para>
+    /// Repaints for the selected theme. Card, divider and hover are derived from the palette
+    /// rather than carried in it: they are the same surface lifted or dropped a little, and
+    /// asking every theme to specify them would be four more chances to leave one out.
     /// </summary>
     public void ApplyTheme(SurfacePalette surface, ThemeColor download, ThemeColor upload)
     {
         void Set(string key, Color color) => Resources[key] = new SolidColorBrush(color);
 
-        Set("PopoverBackgroundBrush", Color.FromArgb(0xF2, surface.Background.R, surface.Background.G, surface.Background.B));
-        Set("PopoverCardBrush", Color.FromArgb(0xFF, surface.Card.R, surface.Card.G, surface.Card.B));
-        Set("PopoverTextBrush", Color.FromRgb(surface.TextPrimary.R, surface.TextPrimary.G, surface.TextPrimary.B));
-        Set("PopoverSecondaryBrush", Color.FromRgb(surface.TextSecondary.R, surface.TextSecondary.G, surface.TextSecondary.B));
+        static Color Rgb(ThemeColor c) => Color.FromRgb(c.R, c.G, c.B);
+        static Color Alpha(byte a, ThemeColor c) => Color.FromArgb(a, c.R, c.G, c.B);
+
+        var ink = surface.IsDark ? ThemeColor.FromHex("FFFFFF") : ThemeColor.FromHex("000000");
+        var accent = surface.IsDark ? ThemeColor.FromHex("4CC2FF") : ThemeColor.FromHex("005FB8");
+
+        Set("PopoverBackgroundBrush", Rgb(surface.Background));
+        Set("PopoverCardBrush", Rgb(surface.Card));
+        Set("PopoverTextBrush", Rgb(surface.TextPrimary));
+        Set("PopoverSecondaryBrush", Rgb(surface.TextSecondary));
+        Set("PopoverTertiaryBrush", Alpha(0xA0, surface.TextSecondary));
+        Set("PopoverDividerBrush", Alpha(surface.IsDark ? (byte)0x26 : (byte)0x1A, ink));
+        Set("PopoverBorderBrush", Alpha(surface.IsDark ? (byte)0x33 : (byte)0x22, ink));
+        Set("PopoverHoverBrush", Alpha(surface.IsDark ? (byte)0x14 : (byte)0x0D, ink));
+        Set("PopoverPressedBrush", Alpha(surface.IsDark ? (byte)0x0A : (byte)0x08, ink));
+        Set("PopoverTrackBrush", Alpha(surface.IsDark ? (byte)0x1F : (byte)0x14, ink));
+        Set("PopoverInputBrush", Alpha(surface.IsDark ? (byte)0x1A : (byte)0x0F, ink));
+        Set("PopoverAccentBrush", Rgb(accent));
+        Set("PopoverAccentSoftBrush", Alpha(0x24, accent));
         Set("PopoverDownloadBrush", Color.FromRgb(download.R, download.G, download.B));
         Set("PopoverUploadBrush", Color.FromRgb(upload.R, upload.G, upload.B));
+        Set("PopoverGreenBrush", surface.IsDark ? Color.FromRgb(0x6C, 0xCB, 0x5F) : Color.FromRgb(0x0F, 0x7B, 0x0F));
+        Set("PopoverOrangeBrush", surface.IsDark ? Color.FromRgb(0xFC, 0xB7, 0x5D) : Color.FromRgb(0x9D, 0x5D, 0x00));
 
-        // A hairline of the opposite tone: white lifts a dark panel off the desktop, black
-        // grounds a light one.
-        Set("PopoverBorderBrush", surface.IsDark
-            ? Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF)
-            : Color.FromArgb(0x22, 0x00, 0x00, 0x00));
-    }
-
-    /// <summary>
-    /// Supplies the resize borders that <c>WindowStyle="None"</c> takes away.
-    ///
-    /// <para>WPF reports every point of a chromeless window as client area, so
-    /// <c>ResizeMode="CanResize"</c> alone gives a window that cannot actually be resized.
-    /// Answering WM_NCHITTEST with the edge codes hands the drag back to Windows, which
-    /// then does the resize itself — with the snapping and the double-click-to-maximise
-    /// behaviour a hand-rolled mouse loop would have to reimplement badly.</para>
-    ///
-    /// <para>Worked in physical pixels throughout: the message carries screen coordinates in
-    /// device pixels, and converting them to WPF units to compare against a device-pixel
-    /// window rect is how an eight-pixel grip becomes a four-pixel one at 200% scaling.</para>
-    /// </summary>
-    private nint ResizeHook(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
-    {
-        if (msg != WmNcHitTest || !GetWindowRect(hwnd, out var bounds))
+        // The DWM frame follows the window's own light/dark flag, not the brushes.
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle != nint.Zero)
         {
-            return nint.Zero;
+            var dark = surface.IsDark ? 1 : 0;
+            _ = DwmSetWindowAttribute(handle, DwmwaUseImmersiveDarkMode, ref dark, sizeof(int));
         }
 
-        // Signed: a point on a monitor left of the primary one has a negative X.
-        var x = (short)(lParam & 0xFFFF);
-        var y = (short)((lParam >> 16) & 0xFFFF);
+        _darkFrame = surface.IsDark;
+    }
 
-        var grip = (int)Math.Round(ResizeGripDips * (GetDpiForWindow(hwnd) / 96.0));
+    private bool _darkFrame = true;
 
-        var left = x < bounds.Left + grip;
-        var right = x >= bounds.Right - grip;
-        var top = y < bounds.Top + grip;
-        var bottom = y >= bounds.Bottom - grip;
+    /// <summary>Re-reads section order, visibility and size from the settings.</summary>
+    internal void ApplyLayout()
+    {
+        var settings = _context.Settings;
+        var order = settings.SectionOrder().Where(settings.IsSectionEnabled).ToList();
 
-        var hit = (left, right, top, bottom) switch
+        if (!order.SequenceEqual(_shownOrder))
         {
-            (true, _, true, _) => HtTopLeft,
-            (_, true, true, _) => HtTopRight,
-            (true, _, _, true) => HtBottomLeft,
-            (_, true, _, true) => HtBottomRight,
-            (true, _, _, _) => HtLeft,
-            (_, true, _, _) => HtRight,
-            (_, _, true, _) => HtTop,
-            (_, _, _, true) => HtBottom,
-            _ => HtClient,
-        };
+            SectionHost.Children.Clear();
+            foreach (var kind in order)
+            {
+                var section = _sections.FirstOrDefault(s => s.Kind == kind);
+                if (section is null)
+                {
+                    continue;
+                }
 
-        handled = true;
-        return hit;
+                if (SectionHost.Children.Count > 0)
+                {
+                    SectionHost.Children.Add(Ui.Divider());
+                }
+
+                SectionHost.Children.Add(section.View);
+            }
+
+            // Sections that left the popover stop sampling; ones that joined start, if open.
+            foreach (var section in _sections)
+            {
+                section.SetActive(_active && order.Contains(section.Kind));
+            }
+
+            _shownOrder = order;
+        }
+
+        _context.Monitor.WantsCountry = settings.ConnectionMode == ConnectionDisplayMode.Flow;
+
+        PinButton.Content = settings.PopoverPinned ? Glyph.Pinned : Glyph.Pin;
+        PinButton.ToolTip = settings.PopoverPinned ? PopoverContext.L("Unpin window") : PopoverContext.L("Pin as window");
+        if (settings.PopoverPinned)
+        {
+            PinButton.SetResourceReference(Control.ForegroundProperty, Ui.Accent);
+        }
+        else
+        {
+            PinButton.ClearValue(Control.ForegroundProperty);
+        }
+
+        PinnedTitle.Visibility = settings.PopoverPinned ? Visibility.Visible : Visibility.Collapsed;
+        Header.Cursor = settings.PopoverPinned ? Cursors.SizeAll : null;
+
+        RefreshSections();
     }
 
-    private const int WmNcHitTest = 0x0084;
-    private const int HtClient = 1;
-    private const int HtLeft = 10;
-    private const int HtRight = 11;
-    private const int HtTop = 12;
-    private const int HtTopLeft = 13;
-    private const int HtTopRight = 14;
-    private const int HtBottom = 15;
-    private const int HtBottomLeft = 16;
-    private const int HtBottomRight = 17;
-
-    /// <summary>Grip width in device-independent units — comfortable without swallowing clicks.</summary>
-    private const double ResizeGripDips = 6;
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct NativeRect
+    /// <summary>Opens the popover beside <paramref name="anchor"/>, a rectangle in physical pixels.</summary>
+    internal void ShowAt(Rect anchor)
     {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
-    }
+        _anchor = anchor;
 
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool GetWindowRect(nint window, out NativeRect rect);
+        if (_context.Settings.PopoverPinned && _context.Settings.PinnedLeft is { } left && _context.Settings.PinnedTop is { } top)
+        {
+            ShowPinned(left, top);
+            return;
+        }
 
-    [DllImport("user32.dll")]
-    private static extern uint GetDpiForWindow(nint window);
-
-    public void ShowNearTray()
-    {
-        UpdateTotals();
+        PrepareHeightLimit(anchor);
+        SetSectionsActive(true);
         Show();
-        PositionNearTray();
+        UpdateLayout();
+        PlaceBesideAnchor();
         Activate();
     }
 
     /// <summary>
-    /// Anchors the popover to the working-area corner nearest the tray.
-    ///
-    /// <para>Phase 0 approximation: the taskbar can be docked to any edge and can live on a
-    /// secondary monitor, so Phase 1 replaces this with the same edge-aware placement the
-    /// macOS popover uses, driven by <c>Shell_TrayWnd</c>'s actual rect and the
-    /// <c>ABM_GETTASKBARPOS</c> edge.</para>
+    /// Lays the popover out off-screen, live but never activated, for <see cref="Snapshot"/>.
     /// </summary>
-    private void PositionNearTray()
+    internal void ShowOffScreen()
     {
-        var workArea = SystemParameters.WorkArea;
-        const double Margin = 8;
+        PrepareHeightLimit(DefaultSnapshotAnchor());
+        SetSectionsActive(true);
+        ShowActivated = false;
+        Left = Snapshot.OffScreen;
+        Top = Snapshot.OffScreen;
+        Show();
+    }
 
-        Left = workArea.Right - ActualWidth - Margin;
-        Top = workArea.Bottom - ActualHeight - Margin;
+    internal void HideOffScreen()
+    {
+        Hide();
+        SetSectionsActive(false);
+        ShowActivated = true;
+    }
 
-        // Keep the window fully on screen when the taskbar sits on the left or top edge.
-        if (Left < workArea.Left)
+    private static Rect DefaultSnapshotAnchor()
+        => Screens.MonitorFromPoint(0, 0) is { } info
+            ? new Rect(info.Work.Right - 40, info.Work.Bottom - 8, 16, 8)
+            : new Rect(0, 0, 16, 16);
+
+    /// <summary>Shows the pinned window where it was left, kept on a monitor that still exists.</summary>
+    private void ShowPinned(double left, double top)
+    {
+        SetSectionsActive(true);
+        Left = left;
+        Top = top;
+        Show();
+        UpdateLayout();
+
+        // The monitor it was pinned on may be gone; bring it back to the nearest work area.
+        var handle = new WindowInteropHelper(this).Handle;
+        if (Screens.MonitorWorkArea(handle) is { } work)
         {
-            Left = workArea.Left + Margin;
+            var scale = Screens.DpiScale(handle);
+            var widthPx = (int)Math.Round(ActualWidth * scale);
+            var heightPx = (int)Math.Round(ActualHeight * scale);
+            if (Screens.WindowRect(handle) is { } rect &&
+                (rect.Left < work.Left || rect.Top < work.Top || rect.Right > work.Right || rect.Bottom > work.Bottom))
+            {
+                var x = Math.Clamp(rect.Left, work.Left, Math.Max(work.Left, work.Right - widthPx));
+                var y = Math.Clamp(rect.Top, work.Top, Math.Max(work.Top, work.Bottom - heightPx));
+                Screens.MoveWindow(handle, x, y);
+            }
         }
 
-        if (Top < workArea.Top)
+        Activate();
+    }
+
+    private void SetSectionsActive(bool active)
+    {
+        if (_active == active)
         {
-            Top = workArea.Top + Margin;
+            return;
+        }
+
+        _active = active;
+        _context.Monitor.DetailMonitoring = active;
+
+        foreach (var section in _sections)
+        {
+            section.SetActive(active && _shownOrder.Contains(section.Kind));
+        }
+
+        if (active)
+        {
+            RefreshSections();
         }
     }
 
-    private void OnMonitorChanged(object? sender, PropertyChangedEventArgs e)
+    internal void HideAndNotify()
     {
-        if (e.PropertyName == nameof(NetworkMonitorService.Totals))
+        Hide();
+        SetSectionsActive(false);
+        Hidden?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void TogglePin()
+    {
+        var pin = !_context.Settings.PopoverPinned;
+        _context.Store.Batch(settings =>
         {
-            UpdateTotals();
+            settings.PopoverPinned = pin;
+            if (pin)
+            {
+                settings.PinnedLeft = Left;
+                settings.PinnedTop = Top;
+            }
+        });
+
+        ApplyLayout();
+
+        if (!pin)
+        {
+            // Unpinning turns it back into a popover, which belongs beside its anchor.
+            PlaceBesideAnchor();
+            Activate();
         }
     }
 
-    private void UpdateTotals()
+    private void RefreshSections()
     {
-        DownloadText.Text = RateFormatter.FormatRate(_monitor.Totals.RxRateBps, useBits: false);
-        UploadText.Text = RateFormatter.FormatRate(_monitor.Totals.TxRateBps, useBits: false);
+        if (!IsVisible && !_active)
+        {
+            return;
+        }
+
+        foreach (var section in _sections)
+        {
+            if (_shownOrder.Contains(section.Kind))
+            {
+                section.Refresh();
+            }
+        }
     }
 
-    protected override void OnClosed(EventArgs e)
+    private void BuildFooter()
     {
-        _monitor.PropertyChanged -= OnMonitorChanged;
-        base.OnClosed(e);
+        var commands = _context.Commands;
+
+        Button Add(string glyph, string tooltip, Action action)
+        {
+            var button = Ui.IconButton(glyph, tooltip, action, 13);
+            button.Width = 30;
+            button.Height = 28;
+            FooterButtons.Children.Add(button);
+            return button;
+        }
+
+        Add(Glyph.Chart, PopoverContext.L("Bandwidth Statistics"), () => Dismiss(commands.ShowStatistics));
+        Add(Glyph.Speed, PopoverContext.L("Speed Test…"), () => Dismiss(commands.ShowSpeedTest));
+        Add(Glyph.Settings, PopoverContext.L("Preferences"), () => Dismiss(commands.ShowPreferences));
+
+        Button? more = null;
+        more = Add(Glyph.More, PopoverContext.L("More"), () =>
+        {
+            var menu = SurfaceMenu.Build(commands);
+            menu.PlacementTarget = more;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
+            menu.IsOpen = true;
+        });
+    }
+
+    /// <summary>Closes the (unpinned) popover before opening a window, so it does not sit on top of it.</summary>
+    private void Dismiss(Action open)
+    {
+        if (!_context.Settings.PopoverPinned)
+        {
+            HideAndNotify();
+        }
+
+        open();
+    }
+
+    /// <summary>Footer status line, used for an available update.</summary>
+    internal void SetFooterStatus(string? text) => FooterStatus.Text = text ?? string.Empty;
+
+    // ================================ Placement ================================
+
+    private void PrepareHeightLimit(Rect anchor)
+    {
+        var monitor = Screens.MonitorFromPoint((int)(anchor.Left + (anchor.Width / 2)), (int)(anchor.Top + (anchor.Height / 2)));
+        if (monitor is not { } info)
+        {
+            return;
+        }
+
+        var scale = info.Dpi / 96.0;
+        var available = ((info.Work.Bottom - info.Work.Top) / scale) - (2 * EdgeMarginDips);
+        MaxHeight = Math.Max(MinHeight, Math.Min(_context.Settings.PopoverHeight, available));
+        _edge = info.Edge;
+    }
+
+    private void PlaceBesideAnchor()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        var monitor = Screens.MonitorFromPoint((int)(_anchor.Left + (_anchor.Width / 2)), (int)(_anchor.Top + (_anchor.Height / 2)));
+        if (handle == nint.Zero || monitor is not { } info || Screens.WindowRect(handle) is not { } rect)
+        {
+            return;
+        }
+
+        _edge = info.Edge;
+        var work = info.Work;
+        var scale = info.Dpi / 96.0;
+        var margin = (int)Math.Round(EdgeMarginDips * scale);
+        var width = rect.Right - rect.Left;
+        var height = rect.Bottom - rect.Top;
+        var centreX = (int)(_anchor.Left + (_anchor.Width / 2));
+        var centreY = (int)(_anchor.Top + (_anchor.Height / 2));
+
+        int x, y;
+        switch (_edge)
+        {
+            case TaskbarEdge.Top:
+                x = Math.Clamp(centreX - (width / 2), work.Left + margin, Math.Max(work.Left + margin, work.Right - width - margin));
+                y = work.Top + margin;
+                break;
+            case TaskbarEdge.Left:
+                x = work.Left + margin;
+                y = Math.Clamp(centreY - (height / 2), work.Top + margin, Math.Max(work.Top + margin, work.Bottom - height - margin));
+                break;
+            case TaskbarEdge.Right:
+                x = work.Right - width - margin;
+                y = Math.Clamp(centreY - (height / 2), work.Top + margin, Math.Max(work.Top + margin, work.Bottom - height - margin));
+                break;
+            default:
+                x = Math.Clamp(centreX - (width / 2), work.Left + margin, Math.Max(work.Left + margin, work.Right - width - margin));
+                y = work.Bottom - height - margin;
+                break;
+        }
+
+        Screens.MoveWindow(handle, x, y);
+    }
+
+    /// <summary>
+    /// Keeps a bottom-docked popover's bottom edge fixed as its content grows or shrinks —
+    /// a Wi-Fi list arriving should push the popover up, away from the taskbar, not down
+    /// underneath it.
+    /// </summary>
+    private void KeepAnchored()
+    {
+        if (!IsVisible || _context.Settings.PopoverPinned || _edge != TaskbarEdge.Bottom || _heightDragged)
+        {
+            return;
+        }
+
+        PlaceBesideAnchor();
+    }
+
+    private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    {
+        const int WmSizing = 0x0214;
+        const int WmExitSizeMove = 0x0232;
+
+        switch (msg)
+        {
+            case WmSizing:
+                // WMSZ_TOP (3) .. WMSZ_BOTTOMRIGHT (8): any edge that moves vertically.
+                var edge = wParam.ToInt32();
+                if (edge >= 3)
+                {
+                    _heightDragged = true;
+                }
+
+                break;
+
+            case WmExitSizeMove:
+                OnResizeFinished();
+                break;
+        }
+
+        return nint.Zero;
+    }
+
+    /// <summary>
+    /// Persists a resize. A vertical drag sets the height limit and hands sizing back to the
+    /// content; a horizontal one only changes the width. Saved once at the end of the drag,
+    /// not per pointer move.
+    /// </summary>
+    private void OnResizeFinished()
+    {
+        var height = ActualHeight;
+        var vertical = _heightDragged;
+        _heightDragged = false;
+
+        _context.Store.Batch(settings =>
+        {
+            settings.PopoverWidth = ActualWidth;
+            if (vertical)
+            {
+                settings.PopoverHeight = height;
+            }
+        });
+
+        if (vertical)
+        {
+            MaxHeight = Math.Max(MinHeight, height);
+        }
+
+        SizeToContent = SizeToContent.Height;
+    }
+
+    private static void RoundCorners(nint handle)
+    {
+        const int DwmwaWindowCornerPreference = 33;
+        const int DwmwcpRound = 2;
+
+        try
+        {
+            var preference = DwmwcpRound;
+            _ = DwmSetWindowAttribute(handle, DwmwaWindowCornerPreference, ref preference, sizeof(int));
+        }
+        catch (DllNotFoundException)
+        {
+        }
+    }
+
+    private const int DwmwaUseImmersiveDarkMode = 20;
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(nint hwnd, int attribute, ref int value, int size);
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        var handle = new WindowInteropHelper(this).Handle;
+        var dark = _darkFrame ? 1 : 0;
+        _ = DwmSetWindowAttribute(handle, DwmwaUseImmersiveDarkMode, ref dark, sizeof(int));
     }
 }

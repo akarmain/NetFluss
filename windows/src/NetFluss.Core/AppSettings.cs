@@ -17,6 +17,7 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 
 namespace NetFluss.Core;
@@ -104,8 +105,34 @@ public sealed class AppSettings : INotifyPropertyChanged
     private bool _hideTrayIcon;
     private bool _showInactiveAdapters;
     private bool _showOtherAdapters = true;
-    private double _popoverWidth = 320;
-    private double _popoverHeight = 460;
+    private double _popoverWidth = 340;
+    private double _popoverHeight = 560;
+    private bool _showTotalsHeader = true;
+    private bool _showAdapterList = true;
+    private bool _showUsageSummary;
+    private ConnectionDisplayMode _connectionMode = ConnectionDisplayMode.Flow;
+    private ConnectionDisplayMode _lastConnectionMode = ConnectionDisplayMode.Flow;
+    private bool _externalIPv6;
+    private bool _showDnsSwitcher;
+    private bool _showWifiSwitcher;
+    private bool _wifiLimitEnabled;
+    private int _wifiLimitCount = 10;
+    private bool _showTopApps;
+    private bool _topAppsGraceEnabled;
+    private double _topAppsGraceSeconds = 3;
+    private bool _adapterGraceEnabled;
+    private double _adapterGraceSeconds = 3;
+    private bool _collectStatistics;
+    private bool _collectAppStatistics = true;
+    private bool _automaticUpdateChecks = true;
+    private string _speedTestProvider = "cloudflare";
+    private bool _speedTestMLabConsent;
+    private string _lastNotifiedVersion = string.Empty;
+    private DateTimeOffset? _lastUpdateCheck;
+    private bool _popoverPinned;
+    private double? _pinnedLeft;
+    private double? _pinnedTop;
+    private string _dnsAdapterId = string.Empty;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -385,11 +412,411 @@ public sealed class AppSettings : INotifyPropertyChanged
         set => Set(ref _popoverWidth, Math.Clamp(value, 280, 900));
     }
 
+    /// <summary>
+    /// The most the popover may grow to. It hugs its content below this, as the macOS
+    /// popover does, so a short popover is never padded out with empty background; dragging
+    /// the bottom edge sets the limit.
+    /// </summary>
     public double PopoverHeight
     {
         get => _popoverHeight;
-        set => Set(ref _popoverHeight, Math.Clamp(value, 220, 1200));
+        set => Set(ref _popoverHeight, Math.Clamp(value, 220, 2000));
     }
+
+    // ================================ Popover sections ================================
+
+    /// <summary>
+    /// Section order as macOS raw ids. Stored as given and resolved on read, so an id from a
+    /// newer version survives a round trip through an older one.
+    /// </summary>
+    public List<string> PopoverSectionOrder { get; set; } = [.. PopoverSections.DefaultOrder.Select(s => s.Id())];
+
+    /// <summary>The order every surface should draw in: unknown ids dropped, new sections appended.</summary>
+    public IReadOnlyList<PopoverSection> SectionOrder() => PopoverSections.Resolve(PopoverSectionOrder);
+
+    public void SetSectionOrder(IEnumerable<PopoverSection> order)
+    {
+        var ids = order.Select(s => s.Id()).ToList();
+        if (ids.SequenceEqual(PopoverSectionOrder, StringComparer.Ordinal))
+        {
+            return;
+        }
+
+        PopoverSectionOrder = ids;
+        OnPropertyChanged(nameof(PopoverSectionOrder));
+    }
+
+    /// <summary>
+    /// Whether a section is switched on. Each one aliases the preference that already owns
+    /// it rather than keeping a second flag — the macOS design, and the only way the reorder
+    /// list and the individual toggles elsewhere in Preferences can never disagree.
+    /// </summary>
+    public bool IsSectionEnabled(PopoverSection section) => section switch
+    {
+        PopoverSection.Totals => ShowTotalsHeader,
+        PopoverSection.Usage => ShowUsageSummary,
+        PopoverSection.Adapters => ShowAdapterList,
+        PopoverSection.Connection => ConnectionMode != ConnectionDisplayMode.None,
+        PopoverSection.Dns => ShowDnsSwitcher,
+        PopoverSection.Router => AnyRouterEnabled,
+        PopoverSection.Wifi => ShowWifiSwitcher,
+        PopoverSection.Vpn => false,
+        PopoverSection.TopApps => ShowTopApps,
+        _ => false,
+    };
+
+    public void SetSectionEnabled(PopoverSection section, bool enabled)
+    {
+        switch (section)
+        {
+            case PopoverSection.Totals:
+                ShowTotalsHeader = enabled;
+                break;
+            case PopoverSection.Usage:
+                ShowUsageSummary = enabled;
+                if (enabled)
+                {
+                    // The summary is read from the history; switching it on without
+                    // collection would show a section that can only ever say "no data".
+                    CollectStatistics = true;
+                }
+
+                break;
+            case PopoverSection.Adapters:
+                ShowAdapterList = enabled;
+                break;
+            case PopoverSection.Connection:
+                // Off remembers which view was in use, so switching back on restores it.
+                ConnectionMode = enabled ? LastConnectionMode : ConnectionDisplayMode.None;
+                break;
+            case PopoverSection.Dns:
+                ShowDnsSwitcher = enabled;
+                break;
+            case PopoverSection.Wifi:
+                ShowWifiSwitcher = enabled;
+                break;
+            case PopoverSection.TopApps:
+                ShowTopApps = enabled;
+                break;
+        }
+    }
+
+    /// <summary>
+    /// True when at least one router integration is on. Routers arrive in a later phase;
+    /// until then this is always false and the Router section stays hidden.
+    /// </summary>
+    [JsonIgnore]
+    public bool AnyRouterEnabled => FritzBoxEnabled || UniFiEnabled || OpenWrtEnabled || OpnSenseEnabled;
+
+    public bool ShowTotalsHeader
+    {
+        get => _showTotalsHeader;
+        set => Set(ref _showTotalsHeader, value);
+    }
+
+    public bool ShowAdapterList
+    {
+        get => _showAdapterList;
+        set => Set(ref _showAdapterList, value);
+    }
+
+    /// <summary>The Today / This Month data-usage block. Needs <see cref="CollectStatistics"/>.</summary>
+    public bool ShowUsageSummary
+    {
+        get => _showUsageSummary;
+        set => Set(ref _showUsageSummary, value);
+    }
+
+    public ConnectionDisplayMode ConnectionMode
+    {
+        get => _connectionMode;
+        set
+        {
+            if (value != ConnectionDisplayMode.None)
+            {
+                LastConnectionMode = value;
+            }
+
+            Set(ref _connectionMode, value);
+        }
+    }
+
+    /// <summary>The flow or list view to restore when the address section is switched back on.</summary>
+    public ConnectionDisplayMode LastConnectionMode
+    {
+        get => _lastConnectionMode;
+        set => Set(ref _lastConnectionMode, value == ConnectionDisplayMode.None ? ConnectionDisplayMode.Flow : value);
+    }
+
+    /// <summary>Show the IPv6 external address rather than the IPv4 one.</summary>
+    public bool ExternalIPv6
+    {
+        get => _externalIPv6;
+        set => Set(ref _externalIPv6, value);
+    }
+
+    public bool ShowDnsSwitcher
+    {
+        get => _showDnsSwitcher;
+        set => Set(ref _showDnsSwitcher, value);
+    }
+
+    /// <summary>The adapter the popover's DNS switcher applies to; empty means the primary one.</summary>
+    public string DnsAdapterId
+    {
+        get => _dnsAdapterId;
+        set => Set(ref _dnsAdapterId, value ?? string.Empty);
+    }
+
+    public bool ShowWifiSwitcher
+    {
+        get => _showWifiSwitcher;
+        set => Set(ref _showWifiSwitcher, value);
+    }
+
+    /// <summary>Cap the Wi-Fi list to the strongest networks. Pinned and current always show.</summary>
+    public bool WifiLimitEnabled
+    {
+        get => _wifiLimitEnabled;
+        set => Set(ref _wifiLimitEnabled, value);
+    }
+
+    public int WifiLimitCount
+    {
+        get => _wifiLimitCount;
+        set => Set(ref _wifiLimitCount, Math.Clamp(value, 1, 50));
+    }
+
+    /// <summary>SSIDs pinned to the top of the Wi-Fi list, in pin order.</summary>
+    public List<string> PinnedWifiNetworks { get; set; } = [];
+
+    public bool IsWifiPinned(string ssid) => PinnedWifiNetworks.Contains(ssid, StringComparer.Ordinal);
+
+    public void SetWifiPinned(string ssid, bool pinned)
+    {
+        if (IsWifiPinned(ssid) == pinned)
+        {
+            return;
+        }
+
+        var updated = PinnedWifiNetworks.Where(s => !string.Equals(s, ssid, StringComparison.Ordinal)).ToList();
+        if (pinned)
+        {
+            updated.Add(ssid);
+        }
+
+        PinnedWifiNetworks = updated;
+        OnPropertyChanged(nameof(PinnedWifiNetworks));
+    }
+
+    public bool ShowTopApps
+    {
+        get => _showTopApps;
+        set => Set(ref _showTopApps, value);
+    }
+
+    /// <summary>Keep an app listed for a few seconds after it goes quiet, so the list does not flicker.</summary>
+    public bool TopAppsGraceEnabled
+    {
+        get => _topAppsGraceEnabled;
+        set => Set(ref _topAppsGraceEnabled, value);
+    }
+
+    public double TopAppsGraceSeconds
+    {
+        get => _topAppsGraceSeconds;
+        set => Set(ref _topAppsGraceSeconds, Math.Clamp(value, 1, 30));
+    }
+
+    /// <summary>Process names kept out of Top Apps, matched case-insensitively.</summary>
+    public List<string> HiddenApps { get; set; } = [];
+
+    public bool IsAppHidden(string name) => HiddenApps.Contains(name, StringComparer.OrdinalIgnoreCase);
+
+    public void SetAppHidden(string name, bool hidden)
+    {
+        if (string.IsNullOrWhiteSpace(name) || IsAppHidden(name) == hidden)
+        {
+            return;
+        }
+
+        var updated = HiddenApps.Where(a => !string.Equals(a, name, StringComparison.OrdinalIgnoreCase)).ToList();
+        if (hidden)
+        {
+            updated.Add(name.Trim());
+        }
+
+        HiddenApps = updated;
+        OnPropertyChanged(nameof(HiddenApps));
+    }
+
+    /// <summary>
+    /// Show adapters only while they carry traffic, plus a grace period after. The macOS
+    /// "adapter grace period" — for machines with a VPN that comes and goes.
+    /// </summary>
+    public bool AdapterGraceEnabled
+    {
+        get => _adapterGraceEnabled;
+        set => Set(ref _adapterGraceEnabled, value);
+    }
+
+    public double AdapterGraceSeconds
+    {
+        get => _adapterGraceSeconds;
+        set => Set(ref _adapterGraceSeconds, Math.Clamp(value, 1, 60));
+    }
+
+    // =================================== Statistics ===================================
+
+    /// <summary>Record per-adapter history for the Statistics window and Data Usage.</summary>
+    public bool CollectStatistics
+    {
+        get => _collectStatistics;
+        set => Set(ref _collectStatistics, value);
+    }
+
+    /// <summary>Also record per-app history. Only takes effect where per-app data is available.</summary>
+    public bool CollectAppStatistics
+    {
+        get => _collectAppStatistics;
+        set => Set(ref _collectAppStatistics, value);
+    }
+
+    // ===================================== Updates =====================================
+
+    /// <summary>Check GitHub for a newer release once a day.</summary>
+    public bool AutomaticUpdateChecks
+    {
+        get => _automaticUpdateChecks;
+        set => Set(ref _automaticUpdateChecks, value);
+    }
+
+    /// <summary>The newest version the user has already been told about, so they are told once.</summary>
+    public string LastNotifiedVersion
+    {
+        get => _lastNotifiedVersion;
+        set => Set(ref _lastNotifiedVersion, value ?? string.Empty);
+    }
+
+    public DateTimeOffset? LastUpdateCheck
+    {
+        get => _lastUpdateCheck;
+        set => Set(ref _lastUpdateCheck, value);
+    }
+
+    // ==================================== Speed test ====================================
+
+    /// <summary>"cloudflare" or "mlab"; remembered between runs, as on macOS.</summary>
+    public string SpeedTestProvider
+    {
+        get => _speedTestProvider;
+        set => Set(ref _speedTestProvider, value is "mlab" ? "mlab" : "cloudflare");
+    }
+
+    /// <summary>
+    /// M-Lab publishes every result, including the client's IP address, as open data. The
+    /// Mac asks once before the first M-Lab run and so does this.
+    /// </summary>
+    public bool SpeedTestMLabConsent
+    {
+        get => _speedTestMLabConsent;
+        set => Set(ref _speedTestMLabConsent, value);
+    }
+
+    // ===================================== Pinning =====================================
+
+    /// <summary>The popover is pinned open as a movable window — the macOS Pin button.</summary>
+    public bool PopoverPinned
+    {
+        get => _popoverPinned;
+        set => Set(ref _popoverPinned, value);
+    }
+
+    public double? PinnedLeft
+    {
+        get => _pinnedLeft;
+        set => Set(ref _pinnedLeft, value);
+    }
+
+    public double? PinnedTop
+    {
+        get => _pinnedTop;
+        set => Set(ref _pinnedTop, value);
+    }
+
+    // ====================================== DNS ======================================
+
+    /// <summary>Preset ids hidden from the popover switcher. Built-ins can be hidden, not deleted.</summary>
+    public List<string> HiddenDnsPresets { get; set; } = [];
+
+    /// <summary>User order of preset ids; presets not listed follow in their natural order.</summary>
+    public List<string> DnsPresetOrder { get; set; } = [];
+
+    /// <summary>Every preset in the user's order, hidden ones included (for Preferences).</summary>
+    public IReadOnlyList<DnsPreset> OrderedDnsPresets()
+    {
+        var all = AllDnsPresets();
+        var rank = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (var i = 0; i < DnsPresetOrder.Count; i++)
+        {
+            rank.TryAdd(DnsPresetOrder[i], i);
+        }
+
+        return
+        [
+            .. all.Select((preset, index) => (preset, index))
+                .OrderBy(p => rank.TryGetValue(p.preset.Id, out var r) ? r : int.MaxValue)
+                .ThenBy(p => p.index)
+                .Select(p => p.preset),
+        ];
+    }
+
+    /// <summary>The presets the popover offers.</summary>
+    public IReadOnlyList<DnsPreset> VisibleDnsPresets()
+        => [.. OrderedDnsPresets().Where(p => !HiddenDnsPresets.Contains(p.Id, StringComparer.Ordinal))];
+
+    public void SetDnsPresetHidden(string id, bool hidden)
+    {
+        var isHidden = HiddenDnsPresets.Contains(id, StringComparer.Ordinal);
+        if (isHidden == hidden)
+        {
+            return;
+        }
+
+        var updated = HiddenDnsPresets.Where(h => h != id).ToList();
+        if (hidden)
+        {
+            updated.Add(id);
+        }
+
+        HiddenDnsPresets = updated;
+        OnPropertyChanged(nameof(HiddenDnsPresets));
+    }
+
+    public void MoveDnsPreset(string id, int newIndex)
+    {
+        var order = OrderedDnsPresets().Select(p => p.Id).Where(p => p != id).ToList();
+        order.Insert(Math.Clamp(newIndex, 0, order.Count), id);
+        if (order.SequenceEqual(DnsPresetOrder, StringComparer.Ordinal))
+        {
+            return;
+        }
+
+        DnsPresetOrder = order;
+        OnPropertyChanged(nameof(DnsPresetOrder));
+    }
+
+    // ===================================== Routers =====================================
+    // Declared here so the Router section's visibility has something to read; the
+    // integrations themselves and their Preferences land with the router phase.
+
+    public bool FritzBoxEnabled { get; set; }
+
+    public bool UniFiEnabled { get; set; }
+
+    public bool OpenWrtEnabled { get; set; }
+
+    public bool OpnSenseEnabled { get; set; }
 
     /// <summary>
     /// The visibility rules assembled from the individual preferences.
@@ -512,6 +939,7 @@ public sealed class AppSettings : INotifyPropertyChanged
     }
 
     /// <summary>The selected theme, or <see cref="AppTheme.System"/> for an unknown id.</summary>
+    [JsonIgnore]
     public AppTheme Theme => AppTheme.Named(ThemeId);
 
     public ThemeColor ResolveDownloadColor(ThemeColor fallback)

@@ -64,6 +64,19 @@ public partial class PreferencesWindow : Window
         };
     }
 
+    /// <summary>Opens on a tab by its English header ("dns", "adapters", …), for deep links.</summary>
+    internal void SelectTab(string name)
+    {
+        foreach (var item in Tabs.Items.OfType<TabItem>())
+        {
+            if (string.Equals(item.Tag as string ?? item.Header as string, name, StringComparison.OrdinalIgnoreCase))
+            {
+                Tabs.SelectedItem = item;
+                return;
+            }
+        }
+    }
+
     /// <summary>
     /// Shrinks the window to whatever the display actually has room for.
     ///
