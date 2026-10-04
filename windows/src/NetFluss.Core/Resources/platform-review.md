@@ -25,6 +25,9 @@ were left alone and want a human decision.
 | `en` | `Reveal VPN log in Finder` | needs review | Reveal VPN log in Finder |
 | `en` | `When enabled, VPN/tunnel adapters (utun, tun, tap, ipsec, ppp) are excluded from totals. Loopback and AirDrop are always excluded, since they never carry internet traffic. All adapters remain visible in the adapter list.` | needs review | When enabled, VPN/tunnel adapters (utun, tun, tap, ipsec, ppp) are excluded from totals. Loopback and AirDrop are always excluded, since they never carry internet traffic. All adapters remain visible in the adapter list. |
 | `en` | `Who your Mac is talking to right now.` | needs review | Who your Mac is talking to right now. |
+| `en` | `Once a day, NetFluss looks for a new version on GitHub and asks whether to download and install it. You can also check any time from the menu bar icon's right-click menu or in About.` | needs review | Once a day, NetFluss looks for a new version on GitHub and asks whether to download and install it. You can also check any time from the menu bar icon's right-click menu or in About. |
+| `en` | `macOS blocks unencrypted HTTP to %@. Use the router's IP address or HTTPS.` | auto-rewritten | Windows blocks unencrypted HTTP to %@. Use the router's IP address or HTTPS. |
+| `en` | `The VPN password isn't stored in the Keychain — remove the profile and add it again.` | auto-rewritten | The VPN password isn't stored in the Credential Manager — remove the profile and add it again. |
 | `de` | `System Default follows the language selected in macOS.` | auto-rewritten | Systemsprache folgt der in Windows ausgewählten Sprache. |
 | `de` | `DNS changes and Ethernet reconnects install a privileged helper the first time. macOS may ask for administrator approval and, on some systems, additional approval in System Settings.` | auto-rewritten | DNS-Änderungen und Ethernet-Neuverbindungen installieren beim ersten Mal ein privilegiertes Hilfsprogramm. Windows kann nach Administratorfreigabe und auf manchen Systemen nach zusätzlicher Freigabe in den Systemeinstellungen fragen. |
 | `de` | `Recent results saved on this Mac. Add notes to remember the exact place.` | needs review | Aktuelle Ergebnisse, die auf diesem Mac gespeichert sind. Füge Notizen hinzu, um den genauen Ort festzuhalten. |
@@ -40,6 +43,7 @@ Es wird kein Netzwerkverkehr gesendet — nur lokale Zähler von Ihrem Mac werde
 | `de` | `Reveal VPN log in Finder` | needs review | VPN-Protokoll im Finder zeigen |
 | `de` | `When enabled, VPN/tunnel adapters (utun, tun, tap, ipsec, ppp) are excluded from totals. Loopback and AirDrop are always excluded, since they never carry internet traffic. All adapters remain visible in the adapter list.` | needs review | Wenn aktiviert, werden VPN-/Tunnel-Adapter (utun, tun, tap, ipsec, ppp) aus den Summen ausgeschlossen. Loopback und AirDrop werden immer ausgeschlossen, da sie keinen Internetverkehr führen. Alle Adapter bleiben in der Adapterliste sichtbar. |
 | `de` | `Who your Mac is talking to right now.` | needs review | Mit wem dein Mac gerade spricht. |
+| `de` | `macOS blocks unencrypted HTTP to %@. Use the router's IP address or HTTPS.` | auto-rewritten | Windows blockiert unverschlüsseltes HTTP zu %@. Verwende die IP-Adresse des Routers oder HTTPS. |
 | `zh-Hans` | `System Default follows the language selected in macOS.` | auto-rewritten | 系统默认会跟随 Windows 中选择的语言。 |
 | `zh-Hans` | `DNS changes and Ethernet reconnects install a privileged helper the first time. macOS may ask for administrator approval and, on some systems, additional approval in System Settings.` | auto-rewritten | 首次更改 DNS 或重新连接以太网时会安装特权辅助工具。Windows 可能会要求管理员批准，在某些系统上还需要在系统设置中额外批准。 |
 | `zh-Hans` | `Recent results saved on this Mac. Add notes to remember the exact place.` | needs review | 保存在这台 Mac 上的最近结果。添加备注以记住具体地点。 |
@@ -49,6 +53,7 @@ Es wird kein Netzwerkverkehr gesendet — nur lokale Zähler von Ihrem Mac werde
 | `zh-Hans` | `%d snapshots were captured. Paste them into the GitHub issue (issue #31) so the developer can identify which interface accumulates download bytes on your Mac.` | needs review | 已捕获 %d 个快照。请将其粘贴到 GitHub Issue (#31)，以便开发者识别您 Mac 上哪个接口在累积下载字节。 |
 | `zh-Hans` | `When enabled, VPN/tunnel adapters (utun, tun, tap, ipsec, ppp) are excluded from totals. Loopback and AirDrop are always excluded, since they never carry internet traffic. All adapters remain visible in the adapter list.` | needs review | 启用后，VPN/隧道适配器（utun、tun、tap、ipsec、ppp）将从总计中排除。回环和 AirDrop 始终被排除，因为它们不承载互联网流量。所有适配器仍会显示在适配器列表中。 |
 | `zh-Hans` | `Who your Mac is talking to right now.` | needs review | 你的 Mac 此刻正在与谁通信。 |
+| `zh-Hans` | `macOS blocks unencrypted HTTP to %@. Use the router's IP address or HTTPS.` | auto-rewritten | Windows 阻止了到 %@ 的未加密 HTTP 连接。请使用路由器的 IP 地址或 HTTPS。 |
 | `zh-Hant` | `System Default follows the language selected in macOS.` | auto-rewritten | 系統預設會跟隨 Windows 中選擇的語言。 |
 | `zh-Hant` | `DNS changes and Ethernet reconnects install a privileged helper the first time. macOS may ask for administrator approval and, on some systems, additional approval in System Settings.` | auto-rewritten | 首次變更 DNS 或重新連接乙太網路時會安裝特權輔助工具。Windows 可能會要求管理員批准，在某些系統上還需要在系統設定中額外批准。 |
 | `zh-Hant` | `Recent results saved on this Mac. Add notes to remember the exact place.` | needs review | 保存在這台 Mac 上的最近結果。加入備註以記住具體地點。 |
@@ -59,3 +64,4 @@ Es wird kein Netzwerkverkehr gesendet — nur lokale Zähler von Ihrem Mac werde
 | `zh-Hant` | `Reveal VPN log in Finder` | needs review | 在 Finder 中顯示 VPN 日誌 |
 | `zh-Hant` | `When enabled, VPN/tunnel adapters (utun, tun, tap, ipsec, ppp) are excluded from totals. Loopback and AirDrop are always excluded, since they never carry internet traffic. All adapters remain visible in the adapter list.` | needs review | 啟用後，VPN/通道介面（utun、tun、tap、ipsec、ppp）將從總計中排除。回送與 AirDrop 一律排除，因為它們不承載網際網路流量。所有介面仍會顯示在介面清單中。 |
 | `zh-Hant` | `Who your Mac is talking to right now.` | needs review | 你的 Mac 此刻正在與誰通訊。 |
+| `zh-Hant` | `macOS blocks unencrypted HTTP to %@. Use the router's IP address or HTTPS.` | auto-rewritten | Windows 封鎖了到 %@ 的未加密 HTTP 連線。請使用路由器的 IP 位址或 HTTPS。 |

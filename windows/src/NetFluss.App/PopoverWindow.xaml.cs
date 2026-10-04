@@ -57,6 +57,13 @@ public partial class PopoverWindow : Window
         BuildFooter();
 
         PinButton.Click += (_, _) => TogglePin();
+        FooterStatus.MouseLeftButtonUp += (_, _) =>
+        {
+            if (FooterStatus.Text.Length > 0)
+            {
+                Dismiss(_context.Commands.ShowAbout);
+            }
+        };
 
         // Pinned, the header is the title bar: drag it to move the window.
         Header.MouseLeftButtonDown += (_, e) =>
@@ -355,7 +362,12 @@ public partial class PopoverWindow : Window
     }
 
     /// <summary>Footer status line, used for an available update.</summary>
-    internal void SetFooterStatus(string? text) => FooterStatus.Text = text ?? string.Empty;
+    internal void SetFooterStatus(string? text)
+    {
+        FooterStatus.Text = text ?? string.Empty;
+        FooterStatus.Cursor = string.IsNullOrEmpty(text) ? null : Cursors.Hand;
+        FooterStatus.SetResourceReference(TextBlock.ForegroundProperty, string.IsNullOrEmpty(text) ? Ui.Tertiary : Ui.Accent);
+    }
 
     // ================================ Placement ================================
 

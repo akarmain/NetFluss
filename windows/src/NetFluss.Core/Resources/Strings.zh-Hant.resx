@@ -509,11 +509,11 @@
   <data name="Queries your Fritz!Box via TR-064 (no authentication needed for bandwidth data). Auto uses the current default gateway. Set a fixed address if your Fritz!Box is reachable at a different IP. Port 49000 must be reachable." xml:space="preserve">
     <value>透過 TR-064 查詢 Fritz!Box（頻寬資料無需認證）。自動模式使用目前預設閘道。如果 Fritz!Box 位於其他 IP，請設定固定位址。連接埠 49000 必須可存取。</value>
   </data>
-  <data name="Queries your OPNsense router via REST API over HTTPS or HTTP. Auto uses the current default gateway. Requires API key and secret configured in OPNsense." xml:space="preserve">
-    <value>透過 HTTPS 或 HTTP 使用 REST API 查詢 OPNsense 路由器。自動模式使用目前預設閘道。需要在 OPNsense 中設定 API 金鑰和密鑰。</value>
+  <data name="Queries your OPNsense router via its REST API over HTTPS. Auto uses the current default gateway. If the web interface uses plain HTTP or a different port, enter the full URL (e.g. http://192.168.1.1 or https://192.168.1.1:8443). Requires an API key and secret configured in OPNsense." xml:space="preserve">
+    <value>透過 HTTPS 呼叫 REST API 查詢你的 OPNsense 路由器。自動模式使用目前的預設閘道。如果網頁介面僅使用 HTTP 或其他連接埠，請輸入完整 URL（例如 http://192.168.1.1 或 https://192.168.1.1:8443）。需要在 OPNsense 中設定 API 金鑰與密鑰。</value>
   </data>
-  <data name="Queries your OpenWRT router via ubus JSON-RPC over HTTPS or HTTP. Auto uses the current default gateway, which may be the wrong router on dual-router setups. Set a fixed OpenWRT IP or URL if needed. Requires the router&apos;s admin credentials and the uhttpd-mod-ubus package." xml:space="preserve">
-    <value>透過 HTTPS 或 HTTP 使用 ubus JSON-RPC 查詢 OpenWRT 路由器。自動模式使用目前預設閘道，在雙路由設定中可能不是正確的路由器。需要時請設定固定 OpenWRT IP 或 URL。需要路由器管理員憑證和 uhttpd-mod-ubus 套件。</value>
+  <data name="Queries your OpenWRT router via ubus JSON-RPC over HTTPS. Auto uses the current default gateway, which may be the wrong router on dual-router setups. Set a fixed OpenWRT IP or URL if needed — for plain HTTP, enter http://&lt;IP&gt;. Requires the router&apos;s admin credentials and the uhttpd-mod-ubus package." xml:space="preserve">
+    <value>透過 HTTPS 使用 ubus JSON-RPC 查詢你的 OpenWRT 路由器。自動模式使用目前的預設閘道，在雙路由器環境中可能不是正確的路由器。如有需要，請設定固定的 OpenWRT IP 或 URL；如需純 HTTP，請輸入 http://&lt;IP&gt;。需要路由器的管理員憑證以及 uhttpd-mod-ubus 套件。</value>
   </data>
   <data name="Queries your UniFi gateway via its local API (HTTPS). Requires a local admin account on the UniFi controller." xml:space="preserve">
     <value>透過本地 API（HTTPS）查詢 UniFi 閘道。需要 UniFi 控制器上的本地管理員帳戶。</value>
@@ -1242,5 +1242,503 @@
   </data>
   <data name="Cafe X, back room, hotel Wi-Fi, coworking desk 4…" xml:space="preserve">
     <value>X 咖啡廳、後廳、飯店 Wi-Fi、共享辦公 4 號座位…</value>
+  </data>
+  <data name="VPN indicator" xml:space="preserve">
+    <value>VPN 指示器</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="Dot" xml:space="preserve">
+    <value>圓點</value>
+  </data>
+  <data name="Shield" xml:space="preserve">
+    <value>盾牌</value>
+  </data>
+  <data name="VPN indicator color" xml:space="preserve">
+    <value>VPN 指示器顏色</value>
+  </data>
+  <data name="Show when VPN is off" xml:space="preserve">
+    <value>VPN 關閉時也顯示</value>
+  </data>
+  <data name="Country flag" xml:space="preserve">
+    <value>國家/地區旗幟</value>
+  </data>
+  <data name="Shown to the right of the rates. The VPN indicator also detects VPNs started by other apps. The country flag shows where your public IP is located (looked up via ipify.org and ipwho.is)." xml:space="preserve">
+    <value>顯示在速率右側。VPN 指示器也能偵測由其他 App 啟動的 VPN。國家/地區旗幟顯示你的公用 IP 所在位置（透過 ipify.org 和 ipwho.is 查詢）。</value>
+  </data>
+  <data name="Traffic Timer" xml:space="preserve">
+    <value>流量計時器</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>重設</value>
+  </data>
+  <data name="Running" xml:space="preserve">
+    <value>執行中</value>
+  </data>
+  <data name="Paused" xml:space="preserve">
+    <value>已暫停</value>
+  </data>
+  <data name="Starting time" xml:space="preserve">
+    <value>開始時間</value>
+  </data>
+  <data name="Paused at" xml:space="preserve">
+    <value>暫停於</value>
+  </data>
+  <data name="Check for Updates…" xml:space="preserve">
+    <value>檢查更新…</value>
+  </data>
+  <data name="Check for updates automatically" xml:space="preserve">
+    <value>自動檢查更新</value>
+  </data>
+  <data name="Once a day, NetFluss looks for a new version on GitHub and asks whether to download and install it. You can also check any time from the menu bar icon&apos;s right-click menu or in About." xml:space="preserve">
+    <value>NetFluss 每天在 GitHub 上檢查一次新版本，並詢問是否下載並安裝。你也可以隨時透過選單列圖示的右鍵選單或「關於」視窗手動檢查。</value>
+  </data>
+  <data name="Last checked: {0}" xml:space="preserve">
+    <value>上次檢查：{0}</value>
+  </data>
+  <data name="Trust Current Certificate" xml:space="preserve">
+    <value>信任目前的憑證</value>
+  </data>
+  <data name="API Key~2" xml:space="preserve">
+    <value>API 金鑰</value>
+  </data>
+  <data name="API Secret" xml:space="preserve">
+    <value>API 密鑰</value>
+  </data>
+  <data name="UniFi API Key" xml:space="preserve">
+    <value>UniFi API 金鑰</value>
+  </data>
+  <data name="Create a key in the UniFi Network app under Settings → Control Plane → Integrations." xml:space="preserve">
+    <value>在 UniFi Network App 的 Settings → Control Plane → Integrations 中建立金鑰。</value>
+  </data>
+  <data name="for {0}" xml:space="preserve">
+    <value>用於 {0}</value>
+  </data>
+  <data name="Hide {0}" xml:space="preserve">
+    <value>隱藏 {0}</value>
+  </data>
+  <data name="Show {0}" xml:space="preserve">
+    <value>顯示 {0}</value>
+  </data>
+  <data name="Name (e.g. My DNS)" xml:space="preserve">
+    <value>名稱（例如 我的 DNS）</value>
+  </data>
+  <data name="Primary DNS (e.g. 1.1.1.1)" xml:space="preserve">
+    <value>主要 DNS（例如 1.1.1.1）</value>
+  </data>
+  <data name="Secondary DNS (optional)" xml:space="preserve">
+    <value>次要 DNS（選填）</value>
+  </data>
+  <data name="Tertiary DNS (optional)" xml:space="preserve">
+    <value>第三 DNS（選填）</value>
+  </data>
+  <data name="Quaternary DNS (optional)" xml:space="preserve">
+    <value>第四 DNS（選填）</value>
+  </data>
+  <data name="Router IP (auto-detect)" xml:space="preserve">
+    <value>路由器 IP（自動偵測）</value>
+  </data>
+  <data name="Router IP or URL (auto uses gateway)" xml:space="preserve">
+    <value>路由器 IP 或 URL（自動模式使用閘道）</value>
+  </data>
+  <data name="UniFi Address" xml:space="preserve">
+    <value>UniFi 位址</value>
+  </data>
+  <data name="UniFi Credentials" xml:space="preserve">
+    <value>UniFi 憑證</value>
+  </data>
+  <data name="OpenWRT Address" xml:space="preserve">
+    <value>OpenWRT 位址</value>
+  </data>
+  <data name="OpenWRT Credentials" xml:space="preserve">
+    <value>OpenWRT 憑證</value>
+  </data>
+  <data name="OPNsense Address" xml:space="preserve">
+    <value>OPNsense 位址</value>
+  </data>
+  <data name="Test Connection" xml:space="preserve">
+    <value>測試連線</value>
+  </data>
+  <data name="Testing…" xml:space="preserve">
+    <value>正在測試…</value>
+  </data>
+  <data name="Add Custom DNS" xml:space="preserve">
+    <value>新增自訂 DNS</value>
+  </data>
+  <data name="Edit Custom DNS" xml:space="preserve">
+    <value>編輯自訂 DNS</value>
+  </data>
+  <data name="Internal" xml:space="preserve">
+    <value>內部</value>
+  </data>
+  <data name="External" xml:space="preserve">
+    <value>外部</value>
+  </data>
+  <data name="{0} VPNs" xml:space="preserve">
+    <value>{0} 個 VPN</value>
+  </data>
+  <data name="Tunnel {0}" xml:space="preserve">
+    <value>通道 {0}</value>
+  </data>
+  <data name="Noise" xml:space="preserve">
+    <value>雜訊</value>
+  </data>
+  <data name="SNR" xml:space="preserve">
+    <value>訊噪比</value>
+  </data>
+  <data name="Tx Rate" xml:space="preserve">
+    <value>傳送速率</value>
+  </data>
+  <data name="No API key configured" xml:space="preserve">
+    <value>未設定 API 金鑰</value>
+  </data>
+  <data name="No credentials configured" xml:space="preserve">
+    <value>未設定憑證</value>
+  </data>
+  <data name="Invalid DNS server address." xml:space="preserve">
+    <value>DNS 伺服器位址無效。</value>
+  </data>
+  <data name="No active network service found." xml:space="preserve">
+    <value>找不到作用中的網路服務。</value>
+  </data>
+  <data name="No Fritz!Box gateway detected. Set the router address manually." xml:space="preserve">
+    <value>未偵測到 Fritz!Box 閘道。請手動設定路由器位址。</value>
+  </data>
+  <data name="Enter a valid Fritz!Box address." xml:space="preserve">
+    <value>請輸入有效的 Fritz!Box 位址。</value>
+  </data>
+  <data name="Fritz!Box TR-064 request failed (HTTP {0})." xml:space="preserve">
+    <value>Fritz!Box TR-064 請求失敗（HTTP {0}）。</value>
+  </data>
+  <data name="Fritz!Box TR-064 request failed." xml:space="preserve">
+    <value>Fritz!Box TR-064 請求失敗。</value>
+  </data>
+  <data name="Cannot reach Fritz!Box at {0}. Set the router address manually if auto detection picked the wrong gateway." xml:space="preserve">
+    <value>無法連線到 {0} 上的 Fritz!Box。如果自動偵測選錯了閘道，請手動設定路由器位址。</value>
+  </data>
+  <data name="Cannot reach Fritz!Box at {0}." xml:space="preserve">
+    <value>無法連線到 {0} 上的 Fritz!Box。</value>
+  </data>
+  <data name="Fritz!Box returned an unexpected TR-064 response." xml:space="preserve">
+    <value>Fritz!Box 傳回了非預期的 TR-064 回應。</value>
+  </data>
+  <data name="Fritz!Box did not respond in time." xml:space="preserve">
+    <value>Fritz!Box 未及時回應。</value>
+  </data>
+  <data name="Cannot reach Fritz!Box." xml:space="preserve">
+    <value>無法連線到 Fritz!Box。</value>
+  </data>
+  <data name="Set the controller address manually if auto detection picked the wrong gateway." xml:space="preserve">
+    <value>如果自動偵測選錯了閘道，請手動設定控制器位址。</value>
+  </data>
+  <data name="Enter a valid UniFi controller address." xml:space="preserve">
+    <value>請輸入有效的 UniFi 控制器位址。</value>
+  </data>
+  <data name="UniFi login failed. Check the username and password — the local API needs a local admin account, not a UI.com cloud login." xml:space="preserve">
+    <value>UniFi 登入失敗。請檢查使用者名稱和密碼——本機 API 需要本機管理員帳號，而不是 UI.com 雲端登入。</value>
+  </data>
+  <data name="UniFi login failed because two-factor authentication is enabled on this account. Create a local admin account without 2FA for Netfluss to use." xml:space="preserve">
+    <value>UniFi 登入失敗，因為此帳號已啟用雙重驗證。請為 NetFluss 建立一個未啟用 2FA 的本機管理員帳號。</value>
+  </data>
+  <data name="Connected to UniFi, but no gateway device was found in the controller response." xml:space="preserve">
+    <value>已連線到 UniFi，但控制器回應中找不到閘道裝置。</value>
+  </data>
+  <data name="UniFi returned an unexpected response." xml:space="preserve">
+    <value>UniFi 傳回了非預期的回應。</value>
+  </data>
+  <data name="Cannot reach UniFi gateway." xml:space="preserve">
+    <value>無法連線到 UniFi 閘道。</value>
+  </data>
+  <data name="Auto uses the current default gateway. Set the OpenWRT address manually if that is a different router." xml:space="preserve">
+    <value>自動模式使用目前的預設閘道。如果那是另一台路由器，請手動設定 OpenWRT 位址。</value>
+  </data>
+  <data name="No OpenWRT gateway address is available." xml:space="preserve">
+    <value>沒有可用的 OpenWRT 閘道位址。</value>
+  </data>
+  <data name="Enter a valid OpenWRT address or URL." xml:space="preserve">
+    <value>請輸入有效的 OpenWRT 位址或 URL。</value>
+  </data>
+  <data name="OpenWRT login failed. Check the router credentials." xml:space="preserve">
+    <value>OpenWRT 登入失敗。請檢查路由器憑證。</value>
+  </data>
+  <data name="OpenWRT ubus is not available at {0}." xml:space="preserve">
+    <value>{0} 上的 OpenWRT ubus 無法使用。</value>
+  </data>
+  <data name="Install the uhttpd-mod-ubus package if needed." xml:space="preserve">
+    <value>如有需要，請安裝 uhttpd-mod-ubus 套件。</value>
+  </data>
+  <data name="Install the uhttpd-mod-ubus package and check the router address." xml:space="preserve">
+    <value>請安裝 uhttpd-mod-ubus 套件並檢查路由器位址。</value>
+  </data>
+  <data name="OpenWRT ubus was not found at {0}." xml:space="preserve">
+    <value>在 {0} 上找不到 OpenWRT ubus。</value>
+  </data>
+  <data name="OpenWRT request failed (HTTP {0})." xml:space="preserve">
+    <value>OpenWRT 請求失敗（HTTP {0}）。</value>
+  </data>
+  <data name="OpenWRT network status is not available on {0}." xml:space="preserve">
+    <value>{0} 上無法取得 OpenWRT 網路狀態。</value>
+  </data>
+  <data name="OpenWRT network status is not available on this router." xml:space="preserve">
+    <value>此路由器上無法取得 OpenWRT 網路狀態。</value>
+  </data>
+  <data name="OpenWRT returned an error: {0}." xml:space="preserve">
+    <value>OpenWRT 傳回錯誤：{0}。</value>
+  </data>
+  <data name="OpenWRT responded, but no WAN interface could be identified." xml:space="preserve">
+    <value>OpenWRT 已回應，但無法識別 WAN 介面。</value>
+  </data>
+  <data name="OpenWRT returned an unexpected ubus response." xml:space="preserve">
+    <value>OpenWRT 傳回了非預期的 ubus 回應。</value>
+  </data>
+  <data name="Cannot reach OpenWRT." xml:space="preserve">
+    <value>無法連線到 OpenWRT。</value>
+  </data>
+  <data name="Auto uses the current default gateway. Set the OPNsense address manually if that is a different router." xml:space="preserve">
+    <value>自動模式使用目前的預設閘道。如果那是另一台路由器，請手動設定 OPNsense 位址。</value>
+  </data>
+  <data name="No OPNsense gateway address is available." xml:space="preserve">
+    <value>沒有可用的 OPNsense 閘道位址。</value>
+  </data>
+  <data name="Enter a valid OPNsense address or URL." xml:space="preserve">
+    <value>請輸入有效的 OPNsense 位址或 URL。</value>
+  </data>
+  <data name="OPNsense login failed. Check the API credentials." xml:space="preserve">
+    <value>OPNsense 登入失敗。請檢查 API 憑證。</value>
+  </data>
+  <data name="OPNsense authentication failed. Check the API key and secret." xml:space="preserve">
+    <value>OPNsense 驗證失敗。請檢查 API 金鑰與密鑰。</value>
+  </data>
+  <data name="OPNsense request failed (HTTP {0})." xml:space="preserve">
+    <value>OPNsense 請求失敗（HTTP {0}）。</value>
+  </data>
+  <data name="OPNsense responded, but no WAN interface could be identified." xml:space="preserve">
+    <value>OPNsense 已回應，但無法識別 WAN 介面。</value>
+  </data>
+  <data name="OPNsense returned an unexpected response." xml:space="preserve">
+    <value>OPNsense 傳回了非預期的回應。</value>
+  </data>
+  <data name="Cannot reach OPNsense." xml:space="preserve">
+    <value>無法連線到 OPNsense。</value>
+  </data>
+  <data name="To re-trust it, re-enter the router address in Preferences." xml:space="preserve">
+    <value>要重新信任它，請在設定中重新輸入路由器位址。</value>
+  </data>
+  <data name="{0}&apos;s TLS certificate changed since NetFluss first trusted it." xml:space="preserve">
+    <value>{0} 的 TLS 憑證自 NetFluss 首次信任以來已變更。</value>
+  </data>
+  <data name="If you didn&apos;t change the router, this could be an interception attempt." xml:space="preserve">
+    <value>如果你沒有變更路由器，這可能是攔截攻擊。</value>
+  </data>
+  <data name="Cannot reach {0} at {1}." xml:space="preserve">
+    <value>無法連線到 {0} 上的 {1}。</value>
+  </data>
+  <data name="{0} at {1} refused the connection. Check the address and port." xml:space="preserve">
+    <value>{0} 上的 {1} 拒絕了連線。請檢查位址和連接埠。</value>
+  </data>
+  <data name="{0} at {1} refused the HTTPS connection on port {2}." xml:space="preserve">
+    <value>{0} 上的 {1} 拒絕了連接埠 {2} 上的 HTTPS 連線。</value>
+  </data>
+  <data name="If its web interface uses plain HTTP, enter the address as {0}." xml:space="preserve">
+    <value>如果其網頁介面僅使用 HTTP，請將位址輸入為 {0}。</value>
+  </data>
+  <data name="If HTTPS runs on another port, enter {0}." xml:space="preserve">
+    <value>如果 HTTPS 使用其他連接埠，請輸入 {0}。</value>
+  </data>
+  <data name="&lt;port&gt;" xml:space="preserve">
+    <value>&lt;連接埠&gt;</value>
+  </data>
+  <data name="{0} at {1} did not respond in time." xml:space="preserve">
+    <value>{0} 上的 {1} 未及時回應。</value>
+  </data>
+  <data name="Cannot resolve {0}. Check the router address." xml:space="preserve">
+    <value>無法解析 {0}。請檢查路由器位址。</value>
+  </data>
+  <data name="Lost the network connection to {0} at {1}." xml:space="preserve">
+    <value>與 {0} 上的 {1} 的網路連線已中斷。</value>
+  </data>
+  <data name="The HTTPS (TLS) connection to {0} at {1} failed." xml:space="preserve">
+    <value>與 {0} 上的 {1} 的 HTTPS（TLS）連線失敗。</value>
+  </data>
+  <data name="macOS blocks unencrypted HTTP to {0}. Use the router&apos;s IP address or HTTPS." xml:space="preserve">
+    <value>Windows 封鎖了到 {0} 的未加密 HTTP 連線。請使用路由器的 IP 位址或 HTTPS。</value>
+  </data>
+  <data name="Cannot reach {0} at {1} ({2})." xml:space="preserve">
+    <value>無法連線到 {0} 上的 {1}（{2}）。</value>
+  </data>
+  <data name="API key or secret is incorrect (HTTP 401/403)" xml:space="preserve">
+    <value>API 金鑰或密鑰不正確（HTTP 401/403）</value>
+  </data>
+  <data name="Invalid router address or URL format" xml:space="preserve">
+    <value>路由器位址或 URL 格式無效</value>
+  </data>
+  <data name="HTTP error {0} — check the router address and verify the API is enabled" xml:space="preserve">
+    <value>HTTP 錯誤 {0}——請檢查路由器位址並確認已啟用 API</value>
+  </data>
+  <data name="Router returned unexpected format — verify the API endpoint or check the OPNsense logs (console output has details)" xml:space="preserve">
+    <value>路由器傳回了非預期的格式——請檢查 API 端點或 OPNsense 記錄（主控台輸出中有詳細資訊）</value>
+  </data>
+  <data name="Router responded but WAN interface not found" xml:space="preserve">
+    <value>路由器已回應，但找不到 WAN 介面</value>
+  </data>
+  <data name="Error: {0}" xml:space="preserve">
+    <value>錯誤：{0}</value>
+  </data>
+  <data name="If you expected this (for example after replacing the router&apos;s certificate), click “Trust Current Certificate”." xml:space="preserve">
+    <value>如果這在你的預期之內（例如更換了路由器憑證後），請按一下「信任目前的憑證」。</value>
+  </data>
+  <data name="Could not start the VPN helper." xml:space="preserve">
+    <value>無法啟動 VPN 輔助程式。</value>
+  </data>
+  <data name="This VPN needs a username and password. Add them in the profile&apos;s settings and reconnect." xml:space="preserve">
+    <value>此 VPN 需要使用者名稱和密碼。請在設定檔設定中新增後重新連線。</value>
+  </data>
+  <data name="The VPN connection stopped." xml:space="preserve">
+    <value>VPN 連線已停止。</value>
+  </data>
+  <data name="This IKEv2 profile is missing its server settings." xml:space="preserve">
+    <value>此 IKEv2 設定檔缺少伺服器設定。</value>
+  </data>
+  <data name="The VPN password isn&apos;t stored — remove the profile and add it again." xml:space="preserve">
+    <value>未儲存 VPN 密碼——請移除此設定檔後重新加入。</value>
+  </data>
+  <data name="No system VPN service is associated with this profile." xml:space="preserve">
+    <value>此設定檔未關聯任何系統 VPN 服務。</value>
+  </data>
+  <data name="Could not start the system VPN." xml:space="preserve">
+    <value>無法啟動系統 VPN。</value>
+  </data>
+  <data name="The system VPN did not connect ({0})." xml:space="preserve">
+    <value>系統 VPN 未能連線（{0}）。</value>
+  </data>
+  <data name="The VPN password isn&apos;t stored in the Keychain — remove the profile and add it again." xml:space="preserve">
+    <value>鑰匙圈中未儲存 VPN 密碼——請移除此設定檔後重新加入。</value>
+  </data>
+  <data name="IKEv2 {0} failed: {1} [{2} {3}]" xml:space="preserve">
+    <value>IKEv2 {0} 失敗：{1} [{2} {3}]</value>
+  </data>
+  <data name="No .{0} configuration files were found." xml:space="preserve">
+    <value>找不到 .{0} 設定檔。</value>
+  </data>
+  <data name="Could not read the configuration: {0}." xml:space="preserve">
+    <value>無法讀取設定：{0}。</value>
+  </data>
+  <data name="The local Speed Test server could not determine its listening port." xml:space="preserve">
+    <value>本機測速伺服器無法確定其監聽連接埠。</value>
+  </data>
+  <data name="The local Speed Test server did not become ready in time." xml:space="preserve">
+    <value>本機測速伺服器未能及時就緒。</value>
+  </data>
+  <data name="Unpin window" xml:space="preserve">
+    <value>取消固定視窗</value>
+  </data>
+  <data name="Pin as window" xml:space="preserve">
+    <value>固定為視窗</value>
+  </data>
+  <data name="My VPN" xml:space="preserve">
+    <value>我的 VPN</value>
+  </data>
+  <data name="Network" xml:space="preserve">
+    <value>網路</value>
+  </data>
+  <data name="Arrows" xml:space="preserve">
+    <value>箭頭</value>
+  </data>
+  <data name="Antenna" xml:space="preserve">
+    <value>天線</value>
+  </data>
+  <data name="Ch {0}" xml:space="preserve">
+    <value>頻道 {0}</value>
+  </data>
+  <data name="Ch {0} ({1})" xml:space="preserve">
+    <value>頻道 {0}（{1}）</value>
+  </data>
+  <data name="{0} speed test complete." xml:space="preserve">
+    <value>{0} 測速完成。</value>
+  </data>
+  <data name="This config uses the {0} option, which is part of a third-party patched OpenVPN (used by some providers for obfuscation). The bundled OpenVPN doesn&apos;t support it, so this profile won&apos;t connect. Ask your provider for a standard OpenVPN or WireGuard config." xml:space="preserve">
+    <value>此設定使用了 {0} 選項，它屬於第三方修改版 OpenVPN（部分服務商用於混淆）。內建的 OpenVPN 不支援該選項，因此此設定檔無法連線。請向服務商索取標準的 OpenVPN 或 WireGuard 設定。</value>
+  </data>
+  <data name="This config uses the {0} options, which are part of a third-party patched OpenVPN (used by some providers for obfuscation). The bundled OpenVPN doesn&apos;t support them, so this profile won&apos;t connect. Ask your provider for a standard OpenVPN or WireGuard config." xml:space="preserve">
+    <value>此設定使用了 {0} 選項，它們屬於第三方修改版 OpenVPN（部分服務商用於混淆）。內建的 OpenVPN 不支援這些選項，因此此設定檔無法連線。請向服務商索取標準的 OpenVPN 或 WireGuard 設定。</value>
+  </data>
+  <data name="The bundled M-Lab runtime is unavailable." xml:space="preserve">
+    <value>內建的 M-Lab 執行環境無法使用。</value>
+  </data>
+  <data name="Finalizing results..." xml:space="preserve">
+    <value>正在整理結果…</value>
+  </data>
+  <data name="Measuring latency..." xml:space="preserve">
+    <value>正在測量延遲…</value>
+  </data>
+  <data name="Testing download speed..." xml:space="preserve">
+    <value>正在測試下載速度…</value>
+  </data>
+  <data name="Testing upload speed..." xml:space="preserve">
+    <value>正在測試上傳速度…</value>
+  </data>
+  <data name="The Cloudflare speed test did not return a usable result." xml:space="preserve">
+    <value>Cloudflare 測速未傳回可用結果。</value>
+  </data>
+  <data name="The bundled Cloudflare runtime is unavailable." xml:space="preserve">
+    <value>內建的 Cloudflare 執行環境無法使用。</value>
+  </data>
+  <data name="Could not prepare the speed test runtime." xml:space="preserve">
+    <value>無法準備測速執行環境。</value>
+  </data>
+  <data name="The speed test failed." xml:space="preserve">
+    <value>測速失敗。</value>
+  </data>
+  <data name="Could not start the {0} speed test: {1}" xml:space="preserve">
+    <value>無法啟動 {0} 測速：{1}</value>
+  </data>
+  <data name="Could not load the speed test page: {0}" xml:space="preserve">
+    <value>無法載入測速頁面：{0}</value>
+  </data>
+  <data name="Turn app statistics on in Preferences to populate this list." xml:space="preserve">
+    <value>在設定中開啟 App 統計即可填入此列表。</value>
+  </data>
+  <data name="An unexpected M-Lab error occurred." xml:space="preserve">
+    <value>發生了非預期的 M-Lab 錯誤。</value>
+  </data>
+  <data name="Connected to a nearby M-Lab server." xml:space="preserve">
+    <value>已連線到附近的 M-Lab 伺服器。</value>
+  </data>
+  <data name="Finding the nearest M-Lab server..." xml:space="preserve">
+    <value>正在尋找最近的 M-Lab 伺服器…</value>
+  </data>
+  <data name="The M-Lab download phase did not produce a measurement." xml:space="preserve">
+    <value>M-Lab 下載階段未產生測量結果。</value>
+  </data>
+  <data name="The M-Lab download phase failed." xml:space="preserve">
+    <value>M-Lab 下載階段失敗。</value>
+  </data>
+  <data name="The M-Lab download phase timed out." xml:space="preserve">
+    <value>M-Lab 下載階段逾時。</value>
+  </data>
+  <data name="The M-Lab download server URL is missing." xml:space="preserve">
+    <value>缺少 M-Lab 下載伺服器 URL。</value>
+  </data>
+  <data name="The M-Lab download socket closed unexpectedly." xml:space="preserve">
+    <value>M-Lab 下載連線意外關閉。</value>
+  </data>
+  <data name="The M-Lab upload phase did not produce a measurement." xml:space="preserve">
+    <value>M-Lab 上傳階段未產生測量結果。</value>
+  </data>
+  <data name="The M-Lab upload phase failed." xml:space="preserve">
+    <value>M-Lab 上傳階段失敗。</value>
+  </data>
+  <data name="The M-Lab upload phase timed out." xml:space="preserve">
+    <value>M-Lab 上傳階段逾時。</value>
+  </data>
+  <data name="The M-Lab upload server URL is missing." xml:space="preserve">
+    <value>缺少 M-Lab 上傳伺服器 URL。</value>
+  </data>
+  <data name="The M-Lab upload socket closed unexpectedly." xml:space="preserve">
+    <value>M-Lab 上傳連線意外關閉。</value>
+  </data>
+  <data name="Auto-selected nearby edge" xml:space="preserve">
+    <value>自動選擇的附近邊緣節點</value>
   </data>
 </root>

@@ -43,7 +43,19 @@ internal static class Snapshot
         {
             var bounds = new Rect(0, 0, root.ActualWidth, root.ActualHeight);
             context.DrawRectangle(window.Background ?? Brushes.White, null, bounds);
-            context.DrawRectangle(new VisualBrush(root) { Stretch = Stretch.None, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top }, null, bounds);
+            // An absolute viewbox: by default a VisualBrush maps only the drawn content, which
+            // silently crops away any leading margin and shifts everything up and left.
+            context.DrawRectangle(
+                new VisualBrush(root)
+                {
+                    Stretch = Stretch.None,
+                    AlignmentX = AlignmentX.Left,
+                    AlignmentY = AlignmentY.Top,
+                    ViewboxUnits = BrushMappingMode.Absolute,
+                    Viewbox = bounds,
+                },
+                null,
+                bounds);
         }
 
         var bitmap = new RenderTargetBitmap(width, height, 96 * scale, 96 * scale, PixelFormats.Pbgra32);

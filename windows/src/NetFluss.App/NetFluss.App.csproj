@@ -14,9 +14,15 @@
     <AssemblyName>NetFluss</AssemblyName>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\NetFluss.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;ARM64</Platforms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\NetFluss.ico" />
+    <Resource Include="Assets\NetFluss.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="H.NotifyIcon.Wpf" Version="2.4.1" />

@@ -48,9 +48,17 @@ internal static class SurfaceMenu
         Add("Network Slice", commands.ShowNetworkSlice);
         Add("About NetFluss", commands.ShowAbout);
         Add("Copy Network Diagnostics…", commands.CopyDiagnostics);
+        var diagnostics = (MenuItem)menu.Items[^1];
         Add("Support NetFluss project", OpenSupport);
         menu.Items.Add(new Separator());
         Add("Quit NetFluss", commands.Quit);
+
+        // A support tool, not a feature: shown only while Shift is held as the menu opens,
+        // the way the Mac keeps it behind Option.
+        menu.Opened += (_, _) => diagnostics.Visibility =
+            System.Windows.Input.Keyboard.Modifiers.HasFlag(System.Windows.Input.ModifierKeys.Shift)
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
 
         return menu;
     }

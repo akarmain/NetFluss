@@ -509,11 +509,11 @@
   <data name="Queries your Fritz!Box via TR-064 (no authentication needed for bandwidth data). Auto uses the current default gateway. Set a fixed address if your Fritz!Box is reachable at a different IP. Port 49000 must be reachable." xml:space="preserve">
     <value>Queries your Fritz!Box via TR-064 (no authentication needed for bandwidth data). Auto uses the current default gateway. Set a fixed address if your Fritz!Box is reachable at a different IP. Port 49000 must be reachable.</value>
   </data>
-  <data name="Queries your OPNsense router via REST API over HTTPS or HTTP. Auto uses the current default gateway. Requires API key and secret configured in OPNsense." xml:space="preserve">
-    <value>Queries your OPNsense router via REST API over HTTPS or HTTP. Auto uses the current default gateway. Requires API key and secret configured in OPNsense.</value>
+  <data name="Queries your OPNsense router via its REST API over HTTPS. Auto uses the current default gateway. If the web interface uses plain HTTP or a different port, enter the full URL (e.g. http://192.168.1.1 or https://192.168.1.1:8443). Requires an API key and secret configured in OPNsense." xml:space="preserve">
+    <value>Queries your OPNsense router via its REST API over HTTPS. Auto uses the current default gateway. If the web interface uses plain HTTP or a different port, enter the full URL (e.g. http://192.168.1.1 or https://192.168.1.1:8443). Requires an API key and secret configured in OPNsense.</value>
   </data>
-  <data name="Queries your OpenWRT router via ubus JSON-RPC over HTTPS or HTTP. Auto uses the current default gateway, which may be the wrong router on dual-router setups. Set a fixed OpenWRT IP or URL if needed. Requires the router&apos;s admin credentials and the uhttpd-mod-ubus package." xml:space="preserve">
-    <value>Queries your OpenWRT router via ubus JSON-RPC over HTTPS or HTTP. Auto uses the current default gateway, which may be the wrong router on dual-router setups. Set a fixed OpenWRT IP or URL if needed. Requires the router's admin credentials and the uhttpd-mod-ubus package.</value>
+  <data name="Queries your OpenWRT router via ubus JSON-RPC over HTTPS. Auto uses the current default gateway, which may be the wrong router on dual-router setups. Set a fixed OpenWRT IP or URL if needed — for plain HTTP, enter http://&lt;IP&gt;. Requires the router&apos;s admin credentials and the uhttpd-mod-ubus package." xml:space="preserve">
+    <value>Queries your OpenWRT router via ubus JSON-RPC over HTTPS. Auto uses the current default gateway, which may be the wrong router on dual-router setups. Set a fixed OpenWRT IP or URL if needed — for plain HTTP, enter http://&lt;IP&gt;. Requires the router's admin credentials and the uhttpd-mod-ubus package.</value>
   </data>
   <data name="Queries your UniFi gateway via its local API (HTTPS). Requires a local admin account on the UniFi controller." xml:space="preserve">
     <value>Queries your UniFi gateway via its local API (HTTPS). Requires a local admin account on the UniFi controller.</value>
@@ -1242,5 +1242,503 @@ No network traffic is sent — only local counters from your machine are recorde
   </data>
   <data name="Cafe X, back room, hotel Wi-Fi, coworking desk 4…" xml:space="preserve">
     <value>Cafe X, back room, hotel Wi-Fi, coworking desk 4…</value>
+  </data>
+  <data name="VPN indicator" xml:space="preserve">
+    <value>VPN indicator</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Dot" xml:space="preserve">
+    <value>Dot</value>
+  </data>
+  <data name="Shield" xml:space="preserve">
+    <value>Shield</value>
+  </data>
+  <data name="VPN indicator color" xml:space="preserve">
+    <value>VPN indicator color</value>
+  </data>
+  <data name="Show when VPN is off" xml:space="preserve">
+    <value>Show when VPN is off</value>
+  </data>
+  <data name="Country flag" xml:space="preserve">
+    <value>Country flag</value>
+  </data>
+  <data name="Shown to the right of the rates. The VPN indicator also detects VPNs started by other apps. The country flag shows where your public IP is located (looked up via ipify.org and ipwho.is)." xml:space="preserve">
+    <value>Shown to the right of the rates. The VPN indicator also detects VPNs started by other apps. The country flag shows where your public IP is located (looked up via ipify.org and ipwho.is).</value>
+  </data>
+  <data name="Traffic Timer" xml:space="preserve">
+    <value>Traffic Timer</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Running" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="Paused" xml:space="preserve">
+    <value>Paused</value>
+  </data>
+  <data name="Starting time" xml:space="preserve">
+    <value>Starting time</value>
+  </data>
+  <data name="Paused at" xml:space="preserve">
+    <value>Paused at</value>
+  </data>
+  <data name="Check for Updates…" xml:space="preserve">
+    <value>Check for Updates…</value>
+  </data>
+  <data name="Check for updates automatically" xml:space="preserve">
+    <value>Check for updates automatically</value>
+  </data>
+  <data name="Once a day, NetFluss looks for a new version on GitHub and asks whether to download and install it. You can also check any time from the menu bar icon&apos;s right-click menu or in About." xml:space="preserve">
+    <value>Once a day, NetFluss looks for a new version on GitHub and asks whether to download and install it. You can also check any time from the menu bar icon's right-click menu or in About.</value>
+  </data>
+  <data name="Last checked: {0}" xml:space="preserve">
+    <value>Last checked: {0}</value>
+  </data>
+  <data name="Trust Current Certificate" xml:space="preserve">
+    <value>Trust Current Certificate</value>
+  </data>
+  <data name="API Key~2" xml:space="preserve">
+    <value>API Key</value>
+  </data>
+  <data name="API Secret" xml:space="preserve">
+    <value>API Secret</value>
+  </data>
+  <data name="UniFi API Key" xml:space="preserve">
+    <value>UniFi API Key</value>
+  </data>
+  <data name="Create a key in the UniFi Network app under Settings → Control Plane → Integrations." xml:space="preserve">
+    <value>Create a key in the UniFi Network app under Settings → Control Plane → Integrations.</value>
+  </data>
+  <data name="for {0}" xml:space="preserve">
+    <value>for {0}</value>
+  </data>
+  <data name="Hide {0}" xml:space="preserve">
+    <value>Hide {0}</value>
+  </data>
+  <data name="Show {0}" xml:space="preserve">
+    <value>Show {0}</value>
+  </data>
+  <data name="Name (e.g. My DNS)" xml:space="preserve">
+    <value>Name (e.g. My DNS)</value>
+  </data>
+  <data name="Primary DNS (e.g. 1.1.1.1)" xml:space="preserve">
+    <value>Primary DNS (e.g. 1.1.1.1)</value>
+  </data>
+  <data name="Secondary DNS (optional)" xml:space="preserve">
+    <value>Secondary DNS (optional)</value>
+  </data>
+  <data name="Tertiary DNS (optional)" xml:space="preserve">
+    <value>Tertiary DNS (optional)</value>
+  </data>
+  <data name="Quaternary DNS (optional)" xml:space="preserve">
+    <value>Quaternary DNS (optional)</value>
+  </data>
+  <data name="Router IP (auto-detect)" xml:space="preserve">
+    <value>Router IP (auto-detect)</value>
+  </data>
+  <data name="Router IP or URL (auto uses gateway)" xml:space="preserve">
+    <value>Router IP or URL (auto uses gateway)</value>
+  </data>
+  <data name="UniFi Address" xml:space="preserve">
+    <value>UniFi Address</value>
+  </data>
+  <data name="UniFi Credentials" xml:space="preserve">
+    <value>UniFi Credentials</value>
+  </data>
+  <data name="OpenWRT Address" xml:space="preserve">
+    <value>OpenWRT Address</value>
+  </data>
+  <data name="OpenWRT Credentials" xml:space="preserve">
+    <value>OpenWRT Credentials</value>
+  </data>
+  <data name="OPNsense Address" xml:space="preserve">
+    <value>OPNsense Address</value>
+  </data>
+  <data name="Test Connection" xml:space="preserve">
+    <value>Test Connection</value>
+  </data>
+  <data name="Testing…" xml:space="preserve">
+    <value>Testing…</value>
+  </data>
+  <data name="Add Custom DNS" xml:space="preserve">
+    <value>Add Custom DNS</value>
+  </data>
+  <data name="Edit Custom DNS" xml:space="preserve">
+    <value>Edit Custom DNS</value>
+  </data>
+  <data name="Internal" xml:space="preserve">
+    <value>Internal</value>
+  </data>
+  <data name="External" xml:space="preserve">
+    <value>External</value>
+  </data>
+  <data name="{0} VPNs" xml:space="preserve">
+    <value>{0} VPNs</value>
+  </data>
+  <data name="Tunnel {0}" xml:space="preserve">
+    <value>Tunnel {0}</value>
+  </data>
+  <data name="Noise" xml:space="preserve">
+    <value>Noise</value>
+  </data>
+  <data name="SNR" xml:space="preserve">
+    <value>SNR</value>
+  </data>
+  <data name="Tx Rate" xml:space="preserve">
+    <value>Tx Rate</value>
+  </data>
+  <data name="No API key configured" xml:space="preserve">
+    <value>No API key configured</value>
+  </data>
+  <data name="No credentials configured" xml:space="preserve">
+    <value>No credentials configured</value>
+  </data>
+  <data name="Invalid DNS server address." xml:space="preserve">
+    <value>Invalid DNS server address.</value>
+  </data>
+  <data name="No active network service found." xml:space="preserve">
+    <value>No active network service found.</value>
+  </data>
+  <data name="No Fritz!Box gateway detected. Set the router address manually." xml:space="preserve">
+    <value>No Fritz!Box gateway detected. Set the router address manually.</value>
+  </data>
+  <data name="Enter a valid Fritz!Box address." xml:space="preserve">
+    <value>Enter a valid Fritz!Box address.</value>
+  </data>
+  <data name="Fritz!Box TR-064 request failed (HTTP {0})." xml:space="preserve">
+    <value>Fritz!Box TR-064 request failed (HTTP {0}).</value>
+  </data>
+  <data name="Fritz!Box TR-064 request failed." xml:space="preserve">
+    <value>Fritz!Box TR-064 request failed.</value>
+  </data>
+  <data name="Cannot reach Fritz!Box at {0}. Set the router address manually if auto detection picked the wrong gateway." xml:space="preserve">
+    <value>Cannot reach Fritz!Box at {0}. Set the router address manually if auto detection picked the wrong gateway.</value>
+  </data>
+  <data name="Cannot reach Fritz!Box at {0}." xml:space="preserve">
+    <value>Cannot reach Fritz!Box at {0}.</value>
+  </data>
+  <data name="Fritz!Box returned an unexpected TR-064 response." xml:space="preserve">
+    <value>Fritz!Box returned an unexpected TR-064 response.</value>
+  </data>
+  <data name="Fritz!Box did not respond in time." xml:space="preserve">
+    <value>Fritz!Box did not respond in time.</value>
+  </data>
+  <data name="Cannot reach Fritz!Box." xml:space="preserve">
+    <value>Cannot reach Fritz!Box.</value>
+  </data>
+  <data name="Set the controller address manually if auto detection picked the wrong gateway." xml:space="preserve">
+    <value>Set the controller address manually if auto detection picked the wrong gateway.</value>
+  </data>
+  <data name="Enter a valid UniFi controller address." xml:space="preserve">
+    <value>Enter a valid UniFi controller address.</value>
+  </data>
+  <data name="UniFi login failed. Check the username and password — the local API needs a local admin account, not a UI.com cloud login." xml:space="preserve">
+    <value>UniFi login failed. Check the username and password — the local API needs a local admin account, not a UI.com cloud login.</value>
+  </data>
+  <data name="UniFi login failed because two-factor authentication is enabled on this account. Create a local admin account without 2FA for Netfluss to use." xml:space="preserve">
+    <value>UniFi login failed because two-factor authentication is enabled on this account. Create a local admin account without 2FA for Netfluss to use.</value>
+  </data>
+  <data name="Connected to UniFi, but no gateway device was found in the controller response." xml:space="preserve">
+    <value>Connected to UniFi, but no gateway device was found in the controller response.</value>
+  </data>
+  <data name="UniFi returned an unexpected response." xml:space="preserve">
+    <value>UniFi returned an unexpected response.</value>
+  </data>
+  <data name="Cannot reach UniFi gateway." xml:space="preserve">
+    <value>Cannot reach UniFi gateway.</value>
+  </data>
+  <data name="Auto uses the current default gateway. Set the OpenWRT address manually if that is a different router." xml:space="preserve">
+    <value>Auto uses the current default gateway. Set the OpenWRT address manually if that is a different router.</value>
+  </data>
+  <data name="No OpenWRT gateway address is available." xml:space="preserve">
+    <value>No OpenWRT gateway address is available.</value>
+  </data>
+  <data name="Enter a valid OpenWRT address or URL." xml:space="preserve">
+    <value>Enter a valid OpenWRT address or URL.</value>
+  </data>
+  <data name="OpenWRT login failed. Check the router credentials." xml:space="preserve">
+    <value>OpenWRT login failed. Check the router credentials.</value>
+  </data>
+  <data name="OpenWRT ubus is not available at {0}." xml:space="preserve">
+    <value>OpenWRT ubus is not available at {0}.</value>
+  </data>
+  <data name="Install the uhttpd-mod-ubus package if needed." xml:space="preserve">
+    <value>Install the uhttpd-mod-ubus package if needed.</value>
+  </data>
+  <data name="Install the uhttpd-mod-ubus package and check the router address." xml:space="preserve">
+    <value>Install the uhttpd-mod-ubus package and check the router address.</value>
+  </data>
+  <data name="OpenWRT ubus was not found at {0}." xml:space="preserve">
+    <value>OpenWRT ubus was not found at {0}.</value>
+  </data>
+  <data name="OpenWRT request failed (HTTP {0})." xml:space="preserve">
+    <value>OpenWRT request failed (HTTP {0}).</value>
+  </data>
+  <data name="OpenWRT network status is not available on {0}." xml:space="preserve">
+    <value>OpenWRT network status is not available on {0}.</value>
+  </data>
+  <data name="OpenWRT network status is not available on this router." xml:space="preserve">
+    <value>OpenWRT network status is not available on this router.</value>
+  </data>
+  <data name="OpenWRT returned an error: {0}." xml:space="preserve">
+    <value>OpenWRT returned an error: {0}.</value>
+  </data>
+  <data name="OpenWRT responded, but no WAN interface could be identified." xml:space="preserve">
+    <value>OpenWRT responded, but no WAN interface could be identified.</value>
+  </data>
+  <data name="OpenWRT returned an unexpected ubus response." xml:space="preserve">
+    <value>OpenWRT returned an unexpected ubus response.</value>
+  </data>
+  <data name="Cannot reach OpenWRT." xml:space="preserve">
+    <value>Cannot reach OpenWRT.</value>
+  </data>
+  <data name="Auto uses the current default gateway. Set the OPNsense address manually if that is a different router." xml:space="preserve">
+    <value>Auto uses the current default gateway. Set the OPNsense address manually if that is a different router.</value>
+  </data>
+  <data name="No OPNsense gateway address is available." xml:space="preserve">
+    <value>No OPNsense gateway address is available.</value>
+  </data>
+  <data name="Enter a valid OPNsense address or URL." xml:space="preserve">
+    <value>Enter a valid OPNsense address or URL.</value>
+  </data>
+  <data name="OPNsense login failed. Check the API credentials." xml:space="preserve">
+    <value>OPNsense login failed. Check the API credentials.</value>
+  </data>
+  <data name="OPNsense authentication failed. Check the API key and secret." xml:space="preserve">
+    <value>OPNsense authentication failed. Check the API key and secret.</value>
+  </data>
+  <data name="OPNsense request failed (HTTP {0})." xml:space="preserve">
+    <value>OPNsense request failed (HTTP {0}).</value>
+  </data>
+  <data name="OPNsense responded, but no WAN interface could be identified." xml:space="preserve">
+    <value>OPNsense responded, but no WAN interface could be identified.</value>
+  </data>
+  <data name="OPNsense returned an unexpected response." xml:space="preserve">
+    <value>OPNsense returned an unexpected response.</value>
+  </data>
+  <data name="Cannot reach OPNsense." xml:space="preserve">
+    <value>Cannot reach OPNsense.</value>
+  </data>
+  <data name="To re-trust it, re-enter the router address in Preferences." xml:space="preserve">
+    <value>To re-trust it, re-enter the router address in Preferences.</value>
+  </data>
+  <data name="{0}&apos;s TLS certificate changed since NetFluss first trusted it." xml:space="preserve">
+    <value>{0}'s TLS certificate changed since NetFluss first trusted it.</value>
+  </data>
+  <data name="If you didn&apos;t change the router, this could be an interception attempt." xml:space="preserve">
+    <value>If you didn't change the router, this could be an interception attempt.</value>
+  </data>
+  <data name="Cannot reach {0} at {1}." xml:space="preserve">
+    <value>Cannot reach {0} at {1}.</value>
+  </data>
+  <data name="{0} at {1} refused the connection. Check the address and port." xml:space="preserve">
+    <value>{0} at {1} refused the connection. Check the address and port.</value>
+  </data>
+  <data name="{0} at {1} refused the HTTPS connection on port {2}." xml:space="preserve">
+    <value>{0} at {1} refused the HTTPS connection on port {2}.</value>
+  </data>
+  <data name="If its web interface uses plain HTTP, enter the address as {0}." xml:space="preserve">
+    <value>If its web interface uses plain HTTP, enter the address as {0}.</value>
+  </data>
+  <data name="If HTTPS runs on another port, enter {0}." xml:space="preserve">
+    <value>If HTTPS runs on another port, enter {0}.</value>
+  </data>
+  <data name="&lt;port&gt;" xml:space="preserve">
+    <value>&lt;port&gt;</value>
+  </data>
+  <data name="{0} at {1} did not respond in time." xml:space="preserve">
+    <value>{0} at {1} did not respond in time.</value>
+  </data>
+  <data name="Cannot resolve {0}. Check the router address." xml:space="preserve">
+    <value>Cannot resolve {0}. Check the router address.</value>
+  </data>
+  <data name="Lost the network connection to {0} at {1}." xml:space="preserve">
+    <value>Lost the network connection to {0} at {1}.</value>
+  </data>
+  <data name="The HTTPS (TLS) connection to {0} at {1} failed." xml:space="preserve">
+    <value>The HTTPS (TLS) connection to {0} at {1} failed.</value>
+  </data>
+  <data name="macOS blocks unencrypted HTTP to {0}. Use the router&apos;s IP address or HTTPS." xml:space="preserve">
+    <value>Windows blocks unencrypted HTTP to {0}. Use the router's IP address or HTTPS.</value>
+  </data>
+  <data name="Cannot reach {0} at {1} ({2})." xml:space="preserve">
+    <value>Cannot reach {0} at {1} ({2}).</value>
+  </data>
+  <data name="API key or secret is incorrect (HTTP 401/403)" xml:space="preserve">
+    <value>API key or secret is incorrect (HTTP 401/403)</value>
+  </data>
+  <data name="Invalid router address or URL format" xml:space="preserve">
+    <value>Invalid router address or URL format</value>
+  </data>
+  <data name="HTTP error {0} — check the router address and verify the API is enabled" xml:space="preserve">
+    <value>HTTP error {0} — check the router address and verify the API is enabled</value>
+  </data>
+  <data name="Router returned unexpected format — verify the API endpoint or check the OPNsense logs (console output has details)" xml:space="preserve">
+    <value>Router returned unexpected format — verify the API endpoint or check the OPNsense logs (console output has details)</value>
+  </data>
+  <data name="Router responded but WAN interface not found" xml:space="preserve">
+    <value>Router responded but WAN interface not found</value>
+  </data>
+  <data name="Error: {0}" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="If you expected this (for example after replacing the router&apos;s certificate), click “Trust Current Certificate”." xml:space="preserve">
+    <value>If you expected this (for example after replacing the router's certificate), click “Trust Current Certificate”.</value>
+  </data>
+  <data name="Could not start the VPN helper." xml:space="preserve">
+    <value>Could not start the VPN helper.</value>
+  </data>
+  <data name="This VPN needs a username and password. Add them in the profile&apos;s settings and reconnect." xml:space="preserve">
+    <value>This VPN needs a username and password. Add them in the profile's settings and reconnect.</value>
+  </data>
+  <data name="The VPN connection stopped." xml:space="preserve">
+    <value>The VPN connection stopped.</value>
+  </data>
+  <data name="This IKEv2 profile is missing its server settings." xml:space="preserve">
+    <value>This IKEv2 profile is missing its server settings.</value>
+  </data>
+  <data name="The VPN password isn&apos;t stored — remove the profile and add it again." xml:space="preserve">
+    <value>The VPN password isn't stored — remove the profile and add it again.</value>
+  </data>
+  <data name="No system VPN service is associated with this profile." xml:space="preserve">
+    <value>No system VPN service is associated with this profile.</value>
+  </data>
+  <data name="Could not start the system VPN." xml:space="preserve">
+    <value>Could not start the system VPN.</value>
+  </data>
+  <data name="The system VPN did not connect ({0})." xml:space="preserve">
+    <value>The system VPN did not connect ({0}).</value>
+  </data>
+  <data name="The VPN password isn&apos;t stored in the Keychain — remove the profile and add it again." xml:space="preserve">
+    <value>The VPN password isn't stored in the Credential Manager — remove the profile and add it again.</value>
+  </data>
+  <data name="IKEv2 {0} failed: {1} [{2} {3}]" xml:space="preserve">
+    <value>IKEv2 {0} failed: {1} [{2} {3}]</value>
+  </data>
+  <data name="No .{0} configuration files were found." xml:space="preserve">
+    <value>No .{0} configuration files were found.</value>
+  </data>
+  <data name="Could not read the configuration: {0}." xml:space="preserve">
+    <value>Could not read the configuration: {0}.</value>
+  </data>
+  <data name="The local Speed Test server could not determine its listening port." xml:space="preserve">
+    <value>The local Speed Test server could not determine its listening port.</value>
+  </data>
+  <data name="The local Speed Test server did not become ready in time." xml:space="preserve">
+    <value>The local Speed Test server did not become ready in time.</value>
+  </data>
+  <data name="Unpin window" xml:space="preserve">
+    <value>Unpin window</value>
+  </data>
+  <data name="Pin as window" xml:space="preserve">
+    <value>Pin as window</value>
+  </data>
+  <data name="My VPN" xml:space="preserve">
+    <value>My VPN</value>
+  </data>
+  <data name="Network" xml:space="preserve">
+    <value>Network</value>
+  </data>
+  <data name="Arrows" xml:space="preserve">
+    <value>Arrows</value>
+  </data>
+  <data name="Antenna" xml:space="preserve">
+    <value>Antenna</value>
+  </data>
+  <data name="Ch {0}" xml:space="preserve">
+    <value>Ch {0}</value>
+  </data>
+  <data name="Ch {0} ({1})" xml:space="preserve">
+    <value>Ch {0} ({1})</value>
+  </data>
+  <data name="{0} speed test complete." xml:space="preserve">
+    <value>{0} speed test complete.</value>
+  </data>
+  <data name="This config uses the {0} option, which is part of a third-party patched OpenVPN (used by some providers for obfuscation). The bundled OpenVPN doesn&apos;t support it, so this profile won&apos;t connect. Ask your provider for a standard OpenVPN or WireGuard config." xml:space="preserve">
+    <value>This config uses the {0} option, which is part of a third-party patched OpenVPN (used by some providers for obfuscation). The bundled OpenVPN doesn't support it, so this profile won't connect. Ask your provider for a standard OpenVPN or WireGuard config.</value>
+  </data>
+  <data name="This config uses the {0} options, which are part of a third-party patched OpenVPN (used by some providers for obfuscation). The bundled OpenVPN doesn&apos;t support them, so this profile won&apos;t connect. Ask your provider for a standard OpenVPN or WireGuard config." xml:space="preserve">
+    <value>This config uses the {0} options, which are part of a third-party patched OpenVPN (used by some providers for obfuscation). The bundled OpenVPN doesn't support them, so this profile won't connect. Ask your provider for a standard OpenVPN or WireGuard config.</value>
+  </data>
+  <data name="The bundled M-Lab runtime is unavailable." xml:space="preserve">
+    <value>The bundled M-Lab runtime is unavailable.</value>
+  </data>
+  <data name="Finalizing results..." xml:space="preserve">
+    <value>Finalizing results...</value>
+  </data>
+  <data name="Measuring latency..." xml:space="preserve">
+    <value>Measuring latency...</value>
+  </data>
+  <data name="Testing download speed..." xml:space="preserve">
+    <value>Testing download speed...</value>
+  </data>
+  <data name="Testing upload speed..." xml:space="preserve">
+    <value>Testing upload speed...</value>
+  </data>
+  <data name="The Cloudflare speed test did not return a usable result." xml:space="preserve">
+    <value>The Cloudflare speed test did not return a usable result.</value>
+  </data>
+  <data name="The bundled Cloudflare runtime is unavailable." xml:space="preserve">
+    <value>The bundled Cloudflare runtime is unavailable.</value>
+  </data>
+  <data name="Could not prepare the speed test runtime." xml:space="preserve">
+    <value>Could not prepare the speed test runtime.</value>
+  </data>
+  <data name="The speed test failed." xml:space="preserve">
+    <value>The speed test failed.</value>
+  </data>
+  <data name="Could not start the {0} speed test: {1}" xml:space="preserve">
+    <value>Could not start the {0} speed test: {1}</value>
+  </data>
+  <data name="Could not load the speed test page: {0}" xml:space="preserve">
+    <value>Could not load the speed test page: {0}</value>
+  </data>
+  <data name="Turn app statistics on in Preferences to populate this list." xml:space="preserve">
+    <value>Turn app statistics on in Preferences to populate this list.</value>
+  </data>
+  <data name="An unexpected M-Lab error occurred." xml:space="preserve">
+    <value>An unexpected M-Lab error occurred.</value>
+  </data>
+  <data name="Connected to a nearby M-Lab server." xml:space="preserve">
+    <value>Connected to a nearby M-Lab server.</value>
+  </data>
+  <data name="Finding the nearest M-Lab server..." xml:space="preserve">
+    <value>Finding the nearest M-Lab server...</value>
+  </data>
+  <data name="The M-Lab download phase did not produce a measurement." xml:space="preserve">
+    <value>The M-Lab download phase did not produce a measurement.</value>
+  </data>
+  <data name="The M-Lab download phase failed." xml:space="preserve">
+    <value>The M-Lab download phase failed.</value>
+  </data>
+  <data name="The M-Lab download phase timed out." xml:space="preserve">
+    <value>The M-Lab download phase timed out.</value>
+  </data>
+  <data name="The M-Lab download server URL is missing." xml:space="preserve">
+    <value>The M-Lab download server URL is missing.</value>
+  </data>
+  <data name="The M-Lab download socket closed unexpectedly." xml:space="preserve">
+    <value>The M-Lab download socket closed unexpectedly.</value>
+  </data>
+  <data name="The M-Lab upload phase did not produce a measurement." xml:space="preserve">
+    <value>The M-Lab upload phase did not produce a measurement.</value>
+  </data>
+  <data name="The M-Lab upload phase failed." xml:space="preserve">
+    <value>The M-Lab upload phase failed.</value>
+  </data>
+  <data name="The M-Lab upload phase timed out." xml:space="preserve">
+    <value>The M-Lab upload phase timed out.</value>
+  </data>
+  <data name="The M-Lab upload server URL is missing." xml:space="preserve">
+    <value>The M-Lab upload server URL is missing.</value>
+  </data>
+  <data name="The M-Lab upload socket closed unexpectedly." xml:space="preserve">
+    <value>The M-Lab upload socket closed unexpectedly.</value>
+  </data>
+  <data name="Auto-selected nearby edge" xml:space="preserve">
+    <value>Auto-selected nearby edge</value>
   </data>
 </root>

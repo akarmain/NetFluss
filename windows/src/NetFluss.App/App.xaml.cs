@@ -35,6 +35,9 @@ public partial class NetFlussApplication : Application
     private PrivilegedActions? _privileged;
     private StatisticsService? _statistics;
     private StatisticsWindow? _statisticsWindow;
+    private AboutWindow? _aboutWindow;
+    private DiagnosticsWindow? _diagnosticsWindow;
+    private UpdateNotifier? _updates;
     private AppCommands? _commands;
     private TrayIconHost? _tray;
     private PopoverWindow? _popover;
@@ -82,6 +85,8 @@ public partial class NetFlussApplication : Application
         _privileged = new PrivilegedActions(_helper);
         _dns = new DnsSwitcher(_store, _monitor, _privileged);
         _statistics = new StatisticsService(_store, _monitor);
+        _updates = new UpdateNotifier(_store);
+        _updates.UpdateFound += OnUpdateFound;
 
         _commands = new AppCommands
         {
@@ -96,6 +101,7 @@ public partial class NetFlussApplication : Application
 
         _tray = new TrayIconHost(_monitor, BuildMeterOptions(), _commands);
         _tray.LeftClicked += (_, _) => TogglePopover(Screens.CursorAnchor());
+        _tray.NotificationClicked += (_, _) => ShowAbout();
 
         // Preferences writes, then everything re-reads. One direction, so there is no way
         // for the tray and the settings file to disagree about what is configured.
@@ -118,6 +124,7 @@ public partial class NetFlussApplication : Application
         // The helper is optional; connecting quietly in the background means a popover
         // opened later already knows whether per-app traffic is available.
         _helper.EnsureConnecting();
+        _updates.Start();
 
         HandleCommand(e.Args);
     }
@@ -204,6 +211,11 @@ public partial class NetFlussApplication : Application
             }
 
             window = preferences;
+        }
+        else if (target == "about" && _store is not null && _updates is not null)
+        {
+            var (surface, download, upload) = Palette();
+            window = new AboutWindow(_updates, surface, download, upload);
         }
         else if (target == "speedtest" && _store is not null)
         {
@@ -426,24 +438,47 @@ public partial class NetFlussApplication : Application
         _widget.ApplySettings(settings, download, upload, surface);
     }
 
-    /// <summary>Opens the speed test, or brings the open one forward.</summary>
+    /// <summary>The themed palette for a window opened now: surface, then the two rate inks.</summary>
+    private (SurfacePalette Surface, ThemeColor Download, ThemeColor Upload) Palette()
+    {
+        var settings = _store!.Settings;
+        var (systemDownload, systemUpload) = SystemTheme.DefaultInk();
+        var (download, upload) = settings.ResolveRateColors(systemDownload, systemUpload);
+        return (settings.Theme.Surface(SystemTheme.IsAppLight()), download, upload);
+    }
+
+    /// <summary>
+    /// Opens one of the app's windows, or brings the open one forward — every window is a
+    /// singleton, as on macOS, where choosing a menu item twice never stacks two copies.
+    /// </summary>
+    private void Open<T>(Func<T?> current, Action<T?> remember, Func<T> create)
+        where T : Window
+    {
+        if (current() is { IsLoaded: true } open)
+        {
+            if (open.WindowState == WindowState.Minimized)
+            {
+                open.WindowState = WindowState.Normal;
+            }
+
+            open.Activate();
+            return;
+        }
+
+        var window = create();
+        AppIcon.Apply(window);
+        window.Closed += (_, _) => remember(null);
+        remember(window);
+        window.Show();
+        window.Activate();
+    }
+
     private void ShowSpeedTest()
     {
-        if (_store is null)
+        if (_store is not null)
         {
-            return;
+            Open(() => _speedTest, w => _speedTest = w, () => new SpeedTestWindow(Palette().Surface));
         }
-
-        if (_speedTest is { IsLoaded: true })
-        {
-            _speedTest.Activate();
-            return;
-        }
-
-        _speedTest = new SpeedTestWindow(_store.Settings.Theme.Surface(SystemTheme.IsAppLight()));
-        _speedTest.Closed += (_, _) => _speedTest = null;
-        _speedTest.Show();
-        _speedTest.Activate();
     }
 
     private void ShowStatistics()
@@ -453,20 +488,11 @@ public partial class NetFlussApplication : Application
             return;
         }
 
-        if (_statisticsWindow is { IsLoaded: true })
+        Open(() => _statisticsWindow, w => _statisticsWindow = w, () =>
         {
-            _statisticsWindow.Activate();
-            return;
-        }
-
-        var settings = _store.Settings;
-        var (systemDownload, systemUpload) = SystemTheme.DefaultInk();
-        var (download, upload) = settings.ResolveRateColors(systemDownload, systemUpload);
-
-        _statisticsWindow = new StatisticsWindow(_statistics, _store, settings.Theme.Surface(SystemTheme.IsAppLight()), download, upload, () => ShowPreferences("statistics"));
-        _statisticsWindow.Closed += (_, _) => _statisticsWindow = null;
-        _statisticsWindow.Show();
-        _statisticsWindow.Activate();
+            var (surface, download, upload) = Palette();
+            return new StatisticsWindow(_statistics, _store, surface, download, upload, () => ShowPreferences("statistics"));
+        });
     }
 
     private void ShowNetworkSlice()
@@ -476,12 +502,30 @@ public partial class NetFlussApplication : Application
 
     private void ShowAbout()
     {
-        // Lands with the About window and update checker.
+        if (_store is null || _updates is null)
+        {
+            return;
+        }
+
+        Open(() => _aboutWindow, w => _aboutWindow = w, () =>
+        {
+            var (surface, download, upload) = Palette();
+            return new AboutWindow(_updates, surface, download, upload);
+        });
     }
 
     private void CopyDiagnostics()
     {
-        // Lands with the diagnostics report.
+        if (_store is null || _monitor is null || _helper is null)
+        {
+            return;
+        }
+
+        Open(() => _diagnosticsWindow, w => _diagnosticsWindow = w, () =>
+        {
+            var (surface, download, upload) = Palette();
+            return new DiagnosticsWindow(_monitor, _helper, _store, surface, download, upload);
+        });
     }
 
     private void ShowPreferences(string? tab = null)
@@ -491,17 +535,22 @@ public partial class NetFlussApplication : Application
             return;
         }
 
-        if (_preferences is { IsLoaded: true })
+        Open(() => _preferences, w => _preferences = w, () => new PreferencesWindow(_store, _monitor!));
+        if (tab is not null)
         {
-            _preferences.Activate();
-            return;
+            _preferences?.SelectTab(tab);
         }
+    }
 
-        _preferences = new PreferencesWindow(_store, _monitor!);
-        _preferences.Closed += (_, _) => _preferences = null;
-        _preferences.Show();
-        _preferences.Activate();
-        _ = tab;
+    /// <summary>
+    /// A newer release was found: one notification from the tray, and a quiet line in the
+    /// popover footer for as long as it stays relevant.
+    /// </summary>
+    private void OnUpdateFound(object? sender, AvailableUpdate update)
+    {
+        var message = Localization.L("NetFluss {0} is available!", update.Version);
+        _tray?.Notify("NetFluss", message);
+        _popover?.SetFooterStatus(message);
     }
 
     private void TogglePopover(Rect anchor)
@@ -553,6 +602,10 @@ public partial class NetFlussApplication : Application
             });
 
             _popover.Hidden += (_, _) => _popoverHiddenAt = DateTime.UtcNow;
+            if (_updates?.Available is { } update)
+            {
+                _popover.SetFooterStatus(Localization.L("NetFluss {0} is available!", update.Version));
+            }
 
             // Themed on creation as well as on every settings change: the window is built
             // lazily on first open, so waiting for a change would show it unthemed once.

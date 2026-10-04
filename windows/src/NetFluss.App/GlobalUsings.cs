@@ -3,3 +3,6 @@
 // WPF has its own System.Windows.Localization type, which every file that imports
 // System.Windows would otherwise have to disambiguate by hand.
 global using Localization = NetFluss.Core.Localization;
+
+// WPF projects leave System.Net.Http out of the implicit usings.
+global using System.Net.Http;

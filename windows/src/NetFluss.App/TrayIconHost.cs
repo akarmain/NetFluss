@@ -41,6 +41,11 @@ public sealed class TrayIconHost : IDisposable
         };
 
         _icon.TrayLeftMouseUp += (_, _) => LeftClicked?.Invoke(this, EventArgs.Empty);
+
+        // Keyboard users reach the notification area with Win+B and the arrow keys; Enter or
+        // Space on the icon must open the popover just as a click does.
+        _icon.TrayKeyboardSelect += (_, _) => LeftClicked?.Invoke(this, EventArgs.Empty);
+        _icon.TrayBalloonTipClicked += (_, _) => NotificationClicked?.Invoke(this, EventArgs.Empty);
         _icon.ForceCreate();
 
         _monitor.PropertyChanged += (_, e) =>
@@ -55,6 +60,21 @@ public sealed class TrayIconHost : IDisposable
     }
 
     public event EventHandler? LeftClicked;
+
+    /// <summary>Raised when the user clicks a notification this icon showed.</summary>
+    public event EventHandler? NotificationClicked;
+
+    /// <summary>
+    /// A Windows notification from the tray icon. Needs the icon present, which is the
+    /// default; with it hidden the caller falls back to the popover footer.
+    /// </summary>
+    public void Notify(string title, string message)
+    {
+        if (IsVisible)
+        {
+            _icon.ShowNotification(title, message, H.NotifyIcon.Core.NotificationIcon.Info);
+        }
+    }
 
     public TrayMeterOptions Options { get; set; }
 
