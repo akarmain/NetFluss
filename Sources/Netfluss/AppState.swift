@@ -25,7 +25,6 @@ final class AppState {
     let wifiManager: WifiManager
     let vpnManager: VPNManager
     let statusBar: StatusBarController
-    let updateNotifier: UpdateNotifier
     private var defaultsObserver: NSObjectProtocol?
 
     init() {
@@ -73,6 +72,7 @@ final class AppState {
             "showTotalsHeader": true,
             "showAdapterList": true,
             "showUsageSummary": false,
+            "showTrafficTimer": false,
             "popoverSectionOrder": PopoverSection.defaultOrder.map(\.rawValue),
             "lastConnectionStatusMode": "flow",
             "customDNSPresets": Data(),
@@ -89,8 +89,12 @@ final class AppState {
             "opnsenseHost": "",
             "automaticUpdateChecksEnabled": true,
             "appLanguage": AppLanguage.system.rawValue,
-            "backgroundUpdateLastNotifiedVersion": "",
             "showVPN": false,
+            "menuBarVPNIndicator": "off",
+            "menuBarVPNIndicatorColor": "green",
+            "menuBarVPNIndicatorColorHex": "",
+            "menuBarVPNShowWhenOff": true,
+            "menuBarShowCountryFlag": false,
             "networkSliceHostsLive": false,
             "networkSliceServicesLive": false,
             "networkSliceAppsLive": false
@@ -105,6 +109,7 @@ final class AppState {
         self.wifiManager = wifiManager
         self.vpnManager = VPNManager.shared
         VPNManager.shared.networkMonitor = monitor
+        TrafficTimer.shared.attach(to: monitor)
         // Undo any VPN DNS override left behind by a previous session that died
         // before restoring it, before we (maybe) connect on launch (issue #48).
         monitor.restoreStaleVPNDNSIfNeeded()
@@ -115,11 +120,7 @@ final class AppState {
             speedTestManager: speedTestManager,
             wifiManager: wifiManager
         )
-        let updateNotifier = UpdateNotifier()
-        self.updateNotifier = updateNotifier
-        Task {
-            await updateNotifier.start()
-        }
+        AppUpdater.shared.start()
         defaultsObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification,
             object: nil,
@@ -139,11 +140,7 @@ final class AppState {
     }
 
     private func syncAutomaticUpdateChecks() {
-        let enabled = UserDefaults.standard.bool(forKey: "automaticUpdateChecksEnabled")
-        let updateNotifier = self.updateNotifier
-        Task {
-            await updateNotifier.setAutomaticChecksEnabled(enabled)
-        }
+        AppUpdater.shared.applyAutomaticChecksPreference()
     }
 
     func flushStatistics() {

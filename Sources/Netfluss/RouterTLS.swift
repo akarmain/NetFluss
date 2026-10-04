@@ -43,6 +43,18 @@ enum TLSPinStore {
 
     static func hostKey(host: String, port: Int) -> String { "\(host.lowercased()):\(port)" }
 
+    /// The bare, lowercased host name of a router address as typed in
+    /// Preferences — "https://Router.lan:8443/x", "router.lan:8443" and
+    /// "router.lan" all give "router.lan" — i.e. the host part of the pin keys,
+    /// which come from the TLS challenge. Without this, a URL-form address never
+    /// matched its pin, so neither the reset nor the "changed" warning worked.
+    static func normalizedHost(_ address: String) -> String {
+        let trimmed = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        let withScheme = trimmed.contains("://") ? trimmed : "https://\(trimmed)"
+        let host = URLComponents(string: withScheme)?.host ?? trimmed
+        return host.trimmingCharacters(in: CharacterSet(charactersIn: "[]")).lowercased()
+    }
+
     static func pin(for hostKey: String) -> String? {
         (UserDefaults.standard.dictionary(forKey: defaultsKey) as? [String: String])?[hostKey]
     }
@@ -58,8 +70,9 @@ enum TLSPinStore {
     /// Called when the user edits a router's address/credentials — an explicit
     /// action that doubles as "re-trust this router's current certificate".
     static func resetTrust(host: String) {
+        let needle = normalizedHost(host)
+        guard !needle.isEmpty else { return }
         lock.lock(); defer { lock.unlock() }
-        let needle = host.lowercased()
         if var pins = UserDefaults.standard.dictionary(forKey: defaultsKey) as? [String: String] {
             pins = pins.filter { !$0.key.hasPrefix(needle + ":") && $0.key != needle }
             UserDefaults.standard.set(pins, forKey: defaultsKey)
@@ -74,8 +87,9 @@ enum TLSPinStore {
 
     /// Whether the given host (any port) recently failed the pin check.
     static func certificateChanged(host: String) -> Bool {
+        let needle = normalizedHost(host)
+        guard !needle.isEmpty else { return false }
         lock.lock(); defer { lock.unlock() }
-        let needle = host.lowercased()
         return mismatched.contains { $0.hasPrefix(needle + ":") || $0 == needle }
     }
 }
@@ -129,5 +143,74 @@ final class PinningTLSDelegate: NSObject, URLSessionDelegate {
               let key = SecCertificateCopyKey(leaf),
               let data = SecKeyCopyExternalRepresentation(key, nil) as Data? else { return nil }
         return Data(SHA256.hash(data: data)).base64EncodedString()
+    }
+}
+
+/// Precise, actionable wording for router connection failures, shared by the
+/// popover (NetworkMonitor) and the OPNsense credential test. Every transport
+/// and TLS failure used to read as a generic "cannot reach", which hid the two
+/// real 2.5 causes — HTTPS-only bare addresses and a changed pinned
+/// certificate (issue #56).
+enum RouterConnectionDiagnosis {
+    static var preferencesRetrustHint: String {
+        L10n.text("To re-trust it, re-enter the router address in Preferences.")
+    }
+
+    /// Non-nil when the router's pinned certificate changed.
+    static func certificateChangedMessage(router: String, host: String, retrustHint: String) -> String? {
+        guard TLSPinStore.certificateChanged(host: host) else { return nil }
+        return L10n.format("%@'s TLS certificate changed since NetFluss first trusted it.", router)
+            + " " + L10n.text("If you didn't change the router, this could be an interception attempt.")
+            + " " + retrustHint
+    }
+
+    /// - Parameter allowsHTTP: whether this router's monitor honours an
+    ///   explicit `http://` address (OPNsense, OpenWRT — not UniFi).
+    static func transportMessage(router: String, host: String, error: URLError?, allowsHTTP: Bool) -> String {
+        if let changed = certificateChangedMessage(router: router, host: host, retrustHint: preferencesRetrustHint) {
+            return changed
+        }
+        let address = host.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasScheme = address.contains("://")
+        let hostName = TLSPinStore.normalizedHost(address)
+        let explicitPort = URLComponents(string: hasScheme ? address : "https://\(address)")?.port
+        let usesHTTPS = !hasScheme || address.lowercased().hasPrefix("https://")
+        // A TLS failure means *something* answered on that port (often plain
+        // HTTP), so keep the port in the suggestion; a refused connection means
+        // nothing listens there, so suggest the default HTTP port instead.
+        func httpHint(keepingPort: Bool) -> String {
+            guard allowsHTTP, usesHTTPS else { return "" }
+            let port = keepingPort ? explicitPort.map { ":\($0)" } ?? "" : ""
+            return " " + L10n.format("If its web interface uses plain HTTP, enter the address as %@.", "http://\(hostName)\(port)")
+        }
+
+        guard let error else { return L10n.format("Cannot reach %@ at %@.", router, address) }
+        switch error.code {
+        case .cannotConnectToHost:
+            guard usesHTTPS else {
+                return L10n.format("%@ at %@ refused the connection. Check the address and port.", router, address)
+            }
+            let portHint = explicitPort == nil
+                ? " " + L10n.format("If HTTPS runs on another port, enter %@.", "https://\(hostName):\(L10n.text("<port>"))")
+                : ""
+            return L10n.format("%@ at %@ refused the HTTPS connection on port %ld.", router, address, explicitPort ?? 443)
+                + httpHint(keepingPort: false) + portHint
+        case .timedOut:
+            return L10n.format("%@ at %@ did not respond in time.", router, address)
+        case .cannotFindHost, .dnsLookupFailed:
+            return L10n.format("Cannot resolve %@. Check the router address.", hostName)
+        case .notConnectedToInternet, .networkConnectionLost:
+            return L10n.format("Lost the network connection to %@ at %@.", router, address)
+        case .secureConnectionFailed, .serverCertificateUntrusted, .serverCertificateHasBadDate,
+             .serverCertificateHasUnknownRoot, .serverCertificateNotYetValid,
+             .clientCertificateRejected, .clientCertificateRequired, .cancelled:
+            // .cancelled is what PinningTLSDelegate's refusal surfaces as.
+            return L10n.format("The HTTPS (TLS) connection to %@ at %@ failed.", router, address)
+                + httpHint(keepingPort: true)
+        case .appTransportSecurityRequiresSecureConnection:
+            return L10n.format("macOS blocks unencrypted HTTP to %@. Use the router's IP address or HTTPS.", hostName)
+        default:
+            return L10n.format("Cannot reach %@ at %@ (%@).", router, address, error.localizedDescription)
+        }
     }
 }

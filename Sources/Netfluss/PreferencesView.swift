@@ -99,7 +99,7 @@ struct ColorSwatchPicker: View {
                     }
                 }
                 .buttonStyle(.borderless)
-                .help(option.label)
+                .help(L10n.text(option.label))
             }
 
             Button {
@@ -267,6 +267,11 @@ struct PreferencesView: View {
     @AppStorage("menuBarIconSymbol") private var menuBarIconSymbol: String = "network"
     @AppStorage("menuBarPinnedUnit") private var menuBarPinnedUnit: String = "auto"
     @AppStorage("menuBarDecimals") private var menuBarDecimals: Int = 0
+    @AppStorage("menuBarVPNIndicator") private var menuBarVPNIndicator: String = "off"
+    @AppStorage("menuBarVPNIndicatorColor") private var menuBarVPNIndicatorColor: String = "green"
+    @AppStorage("menuBarVPNIndicatorColorHex") private var menuBarVPNIndicatorColorHex: String = ""
+    @AppStorage("menuBarVPNShowWhenOff") private var menuBarVPNShowWhenOff: Bool = true
+    @AppStorage("menuBarShowCountryFlag") private var menuBarShowCountryFlag: Bool = false
     @AppStorage("connectionStatusMode") private var connectionStatusMode: String = "flow"
     @AppStorage("totalsOnlyVisibleAdapters") private var totalsOnlyVisibleAdapters: Bool = false
     @AppStorage("excludeTunnelAdaptersFromTotals") private var excludeTunnelAdaptersFromTotals: Bool = false
@@ -392,9 +397,9 @@ struct PreferencesView: View {
 
                     Section {
                 Toggle(isOn: $automaticUpdateChecksEnabled) {
-                    LText("Check GitHub for updates automatically")
+                    LText("Check for updates automatically")
                 }
-                LText("When enabled, NetFluss checks once per day in the background. The manual Check for Updates button in About stays available.")
+                LText("Once a day, NetFluss looks for a new version on GitHub and asks whether to download and install it. You can also check any time from the menu bar icon's right-click menu or in About.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
@@ -585,7 +590,7 @@ struct PreferencesView: View {
                                             Image(nsImage: image)
                                                 .renderingMode(.template)
                                         }
-                                        Text(option.label)
+                                        Text(L10n.text(option.label))
                                     }
                                     .tag(option.id)
                                 }
@@ -650,6 +655,39 @@ struct PreferencesView: View {
                         }
                     } label: {
                         LText("Decimals")
+                    }
+                    LabeledContent {
+                        TrailingPreferenceControl(width: appearanceControlWidth) {
+                            Picker("", selection: $menuBarVPNIndicator) {
+                                LText("Off").tag("off")
+                                LText("Dot").tag("dot")
+                                LText("Shield").tag("shield")
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 230)
+                        }
+                    } label: {
+                        LText("VPN indicator")
+                    }
+                    if menuBarVPNIndicator != "off" {
+                        LabeledContent {
+                            TrailingPreferenceControl(width: appearanceControlWidth) {
+                                ColorSwatchPicker(selection: $menuBarVPNIndicatorColor, customHex: $menuBarVPNIndicatorColorHex)
+                            }
+                        } label: {
+                            LText("VPN indicator color")
+                        }
+                        Toggle(isOn: $menuBarVPNShowWhenOff) {
+                            LText("Show when VPN is off")
+                        }
+                    }
+                    Toggle(isOn: $menuBarShowCountryFlag) {
+                        LText("Country flag")
+                    }
+                    if menuBarVPNIndicator != "off" || menuBarShowCountryFlag {
+                        LText("Shown to the right of the rates. The VPN indicator also detects VPNs started by other apps. The country flag shows where your public IP is located (looked up via ipify.org and ipwho.is).")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 LText("Dashboard uses router-wide traffic when Fritz!Box, UniFi, OpenWRT, or OPNsense bandwidth is enabled and available.")
@@ -947,7 +985,7 @@ struct PreferencesView: View {
                                     currentHost: unifiHost
                                 ) { newHost in
                                     unifiHost = newHost
-                                    TLSPinStore.resetTrust(host: newHost)
+                                    TLSPinStore.resetTrust(host: newHost.isEmpty ? monitor.gatewayIP : newHost)
                                 }
                             }
                         }
@@ -1044,7 +1082,7 @@ struct PreferencesView: View {
                                     currentHost: openWRTHost
                                 ) { newHost in
                                     openWRTHost = newHost
-                                    TLSPinStore.resetTrust(host: newHost)
+                                    TLSPinStore.resetTrust(host: newHost.isEmpty ? monitor.gatewayIP : newHost)
                                 }
                             }
                         }
@@ -1076,7 +1114,7 @@ struct PreferencesView: View {
                     } label: {
                         LText("Credentials")
                     }
-                    LText("Queries your OpenWRT router via ubus JSON-RPC over HTTPS or HTTP. Auto uses the current default gateway, which may be the wrong router on dual-router setups. Set a fixed OpenWRT IP or URL if needed. Requires the router's admin credentials and the uhttpd-mod-ubus package.")
+                    LText("Queries your OpenWRT router via ubus JSON-RPC over HTTPS. Auto uses the current default gateway, which may be the wrong router on dual-router setups. Set a fixed OpenWRT IP or URL if needed — for plain HTTP, enter http://<IP>. Requires the router's admin credentials and the uhttpd-mod-ubus package.")
                         .foregroundStyle(.secondary)
                         .font(.caption)
                     if let error = monitor.openWRTError {
@@ -1122,7 +1160,7 @@ struct PreferencesView: View {
                                     currentHost: opnsenseHost
                                 ) { newHost in
                                     opnsenseHost = newHost
-                                    TLSPinStore.resetTrust(host: newHost)
+                                    TLSPinStore.resetTrust(host: newHost.isEmpty ? monitor.gatewayIP : newHost)
                                 }
                             }
                         }
@@ -1150,7 +1188,7 @@ struct PreferencesView: View {
                     } label: {
                         LText("API Credentials")
                     }
-                    LText("Queries your OPNsense router via REST API over HTTPS or HTTP. Auto uses the current default gateway. Requires API key and secret configured in OPNsense.")
+                    LText("Queries your OPNsense router via its REST API over HTTPS. Auto uses the current default gateway. If the web interface uses plain HTTP or a different port, enter the full URL (e.g. http://192.168.1.1 or https://192.168.1.1:8443). Requires an API key and secret configured in OPNsense.")
                         .foregroundStyle(.secondary)
                         .font(.caption)
                     if let error = monitor.opnsenseError {
@@ -1519,6 +1557,7 @@ private struct PopoverSectionsReorderEditor: View {
     @AppStorage("showTopApps") private var showTopApps: Bool = false
     @AppStorage("showUsageSummary") private var showUsageSummary: Bool = false
     @AppStorage("collectStatistics") private var collectStatistics: Bool = false
+    @AppStorage("showTrafficTimer") private var showTrafficTimer: Bool = false
     @AppStorage("fritzBoxEnabled") private var fritzBoxEnabled: Bool = false
     @AppStorage("unifiEnabled") private var unifiEnabled: Bool = false
     @AppStorage("openWRTEnabled") private var openWRTEnabled: Bool = false
@@ -1578,6 +1617,8 @@ private struct PopoverSectionsReorderEditor: View {
             return Binding(get: { showVPN }, set: { showVPN = $0 })
         case .topApps:
             return Binding(get: { showTopApps }, set: { showTopApps = $0 })
+        case .timer:
+            return Binding(get: { showTrafficTimer }, set: { showTrafficTimer = $0 })
         }
     }
 

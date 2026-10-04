@@ -49,6 +49,7 @@ struct MenuBarView: View {
     @AppStorage("showAdapterList") private var showAdapterList: Bool = true
     @AppStorage("showUsageSummary") private var showUsageSummary: Bool = false
     @AppStorage("collectStatistics") private var collectStatistics: Bool = false
+    @AppStorage("showTrafficTimer") private var showTrafficTimer: Bool = false
 
     private static let cardSpacing: CGFloat = 6   // VStack spacing between cards
     @State private var contentHeight: CGFloat = 0
@@ -112,7 +113,7 @@ struct MenuBarView: View {
                         .background(.quaternary.opacity(0.5), in: Circle())
                 }
                 .buttonStyle(.plain)
-                .help(isPinned ? "Unpin window" : "Pin as window")
+                .help(L10n.text(isPinned ? "Unpin window" : "Pin as window"))
             }
             .padding(.top, 8)
             .padding(.horizontal, 10)
@@ -162,6 +163,7 @@ struct MenuBarView: View {
         case .wifi: return showWifiSwitcher
         case .vpn: return showVPN
         case .topApps: return showTopApps
+        case .timer: return showTrafficTimer
         }
     }
 
@@ -247,6 +249,9 @@ struct MenuBarView: View {
 
         case .topApps:
             TopAppsSection(topApps: monitor.topApps, useBits: useBits)
+
+        case .timer:
+            TrafficTimerSection()
         }
     }
 
@@ -338,7 +343,7 @@ struct NetRateCell: View {
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(color)
             VStack(alignment: .leading, spacing: 1) {
-                Text(label.uppercased())
+                Text(L10n.text(label).uppercased())
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.secondary)
                     .tracking(0.5)
@@ -517,7 +522,7 @@ struct WifiDetailPopover: View {
             }
             if let chNum = detail.channelNumber {
                 let width = detail.channelWidth ?? ""
-                let channelStr = width.isEmpty ? "Ch \(chNum)" : "Ch \(chNum) (\(width))"
+                let channelStr = width.isEmpty ? L10n.format("Ch %@", "\(chNum)") : L10n.format("Ch %@ (%@)", "\(chNum)", width)
                 detailRow("Channel", channelStr)
             }
             if let rssi = detail.rssi {
@@ -569,7 +574,7 @@ struct WifiDetailPopover: View {
 
     private func detailRow(_ label: String, _ value: String) -> some View {
         HStack(spacing: 4) {
-            Text(label)
+            Text(L10n.text(label))
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .frame(width: 60, alignment: .leading)
@@ -612,7 +617,7 @@ struct IPRow: View {
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .frame(width: 16)
-            Text(label)
+            Text(L10n.text(label))
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .frame(width: 50, alignment: .leading)
@@ -650,34 +655,12 @@ struct ConnectionStatusSection: View {
     let countryCode: String
 
     private var activeVPNs: [AdapterStatus] {
-        let vpnIPs = Self.vpnInterfaceIPs()
+        let vpnTunnels = VPNDetector.snapshot().tunnels
         return adapters.filter { adapter in
             guard adapter.type == .other, adapter.isUp else { return false }
             guard adapter.isTunnelInterface else { return false }
-            return vpnIPs[adapter.id] != nil
+            return vpnTunnels[adapter.id] != nil
         }
-    }
-
-    private static func vpnInterfaceIPs() -> [String: String] {
-        var result: [String: String] = [:]
-        var pointer: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&pointer) == 0, let first = pointer else { return result }
-        defer { freeifaddrs(pointer) }
-
-        var current: UnsafeMutablePointer<ifaddrs>? = first
-        while let entry = current?.pointee {
-            defer { current = entry.ifa_next }
-            guard let sa = entry.ifa_addr, sa.pointee.sa_family == UInt8(AF_INET) else { continue }
-            let name = String(cString: entry.ifa_name)
-            guard AdapterClassifier.isTunnelInterface(named: name) else { continue }
-            var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-            guard getnameinfo(sa, socklen_t(sa.pointee.sa_len),
-                              &hostname, socklen_t(NI_MAXHOST),
-                              nil, 0, NI_NUMERICHOST) == 0 else { continue }
-            let ip = hostname.withUnsafeBufferPointer { String(cString: $0.baseAddress!) }
-            if !ip.isEmpty { result[name] = ip }
-        }
-        return result
     }
 
     var body: some View {
@@ -698,23 +681,14 @@ struct ConnectionStatusSection: View {
 
     @ViewBuilder
     private var vpnNode: some View {
-        let flag = Self.flagEmoji(for: countryCode)
+        let flag = CountryFlag.emoji(for: countryCode)
         if activeVPNs.count == 1 {
             let vpn = activeVPNs[0]
             ConnectionNode(icon: "lock.shield", label: vpn.displayName, detail: vpn.id, color: .purple, flag: flag)
         } else {
             let names = activeVPNs.map(\.id).joined(separator: ", ")
-            ConnectionNode(icon: "lock.shield", label: "\(activeVPNs.count) VPNs", detail: names, color: .purple, flag: flag)
+            ConnectionNode(icon: "lock.shield", label: L10n.format("%ld VPNs", activeVPNs.count), detail: names, color: .purple, flag: flag)
         }
-    }
-
-    private static func flagEmoji(for code: String) -> String? {
-        let code = code.uppercased()
-        guard code.count == 2, code.unicodeScalars.allSatisfy({ $0.isASCII && $0.properties.isAlphabetic }) else { return nil }
-        let base: UInt32 = 0x1F1E6 - 0x41 // regional indicator A
-        let scalars = code.unicodeScalars.compactMap { UnicodeScalar(base + $0.value) }
-        guard scalars.count == 2 else { return nil }
-        return String(scalars.map { Character($0) })
     }
 }
 
@@ -749,7 +723,7 @@ struct ConnectionNode: View {
                         .font(.system(size: 14))
                         .foregroundStyle(.primary)
                 }
-                Text(label)
+                Text(L10n.text(label))
                     .font(.system(size: 9, weight: .semibold))
                     .lineLimit(1)
                 Text(detail)
@@ -1037,7 +1011,7 @@ struct FritzBoxRateRow: View {
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(color)
                     .frame(width: 12)
-                Text(label)
+                Text(L10n.text(label))
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -1224,7 +1198,7 @@ struct RouterRateRow: View {
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(color)
                     .frame(width: 12)
-                Text(label)
+                Text(L10n.text(label))
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -1417,7 +1391,7 @@ struct WifiSwitcherSection: View {
                 }
                 .padding(.horizontal, 12)
             } else if wifi.networks.isEmpty {
-                Text(wifi.locationStatus == .notDetermined ? "Waiting for Location permission…" : "Scanning for networks…")
+                Text(L10n.text(wifi.locationStatus == .notDetermined ? "Waiting for Location permission…" : "Scanning for networks…"))
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 12)
@@ -1562,7 +1536,7 @@ struct WifiNetworkRow: View {
                     .rotationEffect(network.isPinned ? .degrees(-45) : .zero)
             }
             .buttonStyle(.borderless)
-            .help(network.isPinned ? "Unpin" : "Pin to top")
+            .help(L10n.text(network.isPinned ? "Unpin" : "Pin to top"))
 
             Button(action: onToggleDetail) {
                 Image(systemName: "info.circle")
@@ -1594,7 +1568,7 @@ struct WifiScanDetailPopover: View {
             }
             if let chNum = network.channelNumber {
                 let width = network.channelWidth ?? ""
-                let channelStr = width.isEmpty ? "Ch \(chNum)" : "Ch \(chNum) (\(width))"
+                let channelStr = width.isEmpty ? L10n.format("Ch %@", "\(chNum)") : L10n.format("Ch %@ (%@)", "\(chNum)", width)
                 detailRow("Channel", channelStr)
             }
             if let rssi = network.rssi {
@@ -1604,10 +1578,10 @@ struct WifiScanDetailPopover: View {
                 detailRow("BSSID", bssid)
             }
             if !network.isAvailable {
-                detailRow("Status", "Not in range")
+                detailRow("Status", L10n.text("Not in range"))
             }
             if network.isPinned {
-                detailRow("Pinned", "Yes")
+                detailRow("Pinned", L10n.text("Yes"))
             }
         }
         .padding(12)
@@ -1617,7 +1591,7 @@ struct WifiScanDetailPopover: View {
     @ViewBuilder
     private func detailRow(_ key: String, _ value: String) -> some View {
         HStack(spacing: 4) {
-            Text(key)
+            Text(L10n.text(key))
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .frame(width: 60, alignment: .leading)

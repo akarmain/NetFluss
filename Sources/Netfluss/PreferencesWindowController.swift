@@ -102,11 +102,11 @@ final class AddDNSWindowController {
         } onCancel: { [weak self] in
             self?.close()
         }
-        let hosting = NSHostingController(rootView: view)
+        let hosting = NSHostingController(rootView: LocalizedRoot { view })
 
         let isEdit = preset != nil
         let panel = NSPanel(contentViewController: hosting)
-        panel.title = isEdit ? "Edit Custom DNS" : "Add Custom DNS"
+        panel.title = L10n.text(isEdit ? "Edit Custom DNS" : "Add Custom DNS")
         panel.styleMask = [.titled, .closable, .nonactivatingPanel]
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = false
@@ -155,10 +155,10 @@ final class EditFritzBoxHostController {
         } onCancel: { [weak self] in
             self?.close()
         }
-        let hosting = NSHostingController(rootView: view)
+        let hosting = NSHostingController(rootView: LocalizedRoot { view })
 
         let panel = NSPanel(contentViewController: hosting)
-        panel.title = "Fritz!Box Address"
+        panel.title = L10n.text("Fritz!Box Address")
         panel.styleMask = [.titled, .closable, .nonactivatingPanel]
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = false
@@ -237,10 +237,10 @@ final class EditRouterHostController {
         } onCancel: { [weak self] in
             self?.close()
         }
-        let hosting = NSHostingController(rootView: view)
+        let hosting = NSHostingController(rootView: LocalizedRoot { view })
 
         let panel = NSPanel(contentViewController: hosting)
-        panel.title = title
+        panel.title = L10n.text(title)
         panel.styleMask = [.titled, .closable, .nonactivatingPanel]
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = false
@@ -272,9 +272,9 @@ struct EditRouterHostPanelView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text(title)
+            LText(title)
                 .font(.headline)
-            TextField(placeholder, text: $text)
+            TextField(L10n.text(placeholder), text: $text)
                 .textFieldStyle(.roundedBorder)
                 .onSubmit { save() }
             HStack(spacing: 12) {
@@ -321,10 +321,10 @@ final class EditRouterCredentialsController {
         } onCancel: { [weak self] in
             self?.close()
         }
-        let hosting = NSHostingController(rootView: view)
+        let hosting = NSHostingController(rootView: LocalizedRoot { view })
 
         let panel = NSPanel(contentViewController: hosting)
-        panel.title = title
+        panel.title = L10n.text(title)
         panel.styleMask = [.titled, .closable, .nonactivatingPanel]
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = false
@@ -356,7 +356,7 @@ struct EditRouterCredentialsPanelView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text(title)
+            LText(title)
                 .font(.headline)
             Text("for \(host)")
                 .font(.subheadline)
@@ -411,10 +411,10 @@ final class EditUniFiAPIKeyController {
         } onCancel: { [weak self] in
             self?.close()
         }
-        let hosting = NSHostingController(rootView: view)
+        let hosting = NSHostingController(rootView: LocalizedRoot { view })
 
         let panel = NSPanel(contentViewController: hosting)
-        panel.title = "UniFi API Key"
+        panel.title = L10n.text("UniFi API Key")
         panel.styleMask = [.titled, .closable, .nonactivatingPanel]
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = false
@@ -498,10 +498,12 @@ final class EditOPNsenseCredentialsController {
         } onCancel: { [weak self] in
             self?.close()
         }
-        let hosting = NSHostingController(rootView: view)
+        let hosting = NSHostingController(rootView: LocalizedRoot { view })
+        // Grow with the (multi-line) diagnosis and the re-trust button.
+        hosting.sizingOptions = [.preferredContentSize]
 
         let panel = NSPanel(contentViewController: hosting)
-        panel.title = "OPNsense API Credentials"
+        panel.title = L10n.text("OPNsense API Credentials")
         panel.styleMask = [.titled, .closable, .nonactivatingPanel]
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = false
@@ -532,6 +534,8 @@ struct EditOPNsenseCredentialsPanelView: View {
     @State private var isTesting = false
     @State private var testPassed = false
     @State private var testError: String?
+    /// The last test failed because the pinned TLS certificate changed.
+    @State private var certificateChanged = false
 
     private var canTest: Bool {
         !apiKey.trimmingCharacters(in: .whitespaces).isEmpty && !apiSecret.isEmpty
@@ -557,13 +561,26 @@ struct EditOPNsenseCredentialsPanelView: View {
 
             // Test connection status
             if let error = testError {
-                HStack(spacing: 6) {
-                    Image(systemName: "exclamationmark.circle.fill")
-                        .foregroundStyle(.orange)
-                        .font(.system(size: 12))
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                VStack(spacing: 8) {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .foregroundStyle(.orange)
+                            .font(.system(size: 12))
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if certificateChanged {
+                        // Explicit user action = re-trust (TOFU) the router's
+                        // current certificate, then test again.
+                        Button("Trust Current Certificate") {
+                            TLSPinStore.resetTrust(host: host)
+                            testConnection()
+                        }
+                        .controlSize(.small)
+                        .disabled(isTesting)
+                    }
                 }
             } else if testPassed {
                 HStack(spacing: 6) {
@@ -581,7 +598,7 @@ struct EditOPNsenseCredentialsPanelView: View {
                     .keyboardShortcut(.cancelAction)
                     .disabled(isTesting)
                 Spacer()
-                Button(isTesting ? "Testing…" : "Test Connection") {
+                Button(L10n.text(isTesting ? "Testing…" : "Test Connection")) {
                     testConnection()
                 }
                 .disabled(isTesting || !canTest)
@@ -592,6 +609,7 @@ struct EditOPNsenseCredentialsPanelView: View {
             }
         }
         .padding(24)
+        .frame(width: 340)
         .onAppear {
             if let creds = OPNsenseMonitor.loadCredentials(host: host) {
                 apiKey = creds.apiKey
@@ -607,6 +625,7 @@ struct EditOPNsenseCredentialsPanelView: View {
         isTesting = true
         testError = nil
         testPassed = false
+        certificateChanged = false
 
         Task {
             do {
@@ -617,39 +636,42 @@ struct EditOPNsenseCredentialsPanelView: View {
                     isTesting = false
                 }
             } catch {
+                let changed = TLSPinStore.certificateChanged(host: host)
                 let errorMsg: String
-                if let opnsenseError = error as? OPNsenseError {
+                if changed {
+                    errorMsg = RouterConnectionDiagnosis.certificateChangedMessage(
+                        router: "OPNsense",
+                        host: host,
+                        retrustHint: L10n.text("If you expected this (for example after replacing the router's certificate), click “Trust Current Certificate”.")
+                    ) ?? L10n.format("%@'s TLS certificate changed since NetFluss first trusted it.", "OPNsense")
+                } else if let opnsenseError = error as? OPNsenseError {
                     switch opnsenseError {
                     case .authFailed:
-                        errorMsg = "API key or secret is incorrect (HTTP 401/403)"
+                        errorMsg = L10n.text("API key or secret is incorrect (HTTP 401/403)")
                     case .invalidURL:
-                        errorMsg = "Invalid router address or URL format"
+                        errorMsg = L10n.text("Invalid router address or URL format")
                     case .httpStatus(let code):
-                        errorMsg = "HTTP error \(code) — check the router address and verify the API is enabled"
+                        errorMsg = L10n.format("HTTP error %ld — check the router address and verify the API is enabled", code)
                     case .parseError:
-                        errorMsg = "Router returned unexpected format — verify the API endpoint or check the OPNsense logs (console output has details)"
-                    case .requestFailed:
-                        errorMsg = "Could not reach router — verify address and network connectivity"
+                        errorMsg = L10n.text("Router returned unexpected format — verify the API endpoint or check the OPNsense logs (console output has details)")
+                    case .requestFailed(let urlError):
+                        errorMsg = RouterConnectionDiagnosis.transportMessage(
+                            router: "OPNsense", host: host, error: urlError, allowsHTTP: true
+                        )
                     case .noWANInterface:
-                        errorMsg = "Router responded but WAN interface not found"
+                        errorMsg = L10n.text("Router responded but WAN interface not found")
                     }
                 } else if let urlError = error as? URLError {
-                    switch urlError.code {
-                    case .timedOut:
-                        errorMsg = "Router did not respond in time"
-                    case .cannotFindHost:
-                        errorMsg = "Could not resolve host — check the address"
-                    case .cannotConnectToHost:
-                        errorMsg = "Could not connect to router — verify address and network"
-                    default:
-                        errorMsg = "Network error: \((error as NSError).localizedDescription)"
-                    }
+                    errorMsg = RouterConnectionDiagnosis.transportMessage(
+                        router: "OPNsense", host: host, error: urlError, allowsHTTP: true
+                    )
                 } else {
-                    errorMsg = "Error: \((error as NSError).localizedDescription)"
+                    errorMsg = L10n.format("Error: %@", (error as NSError).localizedDescription)
                 }
                 await MainActor.run {
                     testPassed = false
                     testError = errorMsg
+                    certificateChanged = changed
                     isTesting = false
                 }
             }
@@ -691,7 +713,7 @@ struct AddDNSPanelView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text(isEditing ? "Edit Custom DNS" : "Add Custom DNS")
+            LText(isEditing ? "Edit Custom DNS" : "Add Custom DNS")
                 .font(.headline)
             VStack(alignment: .leading, spacing: 8) {
                 TextField("Name (e.g. My DNS)", text: $name)
@@ -708,7 +730,7 @@ struct AddDNSPanelView: View {
             HStack(spacing: 12) {
                 Button("Cancel", action: onCancel)
                     .keyboardShortcut(.cancelAction)
-                Button(isEditing ? "Save" : "Add") { save() }
+                Button(L10n.text(isEditing ? "Save" : "Add")) { save() }
                     .keyboardShortcut(.defaultAction)
                     .buttonStyle(.borderedProminent)
                     .disabled(!isValid)
