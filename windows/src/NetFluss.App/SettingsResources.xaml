@@ -284,6 +284,17 @@
         <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
     </Style>
 
+    <Style TargetType="PasswordBox">
+        <Setter Property="FontFamily" Value="{StaticResource SetFont}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="6,4" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="{DynamicResource InputBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
+    </Style>
+
     <Style TargetType="Slider">
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="IsSnapToTickEnabled" Value="True" />

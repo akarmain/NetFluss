@@ -52,6 +52,7 @@ public partial class PopoverWindow : Window
             new TopAppsSection(context),
             new UsageSection(context),
             new TimerSection(context),
+            new RouterSection(context),
         ];
 
         Width = context.Settings.PopoverWidth;

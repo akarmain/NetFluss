@@ -34,6 +34,7 @@ public partial class NetFlussApplication : Application
     private DnsSwitcher? _dns;
     private PrivilegedActions? _privileged;
     private StatisticsService? _statistics;
+    private RouterService? _routers;
     private StatisticsWindow? _statisticsWindow;
     private NetworkSliceWindow? _sliceWindow;
     private AboutWindow? _aboutWindow;
@@ -88,6 +89,7 @@ public partial class NetFlussApplication : Application
         _privileged = new PrivilegedActions(_helper);
         _dns = new DnsSwitcher(_store, _monitor, _privileged);
         _statistics = new StatisticsService(_store, _monitor);
+        _routers = new RouterService(_monitor, _store);
         _updates = new UpdateNotifier(_store);
         _updates.UpdateFound += OnUpdateFound;
 
@@ -659,6 +661,7 @@ public partial class NetFlussApplication : Application
         Privileged = _privileged!,
         Statistics = _statistics!,
         Traffic = _traffic!,
+        Routers = _routers!,
         Commands = _commands!,
     };
 
@@ -733,6 +736,7 @@ public partial class NetFlussApplication : Application
                 Privileged = _privileged!,
                 Statistics = _statistics!,
                 Timer = _timer,
+                Routers = _routers!,
                 Commands = _commands!,
             });
 
@@ -782,6 +786,7 @@ public partial class NetFlussApplication : Application
         _traffic?.Dispose();
         SaveTimer();
         _statistics?.Dispose();
+        _routers?.Dispose();
         _helper?.Dispose();
         _monitor?.Dispose();
         _instance?.Dispose();

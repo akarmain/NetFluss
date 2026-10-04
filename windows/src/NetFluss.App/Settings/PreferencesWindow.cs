@@ -27,6 +27,8 @@ internal sealed class PreferencesContext
 
     internal required TrafficService Traffic { get; init; }
 
+    internal required RouterService Routers { get; init; }
+
     internal required AppCommands Commands { get; init; }
 
     internal AppSettings Settings => Store.Settings;
@@ -63,6 +65,7 @@ internal sealed class PreferencesWindow : Window
         ("topapps", "", "Top Apps"),
         ("dns", Glyph.Globe, "DNS"),
         ("wifi", Glyph.Wifi, "Wi-Fi"),
+        ("router", Glyph.Router, "Router"),
     ];
 
     internal PreferencesWindow(PreferencesContext context)
@@ -206,6 +209,7 @@ internal sealed class PreferencesWindow : Window
             "topapps" => TopAppsPage.Build(_context),
             "dns" => DnsPage.Build(_context),
             "wifi" => WifiPage.Build(_context),
+            "router" => RouterPage.Build(_context),
             _ => null,
         };
 

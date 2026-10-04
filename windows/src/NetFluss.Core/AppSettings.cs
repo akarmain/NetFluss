@@ -130,6 +130,15 @@ public sealed class AppSettings : INotifyPropertyChanged
     private bool _networkSliceHostsLive;
     private bool _networkSliceServicesLive;
     private bool _networkSliceAppsLive;
+    private bool _fritzBoxEnabled;
+    private string _fritzBoxHost = string.Empty;
+    private bool _uniFiEnabled;
+    private string _uniFiHost = string.Empty;
+    private bool _uniFiUseApiKey;
+    private bool _openWrtEnabled;
+    private string _openWrtHost = string.Empty;
+    private bool _opnSenseEnabled;
+    private string _opnSenseHost = string.Empty;
     private string _lastNotifiedVersion = string.Empty;
     private DateTimeOffset? _lastUpdateCheck;
     private bool _popoverPinned;
@@ -505,13 +514,14 @@ public sealed class AppSettings : INotifyPropertyChanged
             case PopoverSection.Timer:
                 ShowTrafficTimer = enabled;
                 break;
+            case PopoverSection.Router when !enabled:
+                // Off switches every router off; on needs a router chosen in the Router page.
+                FritzBoxEnabled = UniFiEnabled = OpenWrtEnabled = OpnSenseEnabled = false;
+                break;
         }
     }
 
-    /// <summary>
-    /// True when at least one router integration is on. Routers arrive in a later phase;
-    /// until then this is always false and the Router section stays hidden.
-    /// </summary>
+    /// <summary>True when at least one router integration is on — the Router section's switch.</summary>
     [JsonIgnore]
     public bool AnyRouterEnabled => FritzBoxEnabled || UniFiEnabled || OpenWrtEnabled || OpnSenseEnabled;
 
@@ -898,16 +908,63 @@ public sealed class AppSettings : INotifyPropertyChanged
     }
 
     // ===================================== Routers =====================================
-    // Declared here so the Router section's visibility has something to read; the
-    // integrations themselves and their Preferences land with the router phase.
+    // Each integration is a switch plus an address; empty means "the default gateway".
+    // Credentials never live here — they are in Credential Manager (see CredentialStore).
 
-    public bool FritzBoxEnabled { get; set; }
+    public bool FritzBoxEnabled
+    {
+        get => _fritzBoxEnabled;
+        set => Set(ref _fritzBoxEnabled, value);
+    }
 
-    public bool UniFiEnabled { get; set; }
+    public string FritzBoxHost
+    {
+        get => _fritzBoxHost;
+        set => Set(ref _fritzBoxHost, (value ?? string.Empty).Trim());
+    }
 
-    public bool OpenWrtEnabled { get; set; }
+    public bool UniFiEnabled
+    {
+        get => _uniFiEnabled;
+        set => Set(ref _uniFiEnabled, value);
+    }
 
-    public bool OpnSenseEnabled { get; set; }
+    public string UniFiHost
+    {
+        get => _uniFiHost;
+        set => Set(ref _uniFiHost, (value ?? string.Empty).Trim());
+    }
+
+    /// <summary>Authenticate with a Network API key instead of a local admin login.</summary>
+    public bool UniFiUseApiKey
+    {
+        get => _uniFiUseApiKey;
+        set => Set(ref _uniFiUseApiKey, value);
+    }
+
+    public bool OpenWrtEnabled
+    {
+        get => _openWrtEnabled;
+        set => Set(ref _openWrtEnabled, value);
+    }
+
+    public string OpenWrtHost
+    {
+        get => _openWrtHost;
+        set => Set(ref _openWrtHost, (value ?? string.Empty).Trim());
+    }
+
+    public bool OpnSenseEnabled
+    {
+        get => _opnSenseEnabled;
+        set => Set(ref _opnSenseEnabled, value);
+    }
+
+    public string OpnSenseHost
+    {
+        get => _opnSenseHost;
+        set => Set(ref _opnSenseHost, (value ?? string.Empty).Trim());
+    }
 
     /// <summary>
     /// The visibility rules assembled from the individual preferences.

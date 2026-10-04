@@ -26,6 +26,8 @@ internal sealed class PopoverContext
 
     internal required TrafficTimer Timer { get; init; }
 
+    internal required RouterService Routers { get; init; }
+
     internal required AppCommands Commands { get; init; }
 
     internal AppSettings Settings => Store.Settings;

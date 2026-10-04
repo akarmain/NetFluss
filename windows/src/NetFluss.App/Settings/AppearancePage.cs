@@ -95,7 +95,8 @@ internal static class AppearancePage
                     }
 
                     var toggle = Kit.Switch(settings.IsSectionEnabled(section), on => settings.SetSectionEnabled(section, on));
-                    toggle.IsEnabled = section is not PopoverSection.Router;
+                    // Router can only be switched off here; on needs a router chosen in the Router page.
+                    toggle.IsEnabled = section is not PopoverSection.Router || settings.AnyRouterEnabled;
                     toggle.Margin = new Thickness(0, 0, 12, 0);
 
                     var row = new Grid();
