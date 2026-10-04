@@ -51,6 +51,7 @@ internal static class ThemeBrushes
         Set("PopoverUploadBrush", Rgb(upload));
         Set("PopoverGreenBrush", dark ? Color.FromRgb(0x6C, 0xCB, 0x5F) : Color.FromRgb(0x0F, 0x7B, 0x0F));
         Set("PopoverOrangeBrush", dark ? Color.FromRgb(0xFC, 0xB7, 0x5D) : Color.FromRgb(0x9D, 0x5D, 0x00));
+        Set("PopoverRedBrush", dark ? Color.FromRgb(0xFF, 0x99, 0xA4) : Color.FromRgb(0xC4, 0x2B, 0x1C));
     }
 
     /// <summary>Tells DWM whether to draw the title bar and frame dark, to match the content.</summary>

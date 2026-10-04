@@ -46,6 +46,7 @@ public partial class NetFlussApplication : Application
     private TaskbarOverlayWindow? _overlay;
     private FloatingWidgetWindow? _widget;
     private SpeedTestWindow? _speedTest;
+    private SpeedTestHistory? _speedTestHistory;
     private DateTime _popoverHiddenAt = DateTime.MinValue;
     private bool _lastIPv6;
 
@@ -264,9 +265,18 @@ public partial class NetFlussApplication : Application
             var (surface, download, upload) = Palette();
             window = new AboutWindow(_updates, surface, download, upload);
         }
-        else if (target == "speedtest" && _store is not null)
+        else if (target.StartsWith("speedtest", StringComparison.Ordinal) && _store is not null)
         {
-            window = new SpeedTestWindow(_store.Settings.Theme.Surface(SystemTheme.IsAppLight()));
+            // "speedtest:result|running|consent|error|history|note" previews a state with
+            // sample numbers and a throwaway history, so snapshots never touch the real one.
+            var (surface, download, upload) = Palette();
+            var speedTest = new SpeedTestWindow(_store, new SpeedTestHistory(null), surface, download, upload);
+            if (target.Split(':') is [_, var state])
+            {
+                speedTest.Preview(state);
+            }
+
+            window = speedTest;
         }
         else if (target.StartsWith("statistics", StringComparison.Ordinal) && _store is not null && _statistics is not null)
         {
@@ -559,7 +569,12 @@ public partial class NetFlussApplication : Application
     {
         if (_store is not null)
         {
-            Open(() => _speedTest, w => _speedTest = w, () => new SpeedTestWindow(Palette().Surface));
+            Open(() => _speedTest, w => _speedTest = w, () =>
+            {
+                var (surface, download, upload) = Palette();
+                _speedTestHistory ??= new SpeedTestHistory(SpeedTestHistory.DefaultPath(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)));
+                return new SpeedTestWindow(_store, _speedTestHistory, surface, download, upload);
+            });
         }
     }
 

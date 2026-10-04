@@ -26,6 +26,7 @@ internal static class Glyph
     internal const string Shield = "";
     internal const string Lock = "";
     internal const string Copy = "";
+    internal const string Edit = "";
     internal const string Check = "";
     internal const string CheckCircle = "";
     internal const string Circle = "";
@@ -111,6 +112,7 @@ internal static class Ui
     internal const string Accent = "PopoverAccentBrush";
     internal const string Green = "PopoverGreenBrush";
     internal const string Orange = "PopoverOrangeBrush";
+    internal const string Red = "PopoverRedBrush";
 
     internal static TextBlock Label(string text, double size = 12, string brush = Text, FontWeight? weight = null)
     {

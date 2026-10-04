@@ -125,7 +125,7 @@ public sealed class AppSettings : INotifyPropertyChanged
     private bool _collectStatistics;
     private bool _collectAppStatistics = true;
     private bool _automaticUpdateChecks = true;
-    private string _speedTestProvider = "cloudflare";
+    private string _speedTestProvider = "mlab";
     private bool _speedTestMLabConsent;
     private string _lastNotifiedVersion = string.Empty;
     private DateTimeOffset? _lastUpdateCheck;
@@ -773,7 +773,7 @@ public sealed class AppSettings : INotifyPropertyChanged
 
     // ==================================== Speed test ====================================
 
-    /// <summary>"cloudflare" or "mlab"; remembered between runs, as on macOS.</summary>
+    /// <summary>"mlab" (the default, as on macOS) or "cloudflare"; remembered between runs.</summary>
     public string SpeedTestProvider
     {
         get => _speedTestProvider;

@@ -20,6 +20,7 @@
     <SolidColorBrush x:Key="PopoverUploadBrush" Color="#6CCB5F" />
     <SolidColorBrush x:Key="PopoverGreenBrush" Color="#6CCB5F" />
     <SolidColorBrush x:Key="PopoverOrangeBrush" Color="#FCB75D" />
+    <SolidColorBrush x:Key="PopoverRedBrush" Color="#FF99A4" />
     <SolidColorBrush x:Key="PopoverTrackBrush" Color="#1FFFFFFF" />
     <SolidColorBrush x:Key="PopoverInputBrush" Color="#1AFFFFFF" />
 
