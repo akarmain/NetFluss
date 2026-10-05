@@ -3,9 +3,42 @@
 Native Windows port of NetFluss, tracking the macOS app's feature set.
 Design and rationale live in [../docs/WINDOWS-PORT-PLAN.md](../docs/WINDOWS-PORT-PLAN.md).
 
-**Status: Phase 1, in progress.** Live rates on three selectable surfaces, a resizable
-popover, tabbed Preferences, adapter selection, a DNS switcher, the speed test, and the
-verification harness. No service and no VPN yet.
+**Status: feature parity with NetFluss 2.6 for macOS.** Every macOS feature has a Windows
+counterpart:
+
+| Area | Windows |
+|---|---|
+| Live meter | Taskbar overlay, notification-area icon or floating widget; one line, two lines, total, **Dashboard** and **Dashboard Basic** styles; VPN indicator and exit-country badge |
+| Popover | Totals, adapters (rename, reorder, hide, grace period), network flow / IP list, DNS switcher, router, Wi-Fi switcher, VPN, Top Apps, Data Usage, Traffic Timer — reorderable, pinnable, resizable |
+| Windows | Preferences (Windows 11 Settings style), Bandwidth Statistics (1H–1Y, custom ranges), Speed Test (Cloudflare / M-Lab, history with notes), Network Slice, About |
+| Routers | Fritz!Box (TR-064), UniFi (local admin or API key), OpenWRT (ubus), OPNsense (REST) — credentials in Credential Manager, TOFU certificate pinning |
+| VPN client | OpenVPN and WireGuard profiles (file, folder or zip; one server per config) and Windows' own IKEv2 / L2TP connections; auto-reconnect, connect at launch, DNS preset while connected, diagnostics log |
+| Helper | Optional LocalSystem service: per-app traffic (Top Apps, Network Slice), DNS changes without a UAC prompt each time, VPN tunnels |
+| Languages | English, German, Simplified and Traditional Chinese |
+| Updates | Installed copies update in place from GitHub releases, checksum-verified |
+
+## Install
+
+Download from the [releases](https://github.com/rana-gmbh/NetFluss/releases) tagged
+`win-v…`: **NetFluss-Setup-X.Y.Z-x64.exe** (or `-arm64`) installs per user, without
+administrator rights, into `%LOCALAPPDATA%\Programs\NetFluss`. The `-portable.zip` runs from
+any folder and is updated by hand. Windows 10 2004 (19041) or later; the builds are
+self-contained, so no .NET runtime is needed.
+
+Optional extras, each offered by the app where it is needed:
+
+- **The NetFluss helper** (Preferences → General → System access). Windows only lets
+  administrators watch per-app traffic, so Top Apps and the Network Slice need it; it also
+  applies DNS changes and runs OpenVPN/WireGuard tunnels. Installing it asks for
+  administrator approval once; the uninstaller removes it again.
+- **OpenVPN Community** and **WireGuard for Windows**, for VPN profiles of those kinds. The
+  macOS app bundles both tools; on Windows they need signed drivers, which only their own
+  installers can provide, so NetFluss uses the installed copies.
+- **WebView2**, for the speed test. It ships with Windows 11 and current Windows 10.
+
+Command-line verbs, handy for shortcuts and scripts: `--popover`, `--preferences [page]`,
+`--speedtest`, `--statistics`, `--slice`, `--about`, `--timer start|pause|reset`,
+`--vpn connect [profile]|disconnect`, `--quit`.
 
 ## Build
 
@@ -15,18 +48,42 @@ dotnet test windows/NetFluss.sln -c Release
 dotnet run --project windows/src/NetFluss.App
 ```
 
-Requires the .NET 10 SDK (LTS) on Windows 10 1809 or later. There is no Visual Studio
-requirement — `NetFluss.sln` opens in VS 2022 17.11+ but the CLI is sufficient.
+Requires the .NET 10 SDK (LTS). There is no Visual Studio requirement — `NetFluss.sln`
+opens in VS 2022 17.11+ but the CLI is sufficient.
+
+## Release
+
+```
+pwsh windows/Packaging/build-release.ps1 -Version 1.0.0
+```
+
+builds both architectures into `windows/artifacts/release/`: the installer (needs Inno
+Setup 6), a portable zip per architecture, and `SHA256SUMS.txt`, which the in-app updater
+requires — it installs nothing it cannot match against that file. Set `NETFLUSS_SIGN_PFX`
+and `NETFLUSS_SIGN_PASSWORD` to Authenticode-sign the executables and installers.
+
+Releases are cut by tag; `.github/workflows/windows-release.yml` does the rest:
+
+```
+gh release create win-v1.0.0 --title "NetFluss for Windows 1.0.0" --latest=false --notes "…"
+```
+
+**`--latest=false` is not optional.** The macOS app's Sparkle feed is
+`releases/latest/download/appcast.xml`, so a Windows release marked "latest" would cut every
+Mac off from updates. The workflow moves "latest" back to the newest macOS release if it
+finds it on a Windows one.
 
 ## Projects
 
 | Project | Target | Role |
 |---|---|---|
-| `NetFluss.Core` | `net10.0` | Models, formatters, themes, localization. Platform-neutral **on purpose** so it builds and unit-tests off Windows. |
-| `NetFluss.Native` | `net10.0-windows` | Win32 interop. Today: the IP Helper interface table. |
+| `NetFluss.Core` | `net10.0` | Models, formatters, themes, localization, statistics, router and VPN logic. Platform-neutral **on purpose** so it builds and unit-tests off Windows. |
+| `NetFluss.Native` | `net10.0-windows` | Win32 interop: the IP Helper interface table, Native Wifi, the Kernel-Network ETW trace, Remote Access (VPN), Credential Manager. |
 | `NetFluss.Tray` | `net10.0-windows` | Notification-area meter rendering. No WPF, so it runs headless. |
 | `NetFluss.TrayPreview` | `net10.0-windows` | Renders the tray contact sheet. CI runs this and uploads the PNG. |
-| `NetFluss.App` | `net10.0-windows` | WPF shell — meter surfaces, tray host, timer, popover, Preferences. |
+| `NetFluss.App` | `net10.0-windows10.0.19041.0` | WPF shell — meter surfaces, popover, Preferences, Statistics, Speed Test, Network Slice, VPN client. |
+| `NetFluss.Service` | `net10.0-windows` | The optional helper service (LocalSystem): ETW trace, DNS, adapter resets, VPN tunnels — over a named pipe. |
+| `tools/StringsToResx` | | Generates the `.resx` files from the macOS and Windows string catalogues. |
 | `*.Tests` | | xUnit. `Native.Tests` needs a real Windows host; `Tray.Tests` asserts on rendered pixels. |
 
 ## Three things that are easy to get wrong
@@ -182,20 +239,23 @@ engine refines it. Reading it as a percentage leaves every figure on "—" until
 which makes a twenty-second run look like it has hung.
 
 Assets are linked from `Packaging/Resources/SpeedTest` rather than copied into `windows/`, so
-there is only ever one copy of the test. WebView2's Evergreen runtime ships with Windows 11;
-the installer will need to bootstrap it for Windows 10, and the window says so plainly rather
-than leaving a dead Start button if it is missing.
+there is only ever one copy of the test. WebView2's Evergreen runtime ships with Windows 11
+and current Windows 10; where it is missing the window says so plainly rather than leaving a
+dead Run button.
+
+The window around it follows the macOS layout: a status card with live tiles and the phase
+progress, connection details, the final result, the M-Lab consent step, and a history of the
+last thirty results with a note on each (`%LOCALAPPDATA%\NetFluss\speedtest-history.json`).
 
 ## DNS switcher
 
 The five macOS presets, plus custom ones, applied per adapter with the active one checkmarked.
 
 **Reading needs no privileges** — `NetworkInterface` reports the live resolvers — so the whole
-UI including the checkmark is accurate in an ordinary session. **Writing needs administrator**,
-which is why the port plan puts DNS switching in the Phase 2 service. Until that exists, an
-apply elevates one short-lived `netsh` run: one UAC prompt per change, rather than a tray app
-holding administrator rights all day so that a rarely-used setting can be changed.
-`IDnsApplier` is the seam the service will implement, and the UI will not change when it does.
+UI including the checkmark is accurate in an ordinary session. **Writing needs administrator.**
+With the helper installed, it applies the change silently; without it, an apply elevates one
+short-lived `netsh` run — one UAC prompt per change, rather than a tray app holding
+administrator rights all day so that a rarely-used setting can be changed.
 
 **`DnsValidator` is a security boundary, not a convenience.** Its output reaches the command
 line of an elevated process, so every server must round-trip through `IPAddress` — not merely
@@ -205,6 +265,53 @@ covers the injection-shaped inputs specifically.
 IPv4 and IPv6 are separate stores in Windows, so a preset carrying only IPv4 must also put
 IPv6 back on automatic; otherwise a leftover IPv6 resolver keeps answering and the change
 looks like it did nothing.
+
+## The helper service
+
+`NetFluss.Service` is the counterpart of the macOS privileged helper, and optional in the
+same way. It runs as LocalSystem because that is the identity Windows lets enable the
+Kernel-Network ETW provider behind Top Apps and the Network Slice; an unelevated app gets
+`ERROR_ACCESS_DENIED` from `EnableTraceEx2`. The app talks to it over the `NetFluss.Helper`
+named pipe in newline-delimited JSON (`HelperProtocol`), and the trace runs only while
+something in the app holds a lease on it — the popover's Top Apps, an open Network Slice,
+app statistics — never just because the service is up.
+
+The pipe admits interactive users, so every operation is written as if the caller were
+hostile: DNS servers must parse as addresses, adapters must be ones Windows reported, and
+VPN configs arrive as file *contents*, never paths, so the service cannot be talked into
+reading a file the caller could not read itself.
+
+An older helper keeps serving traffic after the app updates; only the VPN client, which
+needs protocol 2, asks for the helper to be updated.
+
+## VPN client
+
+Port of the macOS 2.4 client. OpenVPN and WireGuard need administrator rights to create a
+tunnel, so the helper runs the user's installed OpenVPN Community and WireGuard for Windows:
+it writes the received files into a folder only SYSTEM and Administrators can touch, checks
+them there (nothing can change them between the check and the launch), and starts the tool.
+
+`VpnConfigPolicy` is the security boundary for running someone else's config as SYSTEM.
+`--script-security 1` already stops up/down scripts; on top of that a config is refused if
+it loads code (`plugin`), nests one the scan cannot see (`config`), writes files with
+SYSTEM's rights (`status`, `log`, `writepid`, …) or names a key or credentials file outside
+its own folder. WireGuard script hooks are stripped. OpenVPN's management interface is on a
+loopback port behind a one-time password that only the requesting client learns.
+
+IKEv2 and other Windows VPN connections need no helper: they are Remote Access phonebook
+entries, dialled with `RasDial` so the password stays in memory rather than on a command
+line. "Add IKEv2 VPN…" creates the entry through the VpnClient PowerShell module and keeps
+the password in Credential Manager. The RAS structures are 4-byte packed (`pshpack4.h`) —
+a default-packed `RASCONN` is rejected with `ERROR_INVALID_SIZE`.
+
+## Routers
+
+`RouterService` polls each enabled router every five seconds while something shows router
+traffic — the popover, the Router page, or the Dashboard meter style — with exponential
+backoff up to a minute for one that keeps failing. Self-signed router certificates are
+trusted on first use and pinned per host and port (`RouterPinStore`); a changed key is
+refused and explained, and re-entering the router's address re-trusts it. Credentials and
+API keys live in Credential Manager under `NetFluss:<router>:<host>`.
 
 ## Themes
 
@@ -240,12 +347,11 @@ no two of them render identically.
 
 ## Preferences and settings
 
-`PreferencesWindow` follows Windows 11 Settings, split across five pivot tabs — General,
-Meter, Placement, DNS, Adapters. Each tab is one
-scrolling column of grouped cards, control on the right, changes applied and persisted
-immediately with no OK button. It is hand-styled — the port plan names WPF-UI for the wider
-Phase 1 UI, but Preferences needs four control types and a card, and a package that ships its
-own theming would have to be reconciled with the NetFluss themes anyway.
+`PreferencesWindow` follows Windows 11 Settings: a navigation pane with the macOS panes —
+General, Taskbar, Appearance, Adapters, Statistics, Top Apps, DNS, Wi-Fi, VPN, Router — and
+one scrolling column of grouped cards per page, control on the right, changes applied and
+persisted immediately with no OK button. It is hand-styled rather than built on a UI
+package, whose own theming would have to be reconciled with the NetFluss themes anyway.
 
 The **preview strip** renders the real `TrayMeterRenderer` output at 16/20/24/32 px on the
 user's actual taskbar colour. A 16 px icon is the whole difficulty of this port, so the
@@ -254,8 +360,10 @@ meter-style choice is shown rather than described.
 Settings live in a JSON document at `%LOCALAPPDATA%\NetFluss\settings.json`, not the
 registry: the macOS app keeps ordered lists in `UserDefaults` (adapter order, hidden
 adapters, custom presets) and the registry has no ordered-collection story worth using. It is
-written via write-then-replace, and a corrupt or unreadable file falls back to defaults — a
-tray app has no window in which to report a load failure.
+written via write-then-replace. An unknown value — a style from a newer build, a hand edit —
+costs only that preference; a file that cannot be parsed at all falls back to defaults, but is
+first kept as `settings.json.unreadable-<time>.json`, because the next change would otherwise
+save those defaults over everything the user had set.
 
 Two pieces of state are deliberately **not** in that file:
 
