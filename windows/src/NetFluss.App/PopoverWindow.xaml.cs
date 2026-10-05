@@ -37,6 +37,9 @@ public partial class PopoverWindow : Window
     private bool _active;
     private bool _heightDragged;
 
+    /// <summary>The height limit is lifted for an edge drag in progress.</summary>
+    private bool _limitLifted;
+
     internal PopoverWindow(PopoverContext context)
     {
         InitializeComponent();
@@ -463,11 +466,22 @@ public partial class PopoverWindow : Window
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
+        const int WmNcLButtonDown = 0x00A1;
         const int WmSizing = 0x0214;
         const int WmExitSizeMove = 0x0232;
 
         switch (msg)
         {
+            case WmNcLButtonDown:
+                // HTTOP (12) .. HTBOTTOMRIGHT (17): a press on an edge that sizes vertically. It
+                // comes before the sizing loop, which reads the size limits once as it starts.
+                if (wParam.ToInt32() is >= 12 and <= 17)
+                {
+                    LiftHeightLimit();
+                }
+
+                break;
+
             case WmSizing:
                 // WMSZ_TOP (3) .. WMSZ_BOTTOMRIGHT (8): any edge that moves vertically.
                 var edge = wParam.ToInt32();
@@ -484,6 +498,33 @@ public partial class PopoverWindow : Window
         }
 
         return nint.Zero;
+    }
+
+    /// <summary>
+    /// The saved height is the popover's MaxHeight, which would stop a drag from making it
+    /// any taller — only shorter. For the drag the limit becomes the work area, and the
+    /// window stops sizing itself to its content, so the edge follows the pointer.
+    /// </summary>
+    private void LiftHeightLimit()
+    {
+        if (_limitLifted)
+        {
+            return;
+        }
+
+        _limitLifted = true;
+        Height = ActualHeight;
+        SizeToContent = SizeToContent.Manual;
+        MaxHeight = Math.Max(MinHeight, WorkAreaHeight());
+    }
+
+    /// <summary>The most the popover can be on the monitor it is on, in DIPs.</summary>
+    private double WorkAreaHeight()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        return handle != nint.Zero && Screens.MonitorWorkArea(handle) is { } work
+            ? ((work.Bottom - work.Top) / Screens.DpiScale(handle)) - (2 * EdgeMarginDips)
+            : double.PositiveInfinity;
     }
 
     /// <summary>
@@ -506,11 +547,10 @@ public partial class PopoverWindow : Window
             }
         });
 
-        if (vertical)
-        {
-            MaxHeight = Math.Max(MinHeight, height);
-        }
-
+        // Back to hugging the content, under the new limit — or the old one, after a press
+        // that only changed the width or did not move at all.
+        _limitLifted = false;
+        MaxHeight = Math.Max(MinHeight, Math.Min(_context.Settings.PopoverHeight, WorkAreaHeight()));
         SizeToContent = SizeToContent.Height;
     }
 
