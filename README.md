@@ -8,6 +8,12 @@ A native macOS menubar app showing real-time upload and download rates, router-w
 
 Latest release: **NetFluss 2.6**
 
+## NetFluss for Windows — public beta
+
+NetFluss now runs on Windows too: a native Windows 10 and 11 app with the same feature set as NetFluss 2.6 for Mac — live rates on the taskbar, the popover, Bandwidth Statistics, Speed Test, Network Slice, router monitoring and the built-in VPN client.
+
+**[Download NetFluss 2.6 Beta 1 for Windows](https://github.com/rana-gmbh/NetFluss/releases/tag/win-v2.6.0-beta.1)** — the installer needs no administrator rights and keeps itself up to date. The beta is not yet code-signed for Windows, so SmartScreen asks you to confirm the first start (**More info → Run anyway**). Feedback is very welcome: [open an issue](https://github.com/rana-gmbh/NetFluss/issues/new) and mention Windows. Building it yourself is described in [windows/README.md](windows/README.md).
+
 ## New in 2.6
 
 - **VPN indicator in the menu bar — protected at a glance.** An optional dot or shield right of the upload and download rates shows whether a VPN is up. It works with the **VPN connections built into NetFluss** *and* with **external VPN clients** — Tunnelblick, the WireGuard app, Mullvad, Tailscale, the macOS VPN settings and others: NetFluss detects any active tunnel, no matter which app started it.
