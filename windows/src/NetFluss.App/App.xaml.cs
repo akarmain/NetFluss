@@ -36,6 +36,7 @@ public partial class NetFlussApplication : Application
     private StatisticsService? _statistics;
     private RouterService? _routers;
     private IDisposable? _dashboardRouters;
+    private Vpn.VpnManager? _vpn;
     private StatisticsWindow? _statisticsWindow;
     private NetworkSliceWindow? _sliceWindow;
     private AboutWindow? _aboutWindow;
@@ -91,6 +92,7 @@ public partial class NetFlussApplication : Application
         _dns = new DnsSwitcher(_store, _monitor, _privileged);
         _statistics = new StatisticsService(_store, _monitor);
         _routers = new RouterService(_monitor, _store);
+        _vpn = new Vpn.VpnManager(_helper, _privileged, _store, _monitor, Dispatcher);
         _updates = new UpdateNotifier(_store);
         _updates.UpdateFound += OnUpdateFound;
 
@@ -149,6 +151,7 @@ public partial class NetFlussApplication : Application
         // opened later already knows whether per-app traffic is available.
         _helper.EnsureConnecting();
         _updates.Start();
+        _vpn.ConnectOnLaunchIfNeeded();
 
         // Sign-out, shutdown and sleep must not lose the last few minutes of history or a
         // running timer: OnExit is not guaranteed to run when Windows ends the session, and
@@ -223,6 +226,25 @@ public partial class NetFlussApplication : Application
                 }
 
                 break;
+            case "--vpn" when args.Length > 1 && _vpn is not null:
+                // "--vpn connect [profile name]" (the first profile without a name), "--vpn disconnect".
+                if (args[1].Equals("disconnect", StringComparison.OrdinalIgnoreCase))
+                {
+                    _ = _vpn.DisconnectAsync();
+                }
+                else if (args[1].Equals("connect", StringComparison.OrdinalIgnoreCase))
+                {
+                    var name = args.Length > 2 ? string.Join(' ', args[2..]) : null;
+                    var profile = name is null
+                        ? _vpn.Profiles.FirstOrDefault()
+                        : _vpn.Profiles.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                    if (profile is not null)
+                    {
+                        _vpn.Connect(profile);
+                    }
+                }
+
+                break;
             case "--snapshot" when args.Length >= 3:
                 var delay = args.Length > 3 && int.TryParse(args[3], out var ms) ? ms : 3000;
                 SnapshotAsync(args[1].ToLowerInvariant(), args[2], delay).ContinueWith(
@@ -256,10 +278,16 @@ public partial class NetFlussApplication : Application
         if (target.StartsWith("preferences", StringComparison.Ordinal) && _store is not null && _monitor is not null)
         {
             var preferences = new PreferencesWindow(PreferencesContext());
-            var colon = target.IndexOf(':');
-            if (colon > 0)
+            // "preferences:vpn:bottom" opens a page scrolled to its end.
+            var parts = target.Split(':');
+            if (parts.Length > 1)
             {
-                preferences.SelectTab(target[(colon + 1)..]);
+                preferences.SelectTab(parts[1]);
+            }
+
+            if (parts.Contains("bottom"))
+            {
+                preferences.ContentRendered += (_, _) => preferences.ScrollToEnd();
             }
 
             window = preferences;
@@ -686,6 +714,7 @@ public partial class NetFlussApplication : Application
         Statistics = _statistics!,
         Traffic = _traffic!,
         Routers = _routers!,
+        Vpn = _vpn!,
         Commands = _commands!,
     };
 
@@ -761,6 +790,7 @@ public partial class NetFlussApplication : Application
                 Statistics = _statistics!,
                 Timer = _timer,
                 Routers = _routers!,
+                Vpn = _vpn!,
                 Commands = _commands!,
             });
 
@@ -811,6 +841,7 @@ public partial class NetFlussApplication : Application
         SaveTimer();
         _statistics?.Dispose();
         _routers?.Dispose();
+        _vpn?.Dispose();
         _helper?.Dispose();
         _monitor?.Dispose();
         _instance?.Dispose();

@@ -33,6 +33,10 @@ internal static class Glyph
     internal const string Bolt = "";
     internal const string Back = "";
     internal const string Pulse = "";
+    internal const string ChevronDown = "";
+    internal const string ChevronUp = "";
+    internal const string Delete = "";
+    internal const string Add = "";
     internal const string Play = "";
     internal const string Pause = "";
     internal const string Check = "";

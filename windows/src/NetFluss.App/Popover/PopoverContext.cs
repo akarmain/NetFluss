@@ -28,6 +28,8 @@ internal sealed class PopoverContext
 
     internal required RouterService Routers { get; init; }
 
+    internal required Vpn.VpnManager Vpn { get; init; }
+
     internal required AppCommands Commands { get; init; }
 
     internal AppSettings Settings => Store.Settings;

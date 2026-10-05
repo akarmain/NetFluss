@@ -54,6 +54,15 @@ internal sealed class HelperClient : IDisposable
 
     internal bool IsCurrentVersion => HelperVersion == AppVersion;
 
+    /// <summary>The protocol the helper speaks; 2 added the VPN operations.</summary>
+    internal int HelperProtocolVersion { get; private set; }
+
+    /// <summary>
+    /// Whether the helper can run VPN tunnels. Checked separately from the build: an older
+    /// helper still serves traffic perfectly well, and must not switch Top Apps off.
+    /// </summary>
+    internal bool SupportsVpn => IsConnected && HelperProtocolVersion >= 2;
+
     /// <summary>Starts connecting in the background if not already connected or trying.</summary>
     internal void EnsureConnecting()
     {
@@ -191,6 +200,7 @@ internal sealed class HelperClient : IDisposable
         }
 
         HelperVersion = hello.HelperVersion;
+        HelperProtocolVersion = hello.Version;
         HelperTraceStatus = hello.TraceStatus;
         IsConnected = true;
         Post(() => ConnectionChanged?.Invoke(this, EventArgs.Empty));

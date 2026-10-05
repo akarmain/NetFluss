@@ -170,6 +170,30 @@ internal static class Kit
         return combo;
     }
 
+    /// <summary>A dropdown with its own handler, for choices that do not live in the settings file.</summary>
+    internal static ComboBox Combo(IEnumerable<Choice> choices, object? selected, Action<object> changed, double minWidth = 180)
+    {
+        var list = choices.ToList();
+        var combo = new ComboBox
+        {
+            ItemsSource = list,
+            SelectedValuePath = nameof(Choice.Value),
+            DisplayMemberPath = nameof(Choice.Label),
+            MinWidth = minWidth,
+            SelectedValue = selected,
+        };
+
+        // Subscribed after the initial selection, so only the user's picks are reported.
+        combo.SelectionChanged += (_, _) =>
+        {
+            if (combo.SelectedValue is { } value)
+            {
+                changed(value);
+            }
+        };
+        return combo;
+    }
+
     internal static Button Button(string text, Action onClick, bool accent = false)
     {
         var button = new Button { Content = text };

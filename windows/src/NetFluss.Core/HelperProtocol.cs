@@ -22,7 +22,7 @@ public static class HelperProtocol
     public const string ServiceName = "NetFlussHelper";
 
     /// <summary>Bumped whenever a message changes shape.</summary>
-    public const int Version = 1;
+    public const int Version = 2;
 
     /// <summary>A line longer than this is not a NetFluss message, and is dropped unread.</summary>
     public const int MaximumLineLength = 1 << 20;
@@ -51,7 +51,7 @@ public static class HelperProtocol
 /// <summary>Client → helper.</summary>
 public sealed record HelperRequest
 {
-    /// <summary>"hello", "subscribe", "unsubscribe", "setDns", "restartAdapter".</summary>
+    /// <summary>"hello", "subscribe", "unsubscribe", "setDns", "restartAdapter", "vpnStart", "vpnStop", "vpnLog".</summary>
     public required string Op { get; init; }
 
     /// <summary>Echoed in the matching result, so a client can await one specific answer.</summary>
@@ -67,6 +67,24 @@ public sealed record HelperRequest
 
     /// <summary>Whether a subscription wants per-flow detail (the Network Slice) as well.</summary>
     public bool Flows { get; init; }
+
+    /// <summary>vpnStart: "openVpn" or "wireGuard".</summary>
+    public string? Kind { get; init; }
+
+    /// <summary>vpnStart: the WireGuard tunnel name (also its service and adapter name).</summary>
+    public string? Tunnel { get; init; }
+
+    /// <summary>
+    /// vpnStart: the config and the files it references, by content. Never paths: the
+    /// helper runs as LocalSystem and must not read files the caller could not read itself.
+    /// </summary>
+    public IReadOnlyList<HelperFile>? Files { get; init; }
+
+    /// <summary>vpnStart: which of <see cref="Files"/> is the config to run.</summary>
+    public string? Config { get; init; }
+
+    /// <summary>vpnStop and vpnLog: the tunnel, as vpnStart returned it.</summary>
+    public string? Handle { get; init; }
 }
 
 /// <summary>Helper → client.</summary>
@@ -94,8 +112,20 @@ public sealed record HelperMessage
     public IReadOnlyList<HelperProcess>? Processes { get; init; }
 
     public IReadOnlyList<HelperFlow>? Flows { get; init; }
+
+    /// <summary>vpnStart: the running tunnel, for vpnStop and vpnLog.</summary>
+    public string? Handle { get; init; }
+
+    /// <summary>vpnStart (OpenVPN): the loopback port of its management interface…</summary>
+    public int Port { get; init; }
+
+    /// <summary>…and the one-time password that interface asks for.</summary>
+    public string? Secret { get; init; }
 }
 
 public sealed record HelperProcess(int Pid, string Name, long Rx, long Tx);
 
 public sealed record HelperFlow(int Pid, string Proto, string Local, int LocalPort, string Remote, int RemotePort, long Rx, long Tx);
+
+/// <summary>One file of a VPN profile: its path relative to the config, and its bytes.</summary>
+public sealed record HelperFile(string Name, byte[] Data);

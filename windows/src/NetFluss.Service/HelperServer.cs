@@ -40,6 +40,7 @@ internal sealed class HelperServer : IDisposable
     private readonly object _gate = new();
     private readonly List<Client> _clients = [];
     private readonly ProcessNames _names = new();
+    private readonly VpnTunnels _vpn = new();
     private KernelNetworkTrace? _trace;
     private Timer? _sampler;
     private string _traceStatus = "Idle";
@@ -47,7 +48,17 @@ internal sealed class HelperServer : IDisposable
     internal HelperServer(string pipeName) => _pipeName = pipeName;
 
     /// <summary>Diagnostic output; the console host prints it, the service discards it.</summary>
-    internal Action<string>? Log { get; set; }
+    internal Action<string>? Log
+    {
+        get => _log;
+        set
+        {
+            _log = value;
+            _vpn.Log = value;
+        }
+    }
+
+    private Action<string>? _log;
 
     internal void Start() => _ = Task.Run(AcceptLoopAsync);
 
@@ -201,6 +212,18 @@ internal sealed class HelperServer : IDisposable
 
             case "restartAdapter":
                 await client.SendAsync(await RestartAdapterAsync(request) with { Id = request.Id });
+                break;
+
+            case "vpnStart":
+                await client.SendAsync(await _vpn.StartAsync(request) with { Id = request.Id });
+                break;
+
+            case "vpnStop":
+                await client.SendAsync(await _vpn.StopAsync(request.Handle) with { Id = request.Id });
+                break;
+
+            case "vpnLog":
+                await client.SendAsync(await _vpn.ReadLogAsync(request.Handle) with { Id = request.Id });
                 break;
         }
     }
@@ -402,6 +425,7 @@ internal sealed class HelperServer : IDisposable
     public void Dispose()
     {
         _stop.Cancel();
+        _vpn.Dispose();
 
         List<Client> clients;
         lock (_gate)

@@ -53,6 +53,7 @@ public partial class PopoverWindow : Window
             new UsageSection(context),
             new TimerSection(context),
             new RouterSection(context),
+            new VpnSection(context),
         ];
 
         Width = context.Settings.PopoverWidth;
@@ -167,7 +168,7 @@ public partial class PopoverWindow : Window
             _shownOrder = order;
         }
 
-        _context.Monitor.WantsCountry = settings.ConnectionMode == ConnectionDisplayMode.Flow;
+        _context.Monitor.WantsCountry = settings.ConnectionMode == ConnectionDisplayMode.Flow || settings.ShowVpn;
 
         PinButton.Content = settings.PopoverPinned ? Glyph.Pinned : Glyph.Pin;
         PinButton.ToolTip = settings.PopoverPinned ? PopoverContext.L("Unpin window") : PopoverContext.L("Pin as window");

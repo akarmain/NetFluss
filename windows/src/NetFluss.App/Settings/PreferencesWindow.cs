@@ -29,6 +29,8 @@ internal sealed class PreferencesContext
 
     internal required RouterService Routers { get; init; }
 
+    internal required Vpn.VpnManager Vpn { get; init; }
+
     internal required AppCommands Commands { get; init; }
 
     internal AppSettings Settings => Store.Settings;
@@ -65,6 +67,7 @@ internal sealed class PreferencesWindow : Window
         ("topapps", "", "Top Apps"),
         ("dns", Glyph.Globe, "DNS"),
         ("wifi", Glyph.Wifi, "Wi-Fi"),
+        ("vpn", Glyph.Lock, "VPN"),
         ("router", Glyph.Router, "Router"),
     ];
 
@@ -147,6 +150,9 @@ internal sealed class PreferencesWindow : Window
     }
 
     /// <summary>Opens on a pane by key ("dns", "adapters", …), for deep links and the harness.</summary>
+    /// <summary>For the snapshot harness: shows the end of a long page.</summary>
+    internal void ScrollToEnd() => _scroller.ScrollToEnd();
+
     internal void SelectTab(string key)
     {
         key = key.ToLowerInvariant();
@@ -209,6 +215,7 @@ internal sealed class PreferencesWindow : Window
             "topapps" => TopAppsPage.Build(_context),
             "dns" => DnsPage.Build(_context),
             "wifi" => WifiPage.Build(_context),
+            "vpn" => VpnPage.Build(_context),
             "router" => RouterPage.Build(_context),
             _ => null,
         };

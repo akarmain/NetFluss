@@ -239,7 +239,7 @@ public static class VpnConfigImporter
         }
     }
 
-    internal static IEnumerable<string> ReferencedFiles(string text)
+    public static IEnumerable<string> ReferencedFiles(string text)
     {
         foreach (var tokens in Directives(text))
         {

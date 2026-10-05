@@ -481,7 +481,7 @@ public sealed class AppSettings : INotifyPropertyChanged
         PopoverSection.Dns => ShowDnsSwitcher,
         PopoverSection.Router => AnyRouterEnabled,
         PopoverSection.Wifi => ShowWifiSwitcher,
-        PopoverSection.Vpn => false,
+        PopoverSection.Vpn => ShowVpn,
         PopoverSection.TopApps => ShowTopApps,
         PopoverSection.Timer => ShowTrafficTimer,
         _ => false,
@@ -522,6 +522,9 @@ public sealed class AppSettings : INotifyPropertyChanged
                 break;
             case PopoverSection.Timer:
                 ShowTrafficTimer = enabled;
+                break;
+            case PopoverSection.Vpn:
+                ShowVpn = enabled;
                 break;
             case PopoverSection.Router when !enabled:
                 // Off switches every router off; on needs a router chosen in the Router page.
@@ -690,6 +693,17 @@ public sealed class AppSettings : INotifyPropertyChanged
     {
         get => _adapterGraceSeconds;
         set => Set(ref _adapterGraceSeconds, Math.Clamp(value, 1, 60));
+    }
+
+    // ======================================= VPN =======================================
+
+    private bool _showVpn;
+
+    /// <summary>The popover's VPN section, for the built-in VPN client. Off by default, as on macOS.</summary>
+    public bool ShowVpn
+    {
+        get => _showVpn;
+        set => Set(ref _showVpn, value);
     }
 
     // ================================== Traffic Timer ==================================
