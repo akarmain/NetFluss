@@ -288,15 +288,23 @@ needs protocol 2, asks for the helper to be updated.
 
 Port of the macOS 2.4 client. OpenVPN and WireGuard need administrator rights to create a
 tunnel, so the helper runs the user's installed OpenVPN Community and WireGuard for Windows:
-it writes the received files into a folder only SYSTEM and Administrators can touch, checks
-them there (nothing can change them between the check and the launch), and starts the tool.
+it writes the received files into a folder under `Program Files\NetFluss\VpnStaging` that
+only SYSTEM and Administrators can touch (not ProgramData, where a standard user could
+create — and so own — the folder first), checks them there so nothing can change them
+between the check and the launch, and starts the tool.
 
-`VpnConfigPolicy` is the security boundary for running someone else's config as SYSTEM.
-`--script-security 1` already stops up/down scripts; on top of that a config is refused if
-it loads code (`plugin`), nests one the scan cannot see (`config`), writes files with
-SYSTEM's rights (`status`, `log`, `writepid`, …) or names a key or credentials file outside
-its own folder. WireGuard script hooks are stripped. OpenVPN's management interface is on a
-loopback port behind a one-time password that only the requesting client learns.
+`VpnConfigPolicy` is the security boundary for running someone else's config as SYSTEM, and
+it is an **allowlist**: only directives a client config needs pass, every file argument (in
+whatever position) must stay inside the profile folder, and anything unknown is refused by
+name — a denylist missed `providers`, `engine`, `pkcs11-providers` and `win-sys` in review.
+Lines are tokenized exactly as OpenVPN's `parse_line` does (quotes, escapes), `<connection>`
+blocks are checked like top-level directives, and anything the two parsers could read
+differently is refused. `--script-security 1` still stops up/down scripts. Import already
+warns about a config the helper would refuse. WireGuard script hooks are stripped, and the
+helper's WireGuard tunnels are always named `NetFluss-…`, so it can neither replace nor stop
+a tunnel it did not create. OpenVPN's management interface is on a loopback port behind a
+one-time password, and the app checks that the port's listener is the OpenVPN process the
+helper started before it sends that password or any credentials.
 
 IKEv2 and other Windows VPN connections need no helper: they are Remote Access phonebook
 entries, dialled with `RasDial` so the password stays in memory rather than on a command

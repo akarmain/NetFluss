@@ -116,6 +116,9 @@ public sealed record HelperMessage
     /// <summary>vpnStart: the running tunnel, for vpnStop and vpnLog.</summary>
     public string? Handle { get; init; }
 
+    /// <summary>vpnStart (OpenVPN): the OpenVPN process, so the app can check who owns the port before trusting it.</summary>
+    public int Pid { get; init; }
+
     /// <summary>vpnStart (OpenVPN): the loopback port of its management interface…</summary>
     public int Port { get; init; }
 

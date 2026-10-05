@@ -33,7 +33,16 @@ internal sealed class VpnTunnels : IDisposable
 
     internal Action<string>? Log { get; set; }
 
-    private static string StagingRoot => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "NetFluss", "VPN");
+    /// <summary>
+    /// Under Program Files, not ProgramData: a standard user may create folders in
+    /// ProgramData, and one who created this first would own it — and with it the right to
+    /// rewrite its permissions after the helper set them. Program Files admits only
+    /// administrators.
+    /// </summary>
+    private static string StagingRoot => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "NetFluss", "VpnStaging");
+
+    /// <summary>How long a finished tunnel's log stays readable before its folder (and keys) go.</summary>
+    private static readonly TimeSpan LogGrace = TimeSpan.FromMinutes(2);
 
     internal async Task<HelperMessage> StartAsync(HelperRequest request)
     {
@@ -44,12 +53,20 @@ internal sealed class VpnTunnels : IDisposable
             return Failure("The VPN configuration could not be read.");
         }
 
-        return request.Kind switch
+        try
         {
-            "openVpn" => StartOpenVpn(files, request.Config),
-            "wireGuard" => await StartWireGuardAsync(files, request.Config, request.Tunnel),
-            _ => Failure("Unknown VPN kind."),
-        };
+            return request.Kind switch
+            {
+                "openVpn" => StartOpenVpn(files, request.Config),
+                "wireGuard" => await StartWireGuardAsync(files, request.Config, request.Tunnel),
+                _ => Failure("Unknown VPN kind."),
+            };
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            Log?.Invoke("vpnStart failed: " + e.Message);
+            return Failure(e.Message);
+        }
     }
 
     // ===================================== OpenVPN =====================================
@@ -128,11 +145,14 @@ internal sealed class VpnTunnels : IDisposable
         process.Exited += (_, _) =>
         {
             Log?.Invoke($"openvpn {id} exited {SafeExitCode(process)}");
-            tunnel.Exited = true;
+
+            // Exited on its own (a failed connect, a crash, an app that never came back to
+            // stop it): keep the log readable for a moment, then remove the staged keys.
+            Retire(handle, tunnel);
         };
 
         Log?.Invoke($"openvpn {id} started (port {port})");
-        return new HelperMessage { Type = "result", Ok = true, Handle = handle, Port = port, Secret = secret };
+        return new HelperMessage { Type = "result", Ok = true, Handle = handle, Port = port, Secret = secret, Pid = process.Id };
     }
 
     private static void Append(StringBuilder builder, string? line)
@@ -199,7 +219,9 @@ internal sealed class VpnTunnels : IDisposable
             return Failure("WireGuard is not installed. Install WireGuard for Windows from wireguard.com, then connect again.");
         }
 
-        var name = VpnConfigPolicy.WireGuardTunnelName(requestedName ?? Path.GetFileNameWithoutExtension(config));
+        // Always in the helper's own namespace, so a profile called "Work" can never replace or
+        // stop someone's own "Work" tunnel, nor any tunnel an administrator installed.
+        var name = VpnConfigPolicy.HelperTunnelName(requestedName ?? Path.GetFileNameWithoutExtension(config));
         var id = Guid.NewGuid().ToString("N");
         var directory = Path.Combine(StagingRoot, id);
         CreateProtectedDirectory(directory);
@@ -289,8 +311,13 @@ internal sealed class VpnTunnels : IDisposable
 
         if (handle.StartsWith("wg:", StringComparison.Ordinal))
         {
-            // Also stops a tunnel from a previous run of the helper, which this one never saw.
-            var name = VpnConfigPolicy.WireGuardTunnelName(handle[3..]);
+            // Also stops a tunnel from a previous run of the helper, which this one never saw —
+            // but only one of its own: the name must already be in the helper's namespace.
+            if (OwnTunnelName(handle) is not { } name)
+            {
+                return Failure("No such tunnel.");
+            }
+
             if (WireGuardPath() is { } wireguard)
             {
                 await RunAsync(wireguard, "/uninstalltunnelservice", name);
@@ -319,10 +346,40 @@ internal sealed class VpnTunnels : IDisposable
             }
         }
 
-        // Keep the log a little while for a vpnLog that follows a failed connection.
-        _ = Task.Delay(TimeSpan.FromMinutes(2)).ContinueWith(_ => Cleanup(tunnel.Directory), TaskScheduler.Default);
-        _tunnels[handle + ":ended"] = tunnel;
+        Retire(handle, tunnel);
         return new HelperMessage { Type = "result", Ok = true };
+    }
+
+    /// <summary>
+    /// A finished tunnel: its log stays readable (as "&lt;handle&gt;:ended") for a vpnLog that
+    /// follows a failed connection, then the entry, the process and the staged files — keys
+    /// included — go.
+    /// </summary>
+    private void Retire(string handle, Tunnel tunnel)
+    {
+        if (!_tunnels.TryRemove(handle, out _) && _tunnels.ContainsKey(handle + ":ended"))
+        {
+            return;
+        }
+
+        _tunnels[handle + ":ended"] = tunnel;
+        _ = Task.Delay(LogGrace).ContinueWith(_ =>
+        {
+            _tunnels.TryRemove(handle + ":ended", out var _);
+            tunnel.Process?.Dispose();
+            Cleanup(tunnel.Directory);
+        }, TaskScheduler.Default);
+    }
+
+    /// <summary>The tunnel name in a "wg:" handle, if it is one of the helper's own.</summary>
+    private static string? OwnTunnelName(string handle)
+    {
+        var name = handle[3..];
+        return name.Length > VpnConfigPolicy.HelperTunnelPrefix.Length &&
+               name.StartsWith(VpnConfigPolicy.HelperTunnelPrefix, StringComparison.Ordinal) &&
+               VpnConfigPolicy.WireGuardTunnelName(name) == name
+            ? name
+            : null;
     }
 
     internal async Task<HelperMessage> ReadLogAsync(string? handle)
@@ -340,9 +397,14 @@ internal sealed class VpnTunnels : IDisposable
                 return Failure("WireGuard is not installed.");
             }
 
+            if (OwnTunnelName(handle) is not { } name)
+            {
+                return Failure("No such tunnel.");
+            }
+
+            // Only this tunnel's lines: the ring log covers every tunnel on the machine.
             var (_, output) = await RunAsync(wireguard, "/dumplog");
-            var name = handle[3..];
-            var lines = output.Split('\n').Where(l => l.Contains(name, StringComparison.OrdinalIgnoreCase) || l.Contains("[MGR]", StringComparison.Ordinal)).TakeLast(60);
+            var lines = output.Split('\n').Where(l => l.Contains(name, StringComparison.OrdinalIgnoreCase)).TakeLast(60);
             return new HelperMessage { Type = "result", Ok = true, Message = string.Join("\n", lines) };
         }
 
@@ -414,13 +476,31 @@ internal sealed class VpnTunnels : IDisposable
                 AccessControlType.Allow));
         }
 
-        if (!Directory.Exists(StagingRoot))
+        // Neither the root nor anything above it may be a junction or symlink: SYSTEM would
+        // follow one wherever it pointed. Under Program Files only administrators could plant
+        // one, but the check costs nothing and keeps the guarantee local to this method.
+        for (var folder = new DirectoryInfo(StagingRoot); folder is not null; folder = folder.Parent)
         {
-            new DirectoryInfo(StagingRoot).Create(security);
+            if (folder.Exists && folder.Attributes.HasFlag(FileAttributes.ReparsePoint))
+            {
+                throw new IOException($"Refusing to stage VPN files: {folder.FullName} is a link.");
+            }
         }
 
-        new DirectoryInfo(StagingRoot).SetAccessControl(security);
-        new DirectoryInfo(directory).Create(security);
+        var root = new DirectoryInfo(StagingRoot);
+        if (!root.Exists)
+        {
+            root.Create(security);
+        }
+
+        root.SetAccessControl(security);
+        var staged = new DirectoryInfo(directory);
+        if (staged.Exists)
+        {
+            throw new IOException("Refusing to reuse a staging folder.");
+        }
+
+        staged.Create(security);
     }
 
     private static void Cleanup(string directory)
@@ -471,6 +551,5 @@ internal sealed class VpnTunnels : IDisposable
 
         internal string? WireGuardName { get; } = wireGuardName;
 
-        internal volatile bool Exited;
     }
 }

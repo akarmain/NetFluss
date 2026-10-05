@@ -140,6 +140,14 @@ internal static unsafe class Installer
             }
 
             var parent = Path.GetDirectoryName(InstallDirectory);
+
+            // The VPN staging folder beside it: stopping the service removed every tunnel.
+            var staging = parent is null ? null : Path.Combine(parent, "VpnStaging");
+            if (staging is not null && Directory.Exists(staging) && !new DirectoryInfo(staging).Attributes.HasFlag(FileAttributes.ReparsePoint))
+            {
+                Directory.Delete(staging, recursive: true);
+            }
+
             if (parent is not null && Directory.Exists(parent) && !Directory.EnumerateFileSystemEntries(parent).Any())
             {
                 Directory.Delete(parent);

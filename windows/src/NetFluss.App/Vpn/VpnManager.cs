@@ -360,6 +360,7 @@ internal sealed class VpnManager : IDisposable
         var reply = await _helper.RequestAsync(new HelperRequest { Op = "vpnStart", Kind = "openVpn", Files = files, Config = config }, TimeSpan.FromSeconds(20));
         if (generation != _generation)
         {
+            StopOrphan(reply);
             return;
         }
 
@@ -374,7 +375,8 @@ internal sealed class VpnManager : IDisposable
         _tunnelHandle = handle;
         VpnDiagnosticsLog.Log($"Helper started OpenVPN, handle={handle}");
 
-        var client = new OpenVpnManagementClient(reply.Port, reply.Secret ?? string.Empty);
+        var openVpnPid = reply.Pid;
+        var client = new OpenVpnManagementClient(reply.Port, reply.Secret ?? string.Empty, port => TcpListeners.OwnerOf(port) == openVpnPid);
         client.EventReceived += e => _dispatcher.BeginInvoke(() => OnOpenVpnEvent(e, client, profile));
         client.Closed += () => _dispatcher.BeginInvoke(() =>
         {
@@ -456,6 +458,7 @@ internal sealed class VpnManager : IDisposable
         var reply = await _helper.RequestAsync(new HelperRequest { Op = "vpnStart", Kind = "wireGuard", Files = files, Config = config, Tunnel = tunnel }, TimeSpan.FromSeconds(45));
         if (generation != _generation)
         {
+            StopOrphan(reply);
             return;
         }
 
@@ -468,7 +471,7 @@ internal sealed class VpnManager : IDisposable
         }
 
         _tunnelHandle = handle;
-        _wireGuardService = "WireGuardTunnel$" + tunnel;
+        _wireGuardService = "WireGuardTunnel$" + handle["wg:".Length..];
 
         // The tunnel service starts in the background; it is up once it is running.
         for (var i = 0; i < 40 && generation == _generation; i++)
@@ -511,6 +514,12 @@ internal sealed class VpnManager : IDisposable
         var error = await Task.Run(() => RasVpn.Dial(entry, credentials?.First, credentials?.Second));
         if (generation != _generation)
         {
+            // Disconnected while dialling: a dial that succeeded anyway must not stay up unowned.
+            if (error is null)
+            {
+                _ = Task.Run(() => RasVpn.HangUp(entry));
+            }
+
             return;
         }
 
@@ -616,29 +625,53 @@ internal sealed class VpnManager : IDisposable
     /// <summary>Tears down whatever backend is running, without touching the displayed state.</summary>
     private async Task StopTunnelAsync()
     {
-        if (_openVpn is { } client)
+        // Take everything before the first await: a new connection may start while this one
+        // is still being torn down, and must not have its tunnel stopped by the old stop.
+        var client = _openVpn;
+        var handle = _tunnelHandle;
+        var entry = _nativeEntry;
+        _openVpn = null;
+        _tunnelHandle = null;
+        _nativeEntry = null;
+        _wireGuardService = null;
+
+        if (client is not null)
         {
-            _openVpn = null;
             await client.SignalExitAsync();
             await Task.Delay(500);
             await client.DisposeAsync();
         }
 
-        if (_tunnelHandle is { } handle)
+        if (handle is not null)
         {
-            _tunnelHandle = null;
-            _wireGuardService = null;
-            var reply = await _helper.RequestAsync(new HelperRequest { Op = "vpnStop", Handle = handle }, TimeSpan.FromSeconds(30));
-            if (reply is not { Ok: true })
-            {
-                VpnDiagnosticsLog.Log($"Stopping {handle} failed: {reply?.Message ?? "no answer from the helper"}");
-            }
+            await StopHandleAsync(handle);
         }
 
-        if (_nativeEntry is { } entry)
+        if (entry is not null)
         {
-            _nativeEntry = null;
             await Task.Run(() => RasVpn.HangUp(entry));
+        }
+    }
+
+    private async Task StopHandleAsync(string handle)
+    {
+        var reply = await _helper.RequestAsync(new HelperRequest { Op = "vpnStop", Handle = handle }, TimeSpan.FromSeconds(30));
+        if (reply is not { Ok: true })
+        {
+            VpnDiagnosticsLog.Log($"Stopping {handle} failed: {reply?.Message ?? "no answer from the helper"}");
+        }
+    }
+
+    /// <summary>
+    /// A tunnel the helper started for a connect the user has since cancelled: nothing owns
+    /// it any more, so it is stopped rather than left running behind an "idle" status.
+    /// </summary>
+    private void StopOrphan(HelperMessage? reply)
+    {
+        if (reply is { Ok: true, Handle: { } handle })
+        {
+            VpnDiagnosticsLog.Log($"Stopping {handle}: its connect was cancelled");
+            _ = StopHandleAsync(handle);
         }
     }
 
@@ -664,6 +697,13 @@ internal sealed class VpnManager : IDisposable
     private void UnexpectedStop()
     {
         if (Status.State is VpnState.Failed or VpnState.Idle or VpnState.Disconnecting)
+        {
+            return;
+        }
+
+        // OpenVPN reports an exit twice — the EXITING state, then the closed socket. The
+        // first schedules the retry; the second must not spend another attempt.
+        if (Status.State == VpnState.Reconnecting && _reconnect.IsEnabled)
         {
             return;
         }

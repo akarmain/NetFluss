@@ -6,56 +6,170 @@ using System.Text.RegularExpressions;
 namespace NetFluss.Core.Vpn;
 
 /// <summary>
-/// What the helper refuses before it runs a user-imported config as LocalSystem.
+/// What the helper accepts before it runs a user-imported config as LocalSystem.
 ///
-/// <para>The macOS helper bans <c>plugin</c> and <c>config</c> and forces
-/// <c>--script-security 1</c>, which stops every up/down script. Windows needs more: a
-/// config is a list of file paths too, and a SYSTEM process will happily write a status
-/// file over <c>C:\Windows\System32\…</c> or send the first lines of any file it can read
-/// as a "password". So every directive that names a file must name one inside the
-/// profile's own folder, and the ones that only ever write files are refused outright.</para>
+/// <para><b>An allowlist, not a denylist.</b> OpenVPN has a few hundred options and new ones
+/// arrive with every release; a list of known-bad ones (the first version of this) missed
+/// <c>providers</c>, <c>engine</c> and <c>pkcs11-providers</c>, which load code, and
+/// <c>win-sys</c>, which moves the system tools OpenVPN runs. So only directives a client
+/// config actually needs pass, every argument that names a file must name one inside the
+/// profile folder, and everything else is refused by name. <c>--script-security 1</c> (set by
+/// the helper after the config) still keeps up/down scripts from running.</para>
+///
+/// <para><b>Parsed the way OpenVPN parses.</b> The check is only as good as its agreement
+/// with OpenVPN's own tokenizer, so <see cref="Tokenize"/> follows <c>parse_line</c>: quotes
+/// and backslash escapes are resolved before the name is looked at, inline blocks must close,
+/// and <c>&lt;connection&gt;</c> blocks — which hold directives — are checked like the rest.
+/// Anything this parser and OpenVPN might read differently is refused.</para>
 /// </summary>
 public static partial class VpnConfigPolicy
 {
-    /// <summary>Load code or nest configs our scan cannot see.</summary>
-    private static readonly HashSet<string> Banned =
+    // Declared before Allowed: static fields initialize in order, and Allowed is built from this.
+    /// <summary>File-reading directives, with the argument positions that are paths.</summary>
+    private static readonly Dictionary<string, int[]> FileArguments = new(StringComparer.Ordinal)
+    {
+        ["ca"] = [1], ["cert"] = [1], ["key"] = [1], ["pkcs12"] = [1], ["tls-auth"] = [1], ["tls-crypt"] = [1],
+        ["tls-crypt-v2"] = [1], ["crl-verify"] = [1], ["extra-certs"] = [1], ["dh"] = [1], ["secret"] = [1],
+        ["auth-user-pass"] = [1], ["askpass"] = [1], ["http-proxy-user-pass"] = [1],
+        // http-proxy server port [authfile|auto|auto-nct|none] [auth-method]; socks-proxy server port [authfile]
+        ["http-proxy"] = [3], ["socks-proxy"] = [3],
+    };
+
+    /// <summary>Directives a client config may carry, and which of their arguments are files.</summary>
+    private static readonly Dictionary<string, int[]> Allowed = Build(
+        // Connection and transport
+        "client", "dev", "dev-type", "dev-node", "proto", "remote", "remote-random", "remote-random-hostname",
+        "port", "rport", "lport", "nobind", "bind", "float", "resolv-retry", "connect-retry", "connect-retry-max",
+        "connect-timeout", "server-poll-timeout", "persist-key", "persist-tun", "persist-local-ip", "persist-remote-ip",
+        "pull", "pull-filter", "route-nopull", "topology", "ifconfig", "ifconfig-ipv6", "tun-ipv6",
+        "windows-driver", "disable-dco", "allow-recursive-routing", "explicit-exit-notify", "single-session",
+        "http-proxy-retry", "socks-proxy-retry", "http-proxy-option", "proto-force", "multihome",
+        // Routing and DNS (the tools these run stay at their System32 defaults: win-sys is not allowed)
+        "redirect-gateway", "redirect-private", "route", "route-ipv6", "route-metric", "route-delay", "route-method",
+        "ip-win32", "register-dns", "block-outside-dns", "block-ipv6", "dhcp-option", "dhcp-renew", "dhcp-release",
+        "dhcp-pre-release", "tap-sleep",
+        // TLS and crypto
+        "tls-client", "tls-version-min", "tls-version-max", "tls-cipher", "tls-ciphersuites", "tls-groups", "tls-timeout",
+        "tls-exit", "tls-cert-profile", "remote-cert-tls", "remote-cert-ku", "remote-cert-eku", "verify-x509-name",
+        "ns-cert-type", "key-direction", "key-method", "cipher", "ciphers", "data-ciphers", "data-ciphers-fallback",
+        "ncp-ciphers", "ncp-disable", "auth", "auth-nocache", "auth-retry", "auth-token", "auth-token-user",
+        "hand-window", "tran-window", "replay-window", "mute-replay-warnings", "reneg-sec", "reneg-bytes", "reneg-pkts",
+        "peer-fingerprint", "verify-hash", "x509-username-field", "x509-track", "push-peer-info", "opt-verify",
+        // Keepalive, MTU, buffers, logging verbosity
+        "keepalive", "ping", "ping-restart", "ping-exit", "ping-timer-rem", "inactive", "tun-mtu", "tun-mtu-extra",
+        "link-mtu", "mssfix", "fragment", "mtu-disc", "mtu-test", "sndbuf", "rcvbuf", "txqueuelen", "fast-io",
+        "comp-lzo", "compress", "allow-compression", "comp-noadapt", "verb", "mute", "suppress-timestamps",
+        // Harmless with --script-security 1, and common in provider configs (macOS accepts them too)
+        "script-security", "up", "down", "route-up", "route-pre-down", "ipchange", "tls-verify", "up-delay", "up-restart",
+        "down-pre", "setenv", "setenv-safe", "ignore-unknown-option", "user", "group", "persist-key", "nice",
+        "machine-readable-output", "remap-usr1", "redirect-gateway-ipv6",
+        // Seen in provider and enterprise client configs; none loads code or names a file
+        "allow-pull-fqdn", "ifconfig-nowarn", "route-gateway", "max-routes", "keysize", "tun-mtu-max", "socket-flags",
+        "tcp-nodelay", "passtos", "cryptoapicert", "ecdh-curve", "static-challenge", "connect-freq");
+
+    /// <summary>Inline blocks: file contents — or, for &lt;connection&gt;, more directives.</summary>
+    private static readonly HashSet<string> InlineBlocks =
     [
-        "plugin", "config",
-
-        // Write files (or change where files go) with SYSTEM's rights.
-        "status", "writepid", "log", "log-append", "replay-persist", "ifconfig-pool-persist",
-        "cd", "chroot", "tmp-dir", "daemon", "service",
-
-        // Our own management interface is set on the command line; a config may not open another.
-        "management", "management-client-user", "management-client-group",
+        "ca", "cert", "key", "pkcs12", "tls-auth", "tls-crypt", "tls-crypt-v2", "crl-verify", "extra-certs", "dh",
+        "secret", "auth-user-pass", "http-proxy-user-pass", "peer-fingerprint", "connection",
     ];
 
-    /// <summary>Directives whose first argument is a file OpenVPN reads.</summary>
-    private static readonly HashSet<string> Reads =
-    [
-        "ca", "cert", "key", "tls-auth", "tls-crypt", "tls-crypt-v2", "pkcs12", "crl-verify",
-        "extra-certs", "dh", "secret", "auth-user-pass", "askpass", "http-proxy-user-pass",
-    ];
+    /// <summary>Keyword values a file argument may take instead of a path.</summary>
+    private static readonly HashSet<string> FileKeywords = ["[inline]", "none", "auto", "auto-nct", "stdin"];
+
+    private static Dictionary<string, int[]> Build(params string[] names)
+    {
+        var allowed = new Dictionary<string, int[]>(StringComparer.Ordinal);
+        foreach (var name in names)
+        {
+            allowed[name] = [];
+        }
+
+        foreach (var (name, positions) in FileArguments)
+        {
+            allowed[name] = positions;
+        }
+
+        return allowed;
+    }
 
     /// <summary>
-    /// Null when the config may run, else the directive that stops it. File references are
-    /// checked against the profile folder; inline blocks (<c>&lt;ca&gt;…&lt;/ca&gt;</c>) are fine.
+    /// Null when the config may run, else what stops it: the directive name, or a short
+    /// reason when the config cannot be read unambiguously.
     /// </summary>
     public static string? UnsafeOpenVpnDirective(string text)
     {
-        foreach (var tokens in VpnConfigImporter.Directives(text))
+        var lines = text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        return Check(lines, allowConnection: true);
+    }
+
+    private static string? Check(IReadOnlyList<string> lines, bool allowConnection)
+    {
+        for (var i = 0; i < lines.Count; i++)
         {
-            var name = tokens[0];
-            if (Banned.Contains(name))
+            var line = lines[i];
+            var trimmed = line.Trim();
+
+            // An inline block, exactly as OpenVPN opens one: a line that is "<tag>".
+            if (trimmed.StartsWith('<'))
+            {
+                if (!trimmed.EndsWith('>') || trimmed.StartsWith("</", StringComparison.Ordinal))
+                {
+                    return "malformed inline block";
+                }
+
+                var tag = trimmed[1..^1];
+                if (!InlineBlocks.Contains(tag) || (tag == "connection" && !allowConnection))
+                {
+                    return "<" + tag + ">";
+                }
+
+                var close = "</" + tag + ">";
+                var end = -1;
+                for (var j = i + 1; j < lines.Count; j++)
+                {
+                    if (lines[j].Trim() == close)
+                    {
+                        end = j;
+                        break;
+                    }
+                }
+
+                if (end < 0)
+                {
+                    return "unclosed <" + tag + ">";
+                }
+
+                // A connection block holds directives; every other block is file content.
+                if (tag == "connection" && Check([.. lines.Skip(i + 1).Take(end - i - 1)], allowConnection: false) is { } inner)
+                {
+                    return inner;
+                }
+
+                i = end;
+                continue;
+            }
+
+            var tokens = Tokenize(line);
+            if (tokens is null)
+            {
+                return "unparseable line";
+            }
+
+            if (tokens.Count == 0)
+            {
+                continue;
+            }
+
+            var name = tokens[0].StartsWith("--", StringComparison.Ordinal) ? tokens[0][2..] : tokens[0];
+            if (!Allowed.TryGetValue(name, out var fileArguments))
             {
                 return name;
             }
 
-            if (Reads.Contains(name) && tokens.Length >= 2)
+            foreach (var position in fileArguments)
             {
-                var reference = tokens[1].Trim('"', '\'');
-                if (reference.Length > 0 && reference != "[inline]" && !reference.Equals("none", StringComparison.OrdinalIgnoreCase) &&
-                    !VpnConfigImporter.IsSafeRelative(reference))
+                if (position < tokens.Count && !FileKeywords.Contains(tokens[position]) && !VpnConfigImporter.IsSafeRelative(tokens[position]))
                 {
                     return name;
                 }
@@ -63,6 +177,95 @@ public static partial class VpnConfigPolicy
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// One config line split into tokens the way OpenVPN's <c>parse_line</c> does it:
+    /// whitespace separates, "#" or ";" starts a comment where a token could start, double
+    /// quotes group with backslash escapes, single quotes group literally, and a backslash
+    /// outside quotes escapes the next character. Null for an unterminated quote.
+    /// </summary>
+    public static List<string>? Tokenize(string line)
+    {
+        var tokens = new List<string>();
+        var current = new StringBuilder();
+        var inToken = false;
+        var i = 0;
+        while (i < line.Length)
+        {
+            var c = line[i];
+            if (!inToken && char.IsWhiteSpace(c))
+            {
+                i++;
+                continue;
+            }
+
+            if (!inToken && (c == '#' || c == ';'))
+            {
+                break;
+            }
+
+            if (char.IsWhiteSpace(c))
+            {
+                tokens.Add(current.ToString());
+                current.Clear();
+                inToken = false;
+                i++;
+                continue;
+            }
+
+            inToken = true;
+            if (c == '"' || c == '\'')
+            {
+                var quote = c;
+                i++;
+                var closed = false;
+                while (i < line.Length)
+                {
+                    var q = line[i];
+                    if (q == quote)
+                    {
+                        closed = true;
+                        i++;
+                        break;
+                    }
+
+                    if (quote == '"' && q == '\\' && i + 1 < line.Length)
+                    {
+                        current.Append(line[i + 1]);
+                        i += 2;
+                        continue;
+                    }
+
+                    current.Append(q);
+                    i++;
+                }
+
+                if (!closed)
+                {
+                    return null;
+                }
+
+                continue;
+            }
+
+            if (c == '\\' && i + 1 < line.Length)
+            {
+                current.Append(line[i + 1]);
+                i += 2;
+                continue;
+            }
+
+            current.Append(c);
+            i++;
+        }
+
+        if (inToken)
+        {
+            tokens.Add(current.ToString());
+        }
+
+        return tokens;
     }
 
     /// <summary>
@@ -99,5 +302,20 @@ public static partial class VpnConfigPolicy
         }
 
         return cleaned.Length > 32 ? cleaned[..32] : cleaned;
+    }
+
+    /// <summary>The helper's own tunnels: everything it starts or stops carries this prefix.</summary>
+    public const string HelperTunnelPrefix = "NetFluss-";
+
+    /// <summary>The helper's name for a tunnel: always inside its own namespace.</summary>
+    public static string HelperTunnelName(string? requested)
+    {
+        var name = WireGuardTunnelName(requested ?? "Tunnel");
+        if (name.StartsWith(HelperTunnelPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            name = name[HelperTunnelPrefix.Length..];
+        }
+
+        return WireGuardTunnelName(HelperTunnelPrefix + (name.Length == 0 ? "Tunnel" : name));
     }
 }

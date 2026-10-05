@@ -38,7 +38,29 @@ public static class VpnConfigImporter
 
     private sealed record Parsed(string? Host, int? Port, string? Transport, bool RequiresCredentials);
 
-    public static VpnImportResult ImportOpenVpn(string path) => Import(path, "ovpn", collectSidecars: true, ParseOpenVpn, Unsupported);
+    public static VpnImportResult ImportOpenVpn(string path)
+    {
+        var result = Import(path, "ovpn", collectSidecars: true, ParseOpenVpn, Unsupported);
+
+        // Say now what the helper would refuse at connect time, rather than letting the user
+        // find out from a failed connection.
+        var refused = result.Files
+            .Where(f => f.Name.EndsWith(".ovpn", StringComparison.OrdinalIgnoreCase))
+            .Select(f => VpnConfigPolicy.UnsafeOpenVpnDirective(Decode(f.Data)))
+            .FirstOrDefault(r => r is not null);
+
+        // A patched-only directive already has its own, more specific warning.
+        return refused is null || UnsupportedDirectives.Contains(refused)
+            ? result
+            : result with
+            {
+                Warnings =
+                [
+                    .. result.Warnings,
+                    Localization.L("This config uses “{0}”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config.", refused),
+                ],
+            };
+    }
 
     public static VpnImportResult ImportWireGuard(string path) => Import(path, "conf", collectSidecars: false, ParseWireGuard, _ => []);
 
@@ -202,16 +224,20 @@ public static class VpnConfigImporter
 
     // ===================================== OpenVPN =====================================
 
-    /// <summary>The non-comment lines of a config, split into tokens, with inline blocks skipped.</summary>
+    /// <summary>
+    /// The directives of a config, tokenized as OpenVPN does it (<see cref="VpnConfigPolicy.Tokenize"/>).
+    /// File-content blocks are skipped; a &lt;connection&gt; block's directives are included,
+    /// since that is where some providers put their remotes.
+    /// </summary>
     internal static IEnumerable<string[]> Directives(string text)
     {
         string? block = null;
         foreach (var raw in text.Split('\n'))
         {
             var line = raw.Trim();
-            if (block is not null)
+            if (block is not null && block != "connection")
             {
-                if (line.Equals($"</{block}>", StringComparison.OrdinalIgnoreCase))
+                if (line == $"</{block}>")
                 {
                     block = null;
                 }
@@ -219,22 +245,27 @@ public static class VpnConfigImporter
                 continue;
             }
 
-            if (line.Length == 0 || line[0] is '#' or ';')
+            if (line == "</connection>")
             {
+                block = null;
                 continue;
             }
 
-            if (line[0] == '<' && line.EndsWith('>') && !line.StartsWith("</", StringComparison.Ordinal))
+            if (line.Length > 1 && line[0] == '<' && line.EndsWith('>') && !line.StartsWith("</", StringComparison.Ordinal))
             {
                 block = line[1..^1];
                 continue;
             }
 
-            var tokens = line.Split([' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
-            if (tokens.Length > 0)
+            var tokens = VpnConfigPolicy.Tokenize(line);
+            if (tokens is { Count: > 0 })
             {
-                tokens[0] = tokens[0].TrimStart('-').ToLowerInvariant();
-                yield return tokens;
+                if (tokens[0].StartsWith("--", StringComparison.Ordinal))
+                {
+                    tokens[0] = tokens[0][2..];
+                }
+
+                yield return [.. tokens];
             }
         }
     }

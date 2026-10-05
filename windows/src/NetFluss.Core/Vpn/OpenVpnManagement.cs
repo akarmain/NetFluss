@@ -34,14 +34,23 @@ public sealed class OpenVpnManagementClient : IAsyncDisposable
 {
     private readonly int _port;
     private readonly string _password;
+    private readonly Func<int, bool>? _verifyListener;
+    private readonly SemaphoreSlim _write = new(1, 1);
     private TcpClient? _client;
     private StreamWriter? _writer;
     private CancellationTokenSource? _reading;
+    private bool _ready;
 
-    public OpenVpnManagementClient(int port, string password)
+    /// <param name="verifyListener">
+    /// Asked, before anything is sent, whether the process listening on the port is the
+    /// OpenVPN the helper started — so the password and the user's credentials never go
+    /// to a program that grabbed the port first.
+    /// </param>
+    public OpenVpnManagementClient(int port, string password, Func<int, bool>? verifyListener = null)
     {
         _port = port;
         _password = password;
+        _verifyListener = verifyListener;
     }
 
     /// <summary>Raised on a background thread for every event.</summary>
@@ -74,10 +83,21 @@ public sealed class OpenVpnManagementClient : IAsyncDisposable
             }
         }
 
+        if (_verifyListener is not null && !_verifyListener(_port))
+        {
+            _client.Dispose();
+            _client = null;
+            throw new IOException("Another program is listening on the OpenVPN management port.");
+        }
+
         var stream = _client.GetStream();
         _writer = new StreamWriter(stream, new UTF8Encoding(false)) { NewLine = "\n", AutoFlush = true };
         _reading = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         var reader = new StreamReader(stream, Encoding.UTF8);
+
+        // OpenVPN prompts "ENTER PASSWORD:" without a line break, so a line reader would wait
+        // on it forever. The answer can go first: OpenVPN reads it once it has prompted.
+        await SendAsync(_password).ConfigureAwait(false);
         _ = Task.Run(() => ReadLoop(reader, _reading.Token), CancellationToken.None);
     }
 
@@ -85,12 +105,20 @@ public sealed class OpenVpnManagementClient : IAsyncDisposable
     {
         try
         {
-            while (!cancellation.IsCancellationRequested && await reader.ReadLineAsync(cancellation).ConfigureAwait(false) is { } line)
+            while (!cancellation.IsCancellationRequested && await reader.ReadLineAsync(cancellation).ConfigureAwait(false) is { } raw)
             {
-                // The interface opens with a password prompt; everything after is the protocol.
-                if (line.StartsWith("ENTER PASSWORD:", StringComparison.Ordinal))
+                // The unterminated prompt arrives glued to the reply that follows it.
+                var line = raw.StartsWith("ENTER PASSWORD:", StringComparison.Ordinal) ? raw["ENTER PASSWORD:".Length..] : raw;
+
+                if (line.StartsWith("ERROR: bad password", StringComparison.Ordinal))
                 {
-                    await SendAsync(_password).ConfigureAwait(false);
+                    EventReceived?.Invoke(new OpenVpnEvent.AuthFailed("The OpenVPN management password was refused."));
+                    break;
+                }
+
+                if (!_ready && (line.StartsWith("SUCCESS: password is correct", StringComparison.Ordinal) || line.StartsWith(">INFO:", StringComparison.Ordinal)))
+                {
+                    _ready = true;
                     await SendAsync("state on").ConfigureAwait(false);
                     await SendAsync("bytecount 2").ConfigureAwait(false);
                     await SendAsync("hold release").ConfigureAwait(false);
@@ -164,25 +192,42 @@ public sealed class OpenVpnManagementClient : IAsyncDisposable
         return line.StartsWith(">HOLD:", StringComparison.Ordinal) ? new OpenVpnEvent.Hold() : null;
     }
 
-    public Task SendCredentialsAsync(string kind, string? username, string? password)
-        => Task.WhenAll(
-            username is null ? Task.CompletedTask : SendAsync($"username \"{Escape(kind)}\" \"{Escape(username)}\""),
-            password is null ? Task.CompletedTask : SendAsync($"password \"{Escape(kind)}\" \"{Escape(password)}\""));
+    /// <summary>Answers a credential prompt — one command after the other, never interleaved.</summary>
+    public async Task SendCredentialsAsync(string kind, string? username, string? password)
+    {
+        if (username is not null)
+        {
+            await SendAsync($"username \"{Escape(kind)}\" \"{Escape(username)}\"").ConfigureAwait(false);
+        }
+
+        if (password is not null)
+        {
+            await SendAsync($"password \"{Escape(kind)}\" \"{Escape(password)}\"").ConfigureAwait(false);
+        }
+    }
 
     /// <summary>Asks OpenVPN to exit cleanly.</summary>
     public Task SignalExitAsync() => SendAsync("signal SIGTERM");
 
+    /// <summary>One command at a time: StreamWriter refuses overlapping writes, and losing one silently loses a password.</summary>
     private async Task SendAsync(string command)
     {
-        if (_writer is { } writer)
+        if (_writer is not { } writer)
         {
-            try
-            {
-                await writer.WriteLineAsync(command).ConfigureAwait(false);
-            }
-            catch (Exception e) when (e is IOException or ObjectDisposedException)
-            {
-            }
+            return;
+        }
+
+        await _write.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            await writer.WriteLineAsync(command).ConfigureAwait(false);
+        }
+        catch (Exception e) when (e is IOException or ObjectDisposedException or InvalidOperationException)
+        {
+        }
+        finally
+        {
+            _write.Release();
         }
     }
 

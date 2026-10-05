@@ -2437,4 +2437,7 @@ No network traffic is sent — only local counters from your machine are recorde
   <data name="This release has no installer for this PC." xml:space="preserve">
     <value>This release has no installer for this PC.</value>
   </data>
+  <data name="This config uses “{0}”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." xml:space="preserve">
+    <value>This config uses “{0}”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config.</value>
+  </data>
 </root>

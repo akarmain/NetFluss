@@ -98,6 +98,13 @@ public sealed class VpnTests : IDisposable
     }
 
     [Fact]
+    public void WarnsAtImportAboutWhatTheHelperWillRefuse()
+    {
+        var result = VpnConfigImporter.ImportOpenVpn(Write("risky.ovpn", "remote a 1\nproviders legacy default"));
+        Assert.Contains("“providers”", Assert.Single(result.Warnings), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void WarnsAboutPatchedOnlyDirectives()
         => Assert.Contains("scramble", Assert.Single(VpnConfigImporter.ImportOpenVpn(Write("x.ovpn", "remote a 1\nscramble obfuscate key")).Warnings), StringComparison.Ordinal);
 
@@ -149,12 +156,101 @@ public sealed class VpnTests : IDisposable
     [InlineData("writepid pid", "writepid")]
     [InlineData("management 0.0.0.0 7505", "management")]
     [InlineData("ca C:\\Windows\\System32\\config\\SAM", "ca")]
-    [InlineData("auth-user-pass ..\\..\\secret.txt", "auth-user-pass")]
+    [InlineData("auth-user-pass ../../secret.txt", "auth-user-pass")]
+    [InlineData("auth-user-pass \"..\\\\..\\\\secret.txt\"", "auth-user-pass")]
+    [InlineData("auth-user-pass ..\\..\\secret.txt", null)] // OpenVPN reads "....secret.txt": unquoted \ escapes
     [InlineData("auth-user-pass", null)]
     [InlineData("up up.bat\ndown down.bat", null)]
     [InlineData("<ca>\nplugin inside-a-block\n</ca>", null)]
     [InlineData("# plugin commented", null)]
     public void OpenVpnPolicy(string config, string? refused) => Assert.Equal(refused, VpnConfigPolicy.UnsafeOpenVpnDirective(config));
+
+    [Theory]
+    // Load code or move the system tools — not covered by --script-security 1.
+    [InlineData("providers legacy default", "providers")]
+    [InlineData("engine dynamic", "engine")]
+    [InlineData("pkcs11-providers C:\\x\\p11.dll", "pkcs11-providers")]
+    [InlineData("win-sys C:\\Users\\me\\fake", "win-sys")]
+    // File arguments beyond the first position.
+    [InlineData("http-proxy proxy.example 8080 C:\\Windows\\win.ini basic", "http-proxy")]
+    [InlineData("socks-proxy proxy.example 1080 ../creds.txt", "socks-proxy")]
+    [InlineData("http-proxy proxy.example 8080 auto ntlm", null)]
+    [InlineData("http-proxy proxy.example 8080 creds.txt", null)]
+    // Spelled so a naive scanner misses what OpenVPN still reads.
+    [InlineData("\"plugin\" evil.dll", "plugin")]
+    [InlineData("pl\\ugin evil.dll", "plugin")]
+    [InlineData("'plugin' evil.dll", "plugin")]
+    [InlineData("remote \"unterminated", "unparseable line")]
+    // Inline blocks: content is skipped, but connection blocks are directives.
+    [InlineData("<connection>\nremote a 1\nplugin evil.dll\n</connection>", "plugin")]
+    [InlineData("<connection>\nremote a 1 udp\n</connection>", null)]
+    [InlineData("<ca>\nnever closed", "unclosed <ca>")]
+    [InlineData("<script>\nx\n</script>", "<script>")]
+    [InlineData("<ca> trailing\nx\n</ca>", "malformed inline block")]
+    // Unknown directives are refused by name rather than trusted.
+    [InlineData("some-future-option 1", "some-future-option")]
+    public void OpenVpnPolicy_IsAnAllowlist(string config, string? refused) => Assert.Equal(refused, VpnConfigPolicy.UnsafeOpenVpnDirective(config));
+
+    [Fact]
+    public void ARealisticProviderConfigPasses()
+    {
+        const string config = """
+            client
+            dev tun
+            proto udp
+            remote de.vpn.example.net 1194
+            remote-random
+            resolv-retry infinite
+            nobind
+            persist-key
+            persist-tun
+            remote-cert-tls server
+            verify-x509-name server.example.net name
+            cipher AES-256-GCM
+            data-ciphers AES-256-GCM:AES-128-GCM
+            auth SHA512
+            auth-user-pass
+            auth-nocache
+            tls-version-min 1.2
+            redirect-gateway def1
+            block-outside-dns
+            setenv opt block-outside-dns
+            pull-filter ignore "route-ipv6"
+            verb 3
+            <ca>
+            -----BEGIN CERTIFICATE-----
+            MIIB...
+            -----END CERTIFICATE-----
+            </ca>
+            key-direction 1
+            <tls-auth>
+            -----BEGIN OpenVPN Static key V1-----
+            0123
+            -----END OpenVPN Static key V1-----
+            </tls-auth>
+            """;
+        Assert.Null(VpnConfigPolicy.UnsafeOpenVpnDirective(config));
+    }
+
+    [Fact]
+    public void TokenizerFollowsOpenVpn()
+    {
+        Assert.Equal(["remote", "a b", "1"], VpnConfigPolicy.Tokenize("remote \"a b\" 1"));
+        Assert.Equal(["x", "a\"b"], VpnConfigPolicy.Tokenize("x \"a\\\"b\""));
+        Assert.Equal(["x", "a\\b"], VpnConfigPolicy.Tokenize("x 'a\\b'"));
+        Assert.Equal(["route", "10.0.0.0"], VpnConfigPolicy.Tokenize("route 10.0.0.0 # comment"));
+        Assert.Equal(["x", "a#b"], VpnConfigPolicy.Tokenize("x a#b"));
+        Assert.Empty(VpnConfigPolicy.Tokenize("   ; comment")!);
+        Assert.Null(VpnConfigPolicy.Tokenize("x 'open"));
+    }
+
+    [Theory]
+    [InlineData("Work", "NetFluss-Work")]
+    [InlineData("NetFluss-Work", "NetFluss-Work")]
+    [InlineData(null, "NetFluss-Tunnel")]
+    [InlineData("a-very-long-profile-name-indeed-yes", "NetFluss-a-very-long-profile-nam")]
+    public void HelperTunnelsLiveInTheirOwnNamespace(string? requested, string expected)
+        => Assert.Equal(expected, VpnConfigPolicy.HelperTunnelName(requested));
 
     [Fact]
     public void ManagementLinesParse()

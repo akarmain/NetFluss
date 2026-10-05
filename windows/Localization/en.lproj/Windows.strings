@@ -236,3 +236,4 @@
 "The update could not be installed: %@" = "The update could not be installed: %@";
 "The update could not be verified, so it was not installed." = "The update could not be verified, so it was not installed.";
 "This release has no installer for this PC." = "This release has no installer for this PC.";
+"This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." = "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config.";

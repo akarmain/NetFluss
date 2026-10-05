@@ -182,7 +182,22 @@ public static class RasVpn
     /// A PowerShell single-quoted literal: inside one, only a doubled quote is special, so
     /// a name like <c>Joe's VPN'; Remove-Item …</c> stays a name.
     /// </summary>
-    public static string Quote(string value) => "'" + value.Replace("'", "''", StringComparison.Ordinal) + "'";
+    public static string Quote(string value)
+    {
+        // PowerShell also closes a single-quoted string on the typographic quotes ‘ ’ ‚ ‛;
+        // doubling escapes each of them just as it does the ASCII one.
+        var escaped = new StringBuilder(value.Length + 2);
+        foreach (var c in value)
+        {
+            escaped.Append(c);
+            if (c is '\'' or '‘' or '’' or '‚' or '‛')
+            {
+                escaped.Append(c);
+            }
+        }
+
+        return "'" + escaped + "'";
+    }
 
     private static async Task<string?> PowerShellAsync(string script)
     {

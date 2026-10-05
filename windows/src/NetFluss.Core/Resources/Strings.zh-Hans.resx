@@ -2437,4 +2437,7 @@
   <data name="This release has no installer for this PC." xml:space="preserve">
     <value>此版本没有适用于这台电脑的安装程序。</value>
   </data>
+  <data name="This config uses “{0}”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." xml:space="preserve">
+    <value>此配置使用了“{0}”，NetFluss 不会以管理员权限运行它，因此连接将被拒绝。请向你的服务商索取标准客户端配置。</value>
+  </data>
 </root>
