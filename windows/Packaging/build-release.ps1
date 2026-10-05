@@ -77,7 +77,8 @@ foreach ($arch in $Architectures) {
 $sums = Get-ChildItem $release -File | Where-Object Name -ne 'SHA256SUMS.txt' | Sort-Object Name | ForEach-Object {
     '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name
 }
-Set-Content -Path (Join-Path $release 'SHA256SUMS.txt') -Value $sums -Encoding ascii
+# LF line endings: sha256sum -c on Linux or WSL reads a CRLF line as a file name ending in \r.
+[IO.File]::WriteAllText((Join-Path $release 'SHA256SUMS.txt'), (($sums -join "`n") + "`n"), [Text.Encoding]::ASCII)
 
 # The signature the in-app updater requires (NetFluss.Core/UpdateSignature.cs). Without the
 # key the release files are still built, but installed copies will refuse to update to them.
