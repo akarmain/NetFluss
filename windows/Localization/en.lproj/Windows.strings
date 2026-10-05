@@ -230,3 +230,9 @@
 "%@ uses %@." = "%@ uses %@.";
 "%@ · %@ server(s)" = "%@ · %@ server(s)";
 "Taskbar" = "Taskbar";
+"Downloading…" = "Downloading…";
+"Downloading… %@" = "Downloading… %@";
+"Install and Relaunch" = "Install and Relaunch";
+"The update could not be installed: %@" = "The update could not be installed: %@";
+"The update could not be verified, so it was not installed." = "The update could not be verified, so it was not installed.";
+"This release has no installer for this PC." = "This release has no installer for this PC.";

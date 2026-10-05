@@ -2419,4 +2419,22 @@ Es wird kein Netzwerkverkehr gesendet — nur lokale Zähler von Ihrem Mac werde
   <data name="Taskbar" xml:space="preserve">
     <value>Taskleiste</value>
   </data>
+  <data name="Downloading…" xml:space="preserve">
+    <value>Wird geladen…</value>
+  </data>
+  <data name="Downloading… {0}" xml:space="preserve">
+    <value>Wird geladen… {0}</value>
+  </data>
+  <data name="Install and Relaunch" xml:space="preserve">
+    <value>Installieren und neu starten</value>
+  </data>
+  <data name="The update could not be installed: {0}" xml:space="preserve">
+    <value>Das Update konnte nicht installiert werden: {0}</value>
+  </data>
+  <data name="The update could not be verified, so it was not installed." xml:space="preserve">
+    <value>Das Update konnte nicht überprüft werden und wurde daher nicht installiert.</value>
+  </data>
+  <data name="This release has no installer for this PC." xml:space="preserve">
+    <value>Diese Version enthält kein Installationsprogramm für diesen PC.</value>
+  </data>
 </root>

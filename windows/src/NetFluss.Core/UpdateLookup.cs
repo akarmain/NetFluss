@@ -6,7 +6,9 @@ using System.Text.Json;
 namespace NetFluss.Core;
 
 /// <summary>A newer release than the running one.</summary>
-public sealed record AvailableUpdate(string Version, string ReleaseNotes, Uri ReleasePage, Uri? Download);
+/// <param name="Installer">The setup for this architecture, which the in-app updater runs.</param>
+/// <param name="Checksums">The release's SHA256SUMS.txt; without it nothing is installed.</param>
+public sealed record AvailableUpdate(string Version, string ReleaseNotes, Uri ReleasePage, Uri? Download, Uri? Installer = null, Uri? Checksums = null);
 
 /// <summary>
 /// Asks GitHub for the newest Windows release. Port of the macOS <c>UpdateLookup</c>, with
@@ -74,7 +76,13 @@ public static class UpdateLookup
                 continue;
             }
 
-            best = new AvailableUpdate(version, String(release, "body") ?? string.Empty, page, DownloadAsset(release));
+            best = new AvailableUpdate(
+                version,
+                String(release, "body") ?? string.Empty,
+                page,
+                DownloadAsset(release),
+                Asset(release, $"NetFluss-Setup-{version}-{Architecture}.exe"),
+                Asset(release, "SHA256SUMS.txt"));
         }
 
         return best;
@@ -103,6 +111,48 @@ public static class UpdateLookup
         }
 
         return false;
+    }
+
+    private static string Architecture => System.Runtime.InteropServices.RuntimeInformation.OSArchitecture ==
+                                          System.Runtime.InteropServices.Architecture.Arm64 ? "arm64" : "x64";
+
+    /// <summary>An asset by its exact name, over HTTPS only.</summary>
+    private static Uri? Asset(JsonElement release, string name)
+    {
+        if (!release.TryGetProperty("assets", out var assets) || assets.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        foreach (var asset in assets.EnumerateArray())
+        {
+            if (string.Equals(String(asset, "name"), name, StringComparison.OrdinalIgnoreCase) &&
+                Uri.TryCreate(String(asset, "browser_download_url"), UriKind.Absolute, out var url) && url.Scheme == Uri.UriSchemeHttps)
+            {
+                return url;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// The SHA-256 a SHA256SUMS.txt lists for a file ("&lt;hex&gt;  &lt;name&gt;", the sha256sum
+    /// format), lowercased; null when the file is not listed or the line is malformed.
+    /// </summary>
+    public static string? ExpectedHash(string sums, string fileName)
+    {
+        foreach (var line in sums.Split('\n'))
+        {
+            var parts = line.Trim().Split([' ', '\t'], 2, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 2 && parts[1].Trim().TrimStart('*').Equals(fileName, StringComparison.OrdinalIgnoreCase) &&
+                parts[0].Length == 64 && parts[0].All(Uri.IsHexDigit))
+            {
+                return parts[0].ToLowerInvariant();
+            }
+        }
+
+        return null;
     }
 
     /// <summary>The installer for this architecture, falling back to any Windows package.</summary>

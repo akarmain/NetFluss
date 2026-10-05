@@ -56,4 +56,31 @@ public class UpdateLookupTests
         const string json = """[{ "tag_name": "win-v9.0.0", "html_url": "http://evil.example/x", "assets": [] }]""";
         Assert.Null(UpdateLookup.Newest(json, "1.0.0"));
     }
+
+    [Fact]
+    public void InstallerAndChecksums_AreFoundByExactName()
+    {
+        var arch = System.Runtime.InteropServices.RuntimeInformation.OSArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? "arm64" : "x64";
+        var json = $$"""
+            [{ "tag_name": "win-v2.0.0", "html_url": "https://github.com/rana-gmbh/NetFluss/releases/tag/win-v2.0.0", "assets": [
+                { "name": "NetFluss-2.0.0-{{arch}}-portable.zip", "browser_download_url": "https://github.com/x/portable.zip" },
+                { "name": "NetFluss-Setup-2.0.0-{{arch}}.exe", "browser_download_url": "https://github.com/x/NetFluss-Setup-2.0.0-{{arch}}.exe" },
+                { "name": "SHA256SUMS.txt", "browser_download_url": "https://github.com/x/SHA256SUMS.txt" }
+            ] }]
+            """;
+
+        var update = UpdateLookup.Newest(json, "1.0.0")!;
+        Assert.Equal($"https://github.com/x/NetFluss-Setup-2.0.0-{arch}.exe", update.Installer!.ToString());
+        Assert.Equal("https://github.com/x/SHA256SUMS.txt", update.Checksums!.ToString());
+    }
+
+    [Fact]
+    public void ChecksumsAreReadInSha256sumFormat()
+    {
+        var hash = new string('a', 64);
+        var sums = $"{new string('b', 64)}  NetFluss-1.0.0-x64-portable.zip\r\n{hash.ToUpperInvariant()} *NetFluss-Setup-1.0.0-x64.exe\r\n";
+        Assert.Equal(hash, UpdateLookup.ExpectedHash(sums, "NetFluss-Setup-1.0.0-x64.exe"));
+        Assert.Null(UpdateLookup.ExpectedHash(sums, "NetFluss-Setup-1.0.0-arm64.exe"));
+        Assert.Null(UpdateLookup.ExpectedHash("short  NetFluss-Setup-1.0.0-x64.exe", "NetFluss-Setup-1.0.0-x64.exe"));
+    }
 }

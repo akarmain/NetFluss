@@ -20,6 +20,17 @@
     <TieredPGO>true</TieredPGO>
   </PropertyGroup>
 
+  <!--
+    A release publish carries its own runtime (build-release.ps1). One compressed file keeps
+    that second runtime — the app has its own — to a fraction of its size, and the helper's
+    installer copies whatever is in its folder, so a single file needs nothing special.
+  -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="../NetFluss.Core/NetFluss.Core.csproj" />
     <ProjectReference Include="../NetFluss.Native/NetFluss.Native.csproj" />

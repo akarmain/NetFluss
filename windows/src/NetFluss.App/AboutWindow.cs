@@ -163,11 +163,49 @@ internal sealed class AboutWindow : Window
         }
 
         var page = Ui.LinkButton(Localization.L("Release Page") + " ↗", () => UpdateNotifier.Open(update.ReleasePage));
-        var download = Ui.TextButton(Localization.L("Download"), () => UpdateNotifier.Open(update.Download ?? update.ReleasePage), accent: true);
-
         var buttons = Ui.Columns(Ui.Star, Ui.Auto);
         buttons.Margin = new Thickness(0, 12, 0, 0);
         buttons.Children.Add(page.At(0));
+
+        // An installed copy updates itself, as Sparkle does on macOS; a portable copy, or a
+        // release without a verifiable installer, gets the download instead.
+        if (UpdateInstaller.CanInstall(update))
+        {
+            var status = Ui.Wrapping(string.Empty, 12);
+            status.HorizontalAlignment = HorizontalAlignment.Center;
+            status.Margin = new Thickness(0, 8, 0, 0);
+            status.Visibility = Visibility.Collapsed;
+
+            Button? install = null;
+            install = Ui.TextButton(Localization.L("Install and Relaunch"), async () =>
+            {
+                install!.IsEnabled = false;
+                status.Visibility = Visibility.Visible;
+                status.Text = Localization.L("Downloading…");
+                var progress = new Progress<double>(fraction =>
+                    status.Text = Localization.L("Downloading… {0}", fraction.ToString("P0", Localization.Culture)));
+
+                var error = await UpdateInstaller.InstallAsync(update, progress, CancellationToken.None);
+                if (error is null)
+                {
+                    // The setup waits for NetFluss to go; quitting cleanly saves statistics first.
+                    status.Text = Localization.L("Installing…");
+                    Application.Current.Shutdown();
+                    return;
+                }
+
+                status.Text = error;
+                status.SetResourceReference(TextBlock.ForegroundProperty, Ui.Red);
+                install.IsEnabled = true;
+            }, accent: true);
+
+            buttons.Children.Add(install.At(1));
+            _updateArea.Children.Add(buttons);
+            _updateArea.Children.Add(status);
+            return;
+        }
+
+        var download = Ui.TextButton(Localization.L("Download"), () => UpdateNotifier.Open(update.Download ?? update.ReleasePage), accent: true);
         buttons.Children.Add(download.At(1));
         _updateArea.Children.Add(buttons);
     }

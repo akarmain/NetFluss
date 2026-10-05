@@ -226,3 +226,9 @@
 "%@ uses %@." = "%@ 使用 %@。";
 "%@ · %@ server(s)" = "%@ · %@ 个服务器";
 "Taskbar" = "任务栏";
+"Downloading…" = "正在下载…";
+"Downloading… %@" = "正在下载… %@";
+"Install and Relaunch" = "安装并重新启动";
+"The update could not be installed: %@" = "无法安装更新：%@";
+"The update could not be verified, so it was not installed." = "无法验证该更新，因此未安装。";
+"This release has no installer for this PC." = "此版本没有适用于这台电脑的安装程序。";

@@ -2419,4 +2419,22 @@
   <data name="Taskbar" xml:space="preserve">
     <value>任务栏</value>
   </data>
+  <data name="Downloading…" xml:space="preserve">
+    <value>正在下载…</value>
+  </data>
+  <data name="Downloading… {0}" xml:space="preserve">
+    <value>正在下载… {0}</value>
+  </data>
+  <data name="Install and Relaunch" xml:space="preserve">
+    <value>安装并重新启动</value>
+  </data>
+  <data name="The update could not be installed: {0}" xml:space="preserve">
+    <value>无法安装更新：{0}</value>
+  </data>
+  <data name="The update could not be verified, so it was not installed." xml:space="preserve">
+    <value>无法验证该更新，因此未安装。</value>
+  </data>
+  <data name="This release has no installer for this PC." xml:space="preserve">
+    <value>此版本没有适用于这台电脑的安装程序。</value>
+  </data>
 </root>

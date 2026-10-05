@@ -15,6 +15,9 @@
     -->
     <MSBuildWarningsAsErrors>$(MSBuildWarningsAsErrors);MSB3568</MSBuildWarningsAsErrors>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Only the languages NetFluss itself ships; the framework's other satellite folders
+         would add a dozen directories of strings no one sees. -->
+    <SatelliteResourceLanguages>en;de;zh-Hans;zh-Hant</SatelliteResourceLanguages>
     <Company>Rana GmbH</Company>
     <Product>NetFluss</Product>
     <Copyright>Copyright © 2026 Rana GmbH</Copyright>

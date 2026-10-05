@@ -2419,4 +2419,22 @@ No network traffic is sent — only local counters from your machine are recorde
   <data name="Taskbar" xml:space="preserve">
     <value>Taskbar</value>
   </data>
+  <data name="Downloading…" xml:space="preserve">
+    <value>Downloading…</value>
+  </data>
+  <data name="Downloading… {0}" xml:space="preserve">
+    <value>Downloading… {0}</value>
+  </data>
+  <data name="Install and Relaunch" xml:space="preserve">
+    <value>Install and Relaunch</value>
+  </data>
+  <data name="The update could not be installed: {0}" xml:space="preserve">
+    <value>The update could not be installed: {0}</value>
+  </data>
+  <data name="The update could not be verified, so it was not installed." xml:space="preserve">
+    <value>The update could not be verified, so it was not installed.</value>
+  </data>
+  <data name="This release has no installer for this PC." xml:space="preserve">
+    <value>This release has no installer for this PC.</value>
+  </data>
 </root>

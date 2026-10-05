@@ -226,3 +226,9 @@
 "%@ uses %@." = "%@ verwendet %@.";
 "%@ · %@ server(s)" = "%@ · %@ Server";
 "Taskbar" = "Taskleiste";
+"Downloading…" = "Wird geladen…";
+"Downloading… %@" = "Wird geladen… %@";
+"Install and Relaunch" = "Installieren und neu starten";
+"The update could not be installed: %@" = "Das Update konnte nicht installiert werden: %@";
+"The update could not be verified, so it was not installed." = "Das Update konnte nicht überprüft werden und wurde daher nicht installiert.";
+"This release has no installer for this PC." = "Diese Version enthält kein Installationsprogramm für diesen PC.";
