@@ -50,7 +50,7 @@ internal sealed class HelperClient : IDisposable
 
     /// <summary>The build this app expects the helper to be. A mismatch offers an update.</summary>
     internal static string AppVersion { get; } =
-        Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
+        BuildVersion.Of(Assembly.GetExecutingAssembly());
 
     internal bool IsCurrentVersion => HelperVersion == AppVersion;
 

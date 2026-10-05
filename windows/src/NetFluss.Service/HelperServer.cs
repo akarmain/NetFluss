@@ -33,7 +33,7 @@ internal sealed class HelperServer : IDisposable
     private const int MaxFlowsPerMessage = 400;
 
     private static readonly string Version =
-        Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
+        BuildVersion.Of(Assembly.GetExecutingAssembly());
 
     private readonly string _pipeName;
     private readonly CancellationTokenSource _stop = new();

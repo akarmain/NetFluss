@@ -1,6 +1,6 @@
 # Builds the NetFluss for Windows release files.
 #
-#   pwsh windows/Packaging/build-release.ps1 -Version 1.0.0 [-Architectures x64,arm64] [-SkipInstaller]
+#   pwsh windows/Packaging/build-release.ps1 -Version 1.0.0|1.0.0-beta.1 [-Architectures x64,arm64] [-SkipInstaller]
 #
 # For each architecture: a self-contained publish (no .NET install needed on the target),
 # the helper service in a Helper\ folder beside the app (the folder the in-app installer
@@ -13,7 +13,8 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)] [ValidatePattern('^\d+\.\d+\.\d+$')] [string] $Version,
+    # 2.6.0, or a pre-release such as 2.6.0-beta.1 (the in-app updater orders them by semver).
+    [Parameter(Mandatory)] [ValidatePattern('^\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$')] [string] $Version,
     [string[]] $Architectures = @('x64', 'arm64'),
     [switch] $SkipInstaller
 )
@@ -69,7 +70,8 @@ foreach ($arch in $Architectures) {
 
     if ($SkipInstaller) { continue }
     if (-not $iscc) { throw 'Inno Setup 6 (iscc.exe) was not found. Install it, or pass -SkipInstaller.' }
-    Invoke-Checked $iscc @("/DAppVersion=$Version", "/DArch=$arch", "/DSource=$publish", (Join-Path $PSScriptRoot 'NetFluss.iss'))
+    # Windows' file-version field is numbers only; a beta's suffix stays in AppVersion.
+    Invoke-Checked $iscc @("/DAppVersion=$Version", "/DNumericVersion=$($Version -replace '-.*', '')", "/DArch=$arch", "/DSource=$publish", (Join-Path $PSScriptRoot 'NetFluss.iss'))
     Sign @(Join-Path $release "NetFluss-Setup-$Version-$arch.exe")
 }
 

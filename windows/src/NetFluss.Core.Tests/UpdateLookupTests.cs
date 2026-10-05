@@ -42,6 +42,10 @@ public class UpdateLookupTests
         => Assert.Equal("1.1.0", UpdateLookup.Newest(Releases, "1.0.0", includePrereleases: true)?.Version);
 
     [Fact]
+    public void ABetaBuild_IsOfferedTheNextBeta()
+        => Assert.Equal("1.1.0", UpdateLookup.Newest(Releases, "1.0.0-beta.1")?.Version);
+
+    [Fact]
     public void UpToDate_IsNull()
         => Assert.Null(UpdateLookup.Newest(Releases, "1.0.2"));
 
@@ -51,6 +55,15 @@ public class UpdateLookupTests
     [InlineData("1.0", "1.0.0", false)]
     [InlineData("0.9.9", "1.0.0", false)]
     [InlineData("2.0.0-beta", "1.9.9", true)]
+    [InlineData("2.6.0", "2.6.0-beta.1", true)]
+    [InlineData("2.6.0-beta.1", "2.6.0", false)]
+    [InlineData("2.6.0-beta.2", "2.6.0-beta.1", true)]
+    [InlineData("2.6.0-beta.10", "2.6.0-beta.9", true)]
+    [InlineData("2.6.0-rc.1", "2.6.0-beta.3", true)]
+    [InlineData("2.6.0-beta.1", "2.6.0-beta", true)]
+    [InlineData("2.6.0-beta.1", "2.5.9", true)]
+    [InlineData("2.6.0-beta.1+abc", "2.6.0-beta.1", false)]
+    [InlineData("2.6.1", "2.6.0-beta.4", true)]
     public void Versions_CompareNumerically(string latest, string current, bool newer)
         => Assert.Equal(newer, UpdateLookup.IsNewer(latest, current));
 

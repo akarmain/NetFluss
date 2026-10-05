@@ -5,6 +5,8 @@ name: Windows Release
 #
 #   gh release create win-v1.0.0 --title "NetFluss for Windows 1.0.0" --latest=false --notes "..."
 #
+# A beta is tagged win-vX.Y.Z-beta.N and created with --prerelease as well.
+#
 # --latest=false matters: the macOS app's Sparkle feed is
 # releases/latest/download/appcast.xml, so a Windows release marked "latest" would cut every
 # Mac off from updates. The last step below puts "latest" back on the newest macOS release
@@ -37,8 +39,10 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}".Substring("win-v".Length)
-          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Tag must be win-vX.Y.Z, got ${{ github.ref_name }}" }
+          if ($version -notmatch '^\d+\.\d+\.\d+(-(alpha|beta|rc)\.\d+)?$') { throw "Tag must be win-vX.Y.Z or win-vX.Y.Z-beta.N, got ${{ github.ref_name }}" }
           "version=$version" >> $env:GITHUB_OUTPUT
+          # A beta, alpha or rc is a GitHub pre-release: only pre-release builds are offered it.
+          "prerelease=$($version.Contains('-').ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
       - name: Verify generated resources are current
         run: dotnet run --project windows/tools/StringsToResx --configuration Release -- --check
@@ -78,7 +82,8 @@ jobs:
           $tag = "${{ github.ref_name }}"
           gh release view $tag 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --title "NetFluss for Windows ${{ steps.version.outputs.version }}" --latest=false --notes "NetFluss for Windows ${{ steps.version.outputs.version }}"
+            $pre = if ("${{ steps.version.outputs.prerelease }}" -eq 'true') { '--prerelease' } else { $null }
+            gh release create $tag --title "NetFluss for Windows ${{ steps.version.outputs.version }}" --latest=false $pre --notes "NetFluss for Windows ${{ steps.version.outputs.version }}"
           }
           gh release upload $tag (Get-ChildItem windows/artifacts/release -File).FullName --clobber
 

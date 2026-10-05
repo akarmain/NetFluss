@@ -1,7 +1,8 @@
 ; NetFluss for Windows — installer.
 ;
 ; Built by windows/Packaging/build-release.ps1, which passes:
-;   /DAppVersion=1.2.3      the version (from the win-vX.Y.Z tag)
+;   /DAppVersion=1.2.3      the version (from the win-vX.Y.Z tag; may be 1.2.3-beta.1)
+;   /DNumericVersion=1.2.3  the same without a pre-release suffix
 ;   /DArch=x64|arm64        the architecture of the published files
 ;   /DSource=<folder>       the self-contained publish output (app + Helper\)
 ;
@@ -12,6 +13,10 @@
 
 #ifndef AppVersion
   #define AppVersion "0.0.0"
+#endif
+; The file-version resource takes numbers only: 2.6.0 for a 2.6.0-beta.1 setup.
+#ifndef NumericVersion
+  #define NumericVersion AppVersion
 #endif
 #ifndef Arch
   #define Arch "x64"
@@ -45,7 +50,7 @@ WizardStyle=modern
 ; The app is a tray app; Restart Manager can miss it, so [Code] also asks it to quit.
 CloseApplications=yes
 RestartApplications=no
-VersionInfoVersion={#AppVersion}
+VersionInfoVersion={#NumericVersion}
 VersionInfoCompany=Rana GmbH
 VersionInfoProductName=NetFluss
 #if Arch == "arm64"
