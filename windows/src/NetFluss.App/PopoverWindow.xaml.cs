@@ -219,6 +219,22 @@ public partial class PopoverWindow : Window
         Show();
     }
 
+    /// <summary>For snapshots: scrolls to the end, or puts a section ("vpn") at the top.</summary>
+    internal void ScrollTo(string target)
+    {
+        if (target == "bottom")
+        {
+            Scroller.ScrollToEnd();
+        }
+        else if (_sections.FirstOrDefault(s => s.Kind.ToString().Equals(target, StringComparison.OrdinalIgnoreCase)) is { View.IsLoaded: true } section)
+        {
+            var top = section.View.TransformToAncestor(SectionHost).Transform(default).Y;
+            Scroller.ScrollToVerticalOffset(top);
+        }
+
+        UpdateLayout();
+    }
+
     internal void HideOffScreen()
     {
         Hide();

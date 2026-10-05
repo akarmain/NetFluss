@@ -208,13 +208,21 @@ public static class RasVpn
             UseShellExecute = false,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
+            StandardOutputEncoding = Encoding.UTF8,
         };
+
+        // Success is the exit code alone: with stderr redirected, PowerShell writes its progress
+        // records there (as "#< CLIXML") even when the command works. A failure is caught and
+        // its message written to stdout, in UTF-8 so a German or Chinese message survives.
+        var wrapped =
+            "$ProgressPreference = 'SilentlyContinue'; [Console]::OutputEncoding = [Text.Encoding]::UTF8; " +
+            $"try {{ {script} }} catch {{ [Console]::Out.Write($_.Exception.Message); exit 1 }}";
         info.ArgumentList.Add("-NoProfile");
         info.ArgumentList.Add("-NonInteractive");
         info.ArgumentList.Add("-ExecutionPolicy");
         info.ArgumentList.Add("Bypass");
         info.ArgumentList.Add("-EncodedCommand");
-        info.ArgumentList.Add(Convert.ToBase64String(Encoding.Unicode.GetBytes(script)));
+        info.ArgumentList.Add(Convert.ToBase64String(Encoding.Unicode.GetBytes(wrapped)));
 
         using var process = Process.Start(info);
         if (process is null)
@@ -222,16 +230,15 @@ public static class RasVpn
             return "Could not run PowerShell.";
         }
 
-        var error = process.StandardError.ReadToEndAsync();
-        _ = process.StandardOutput.ReadToEndAsync();
+        var output = process.StandardOutput.ReadToEndAsync();
+        _ = process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
-        var text = (await error).Trim();
-        if (process.ExitCode == 0 && text.Length == 0)
+        var text = (await output).Trim();
+        if (process.ExitCode == 0)
         {
             return null;
         }
 
-        // The first line of a PowerShell error is the message; the rest is position noise.
         var first = text.Split('\n').FirstOrDefault(l => l.Trim().Length > 0)?.Trim();
         return string.IsNullOrEmpty(first) ? $"PowerShell exited with {process.ExitCode}." : first;
     }

@@ -275,11 +275,11 @@ public partial class NetFlussApplication : Application
 
     /// <summary>
     /// Renders a window to a PNG without showing it to anyone — the verification harness.
-    /// Targets: "popover", "preferences[:tab]", "speedtest".
+    /// Targets: "popover[:bottom|:section]", "preferences[:tab]", "speedtest".
     /// </summary>
     private async Task SnapshotAsync(string target, string path, int delayMilliseconds)
     {
-        if (target == "popover")
+        if (target == "popover" || target.StartsWith("popover:", StringComparison.Ordinal))
         {
             ShowPopover(DefaultAnchor(), offScreen: true);
             if (_popover is null)
@@ -288,6 +288,13 @@ public partial class NetFlussApplication : Application
             }
 
             await Task.Delay(delayMilliseconds);
+
+            // "popover:bottom", or "popover:vpn" for a section scrolled to the top.
+            if (target.Length > "popover:".Length)
+            {
+                _popover.ScrollTo(target["popover:".Length..]);
+            }
+
             Snapshot.Save(_popover, path);
             _popover.HideOffScreen();
             return;
