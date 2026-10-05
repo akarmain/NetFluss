@@ -14,6 +14,16 @@ NetFluss now runs on Windows too: a native Windows 10 and 11 app with the same f
 
 **[Download NetFluss 2.6 Beta 2 for Windows](https://github.com/rana-gmbh/NetFluss/releases/tag/win-v2.6.0-beta.2)** — the installer needs no administrator rights and keeps itself up to date. The beta is not yet code-signed for Windows, so SmartScreen asks you to confirm the first start (**More info → Run anyway**). Feedback is very welcome: [open an issue](https://github.com/rana-gmbh/NetFluss/issues/new) and mention Windows. Building it yourself is described in [windows/README.md](windows/README.md).
 
+### New in Windows Beta 2
+
+- **One program file.** NetFluss is now a single `NetFluss.exe`; the only other files are Microsoft's own signed libraries. Beta 1 shipped its code as many separate files, and Windows' Smart App Control could block one of them minutes after NetFluss had started, which ended the app.
+- **No more vanishing on sleep.** Saving statistics and the Traffic Timer as the PC went to sleep could end NetFluss; it no longer can.
+- **Crash reports that name the cause.** If NetFluss ever quits unexpectedly, the next start says so and keeps what Windows recorded. Click the notification to see it, and please include it in a report.
+- **Easier to find on first launch.** NetFluss says where it is running and opens its popover there — Windows hides new icons behind the **^** next to the clock, which made the app look like it had quit.
+- **Clearer helper messages.** A helper newer than the app is no longer called "out of date", and quitting or updating NetFluss no longer logs errors on the way out.
+
+Updating from Beta 1: the installed version offers Beta 2 by itself (About → Install and Relaunch). Top Apps then asks once to update the helper, which needs administrator approval.
+
 ## New in 2.6
 
 - **VPN indicator in the menu bar — protected at a glance.** An optional dot or shield right of the upload and download rates shows whether a VPN is up. It works with the **VPN connections built into NetFluss** *and* with **external VPN clients** — Tunnelblick, the WireGuard app, Mullvad, Tailscale, the macOS VPN settings and others: NetFluss detects any active tunnel, no matter which app started it.
