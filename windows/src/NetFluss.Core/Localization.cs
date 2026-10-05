@@ -52,6 +52,9 @@ public static class Localization
     /// <summary>The culture text should be formatted in: the chosen language, or Windows' own.</summary>
     public static CultureInfo Culture => _override ?? CultureInfo.CurrentCulture;
 
+    /// <summary>The language text is shown in: the chosen one, or Windows' display language.</summary>
+    public static CultureInfo UiCulture => _override ?? CultureInfo.CurrentUICulture;
+
     public static void Use(AppLanguage language)
     {
         Current = language;

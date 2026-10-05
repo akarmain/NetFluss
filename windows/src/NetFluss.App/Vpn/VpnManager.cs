@@ -479,7 +479,7 @@ internal sealed class VpnManager : IDisposable
             if (ServiceRunning(_wireGuardService))
             {
                 var text = File.ReadAllText(_store.ConfigPath(profile, server));
-                VpnDiagnosticsLog.Log($"WireGuard connected: tunnel={tunnel}");
+                VpnDiagnosticsLog.Log($"WireGuard connected: tunnel={_wireGuardService["WireGuardTunnel$".Length..]}");
                 Connected(VpnConfigImporter.WireGuardAddress(text), profile);
                 return;
             }

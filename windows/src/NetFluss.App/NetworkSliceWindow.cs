@@ -713,17 +713,7 @@ internal sealed class NetworkSliceWindow : Window
     }
 
     /// <summary>A country code's display name for the badge tooltip, falling back to the code.</summary>
-    private static string CountryName(string code)
-    {
-        try
-        {
-            return new RegionInfo(code).DisplayName;
-        }
-        catch (ArgumentException)
-        {
-            return code;
-        }
-    }
+    private static string CountryName(string code) => NetFluss.Native.CountryNames.Display(code, Localization.UiCulture);
 
     // ===================================== Columns =====================================
 

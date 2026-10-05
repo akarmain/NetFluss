@@ -186,15 +186,5 @@ internal sealed class VpnSection : IPopoverSection
         _error.Visibility = _error.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private static string CountryName(string code)
-    {
-        try
-        {
-            return new RegionInfo(code).DisplayName;
-        }
-        catch (ArgumentException)
-        {
-            return code;
-        }
-    }
+    private static string CountryName(string code) => NetFluss.Native.CountryNames.Display(code, Localization.UiCulture);
 }
