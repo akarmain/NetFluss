@@ -8,7 +8,8 @@ namespace NetFluss.Core;
 /// <summary>A newer release than the running one.</summary>
 /// <param name="Installer">The setup for this architecture, which the in-app updater runs.</param>
 /// <param name="Checksums">The release's SHA256SUMS.txt; without it nothing is installed.</param>
-public sealed record AvailableUpdate(string Version, string ReleaseNotes, Uri ReleasePage, Uri? Download, Uri? Installer = null, Uri? Checksums = null);
+/// <param name="Signature">Its signature (<see cref="UpdateSignature"/>); without a valid one nothing is installed either.</param>
+public sealed record AvailableUpdate(string Version, string ReleaseNotes, Uri ReleasePage, Uri? Download, Uri? Installer = null, Uri? Checksums = null, Uri? Signature = null);
 
 /// <summary>
 /// Asks GitHub for the newest Windows release. Port of the macOS <c>UpdateLookup</c>, with
@@ -23,7 +24,7 @@ public static class UpdateLookup
 
     private const string ReleasesUrl = "https://api.github.com/repos/rana-gmbh/NetFluss/releases?per_page=30";
 
-    public static async Task<AvailableUpdate?> FetchAsync(string currentVersion, HttpMessageHandler? handler = null, CancellationToken cancellation = default)
+    public static async Task<AvailableUpdate?> FetchAsync(string currentVersion, bool includePrereleases = false, HttpMessageHandler? handler = null, CancellationToken cancellation = default)
     {
         using var http = handler is null ? new HttpClient() : new HttpClient(handler, disposeHandler: false);
         http.Timeout = TimeSpan.FromSeconds(15);
@@ -39,11 +40,15 @@ public static class UpdateLookup
         }
 
         var json = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
-        return Newest(json, currentVersion);
+        return Newest(json, currentVersion, includePrereleases);
     }
 
-    /// <summary>The newest non-draft, non-prerelease Windows release newer than <paramref name="currentVersion"/>.</summary>
-    public static AvailableUpdate? Newest(string releasesJson, string currentVersion)
+    /// <summary>
+    /// The newest non-draft Windows release newer than <paramref name="currentVersion"/>.
+    /// Pre-releases only when <paramref name="includePrereleases"/> — the test channel, which
+    /// is how an update is tried end to end before anyone else is offered it.
+    /// </summary>
+    public static AvailableUpdate? Newest(string releasesJson, string currentVersion, bool includePrereleases = false)
     {
         using var document = JsonDocument.Parse(releasesJson);
         if (document.RootElement.ValueKind != JsonValueKind.Array)
@@ -54,7 +59,7 @@ public static class UpdateLookup
         AvailableUpdate? best = null;
         foreach (var release in document.RootElement.EnumerateArray())
         {
-            if (Bool(release, "draft") || Bool(release, "prerelease"))
+            if (Bool(release, "draft") || (Bool(release, "prerelease") && !includePrereleases))
             {
                 continue;
             }
@@ -82,7 +87,8 @@ public static class UpdateLookup
                 page,
                 DownloadAsset(release),
                 Asset(release, $"NetFluss-Setup-{version}-{Architecture}.exe"),
-                Asset(release, "SHA256SUMS.txt"));
+                Asset(release, "SHA256SUMS.txt"),
+                Asset(release, UpdateSignature.AssetName));
         }
 
         return best;

@@ -43,12 +43,18 @@ internal sealed class UpdateNotifier
 
     internal static string CurrentVersion => HelperClient.AppVersion;
 
+    /// <summary>
+    /// The test channel: with NETFLUSS_UPDATE_PRERELEASES=1, pre-releases are offered too.
+    /// They still need a valid signature, so this widens what is offered, never what is trusted.
+    /// </summary>
+    private static bool IncludePrereleases => Environment.GetEnvironmentVariable("NETFLUSS_UPDATE_PRERELEASES") == "1";
+
     internal void Start() => _timer.Start();
 
     /// <summary>The About window's button: checks now, regardless of the schedule.</summary>
     internal async Task<AvailableUpdate?> CheckNowAsync()
     {
-        var update = await UpdateLookup.FetchAsync(CurrentVersion);
+        var update = await UpdateLookup.FetchAsync(CurrentVersion, IncludePrereleases);
         _store.Batch(settings => settings.LastUpdateCheck = DateTimeOffset.Now);
         Available = update;
         return update;

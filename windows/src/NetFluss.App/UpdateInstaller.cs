@@ -12,11 +12,13 @@ namespace NetFluss.App;
 /// <summary>
 /// Installs an update in place — the Windows counterpart of the macOS Sparkle 2 updates:
 /// download this architecture's setup from the GitHub release, check it against the
-/// release's SHA256SUMS.txt, run it silently, and let it relaunch NetFluss.
+/// release's SHA256SUMS.txt — itself signed, as Sparkle's appcast items are — run it
+/// silently, and let it relaunch NetFluss.
 ///
-/// <para>The checksum is not optional. Without a listed hash that matches the bytes, the
-/// update is refused and the user is pointed at the release page instead — an installer
-/// that runs unattended must be exactly the one that was published.</para>
+/// <para>Neither check is optional. Without a valid <see cref="UpdateSignature"/> on the list
+/// and a listed hash that matches the bytes, the update is refused and the user is pointed
+/// at the release page instead — an installer that runs unattended must be exactly the one
+/// Rana published, not merely one that sits in the release.</para>
 /// </summary>
 internal static class UpdateInstaller
 {
@@ -54,19 +56,46 @@ internal static class UpdateInstaller
             return Localization.L("This release has no installer for this PC.");
         }
 
+        // An unsigned release is never installed: the checksums only prove the installer is
+        // the one listed, and only the signature proves the list is the one Rana published.
+        if (update.Signature is not { } signatureUrl)
+        {
+            return Localization.L("The update could not be verified, so it was not installed.");
+        }
+
         using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
         http.DefaultRequestHeaders.UserAgent.ParseAdd("NetFluss-Windows/" + UpdateNotifier.CurrentVersion);
 
         try
         {
             var fileName = Path.GetFileName(installer.AbsolutePath);
-            var sums = await http.GetStringAsync(checksums, cancellation);
-            if (UpdateLookup.ExpectedHash(sums, fileName) is not { } expected)
+            var sumsBytes = await http.GetByteArrayAsync(checksums, cancellation);
+            var signature = await http.GetStringAsync(signatureUrl, cancellation);
+            if (!UpdateSignature.Verify(sumsBytes, signature) ||
+                UpdateLookup.ExpectedHash(System.Text.Encoding.UTF8.GetString(sumsBytes), fileName) is not { } expected)
             {
                 return Localization.L("The update could not be verified, so it was not installed.");
             }
 
-            var folder = Path.Combine(Path.GetTempPath(), "NetFluss-Update-" + update.Version);
+            // Not %TEMP%: Application Control and many company policies refuse to run programs
+            // from there. NetFluss's own folder in the user's profile is where it runs from anyway.
+            var updates = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NetFluss", "Updates");
+            if (Directory.Exists(updates))
+            {
+                // Setups from earlier updates; the one that is running now is not among them.
+                foreach (var old in Directory.EnumerateDirectories(updates))
+                {
+                    try
+                    {
+                        Directory.Delete(old, recursive: true);
+                    }
+                    catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+                    {
+                    }
+                }
+            }
+
+            var folder = Path.Combine(updates, update.Version);
             Directory.CreateDirectory(folder);
             var path = Path.Combine(folder, fileName);
 

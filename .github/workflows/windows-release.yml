@@ -63,7 +63,12 @@ jobs:
         shell: pwsh
         env:
           NETFLUSS_SIGN_PASSWORD: ${{ secrets.WINDOWS_SIGNING_PASSWORD }}
-        run: ./windows/Packaging/build-release.ps1 -Version ${{ steps.version.outputs.version }}
+          # Signs SHA256SUMS.txt for the in-app updater (NetFluss.Core/UpdateSignature.cs).
+          NETFLUSS_UPDATE_SIGNING_KEY: ${{ secrets.NETFLUSS_UPDATE_SIGNING_KEY }}
+        run: |
+          # A release without the signature could never be installed by the in-app updater.
+          if (-not $env:NETFLUSS_UPDATE_SIGNING_KEY) { throw 'The NETFLUSS_UPDATE_SIGNING_KEY secret is missing.' }
+          ./windows/Packaging/build-release.ps1 -Version ${{ steps.version.outputs.version }}
 
       - name: Upload to the release
         shell: pwsh

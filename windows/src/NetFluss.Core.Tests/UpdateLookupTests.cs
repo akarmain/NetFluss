@@ -38,6 +38,10 @@ public class UpdateLookupTests
         => Assert.NotEqual("1.1.0", UpdateLookup.Newest(Releases, "1.0.0")?.Version);
 
     [Fact]
+    public void Prereleases_AreOfferedOnTheTestChannel()
+        => Assert.Equal("1.1.0", UpdateLookup.Newest(Releases, "1.0.0", includePrereleases: true)?.Version);
+
+    [Fact]
     public void UpToDate_IsNull()
         => Assert.Null(UpdateLookup.Newest(Releases, "1.0.2"));
 
@@ -65,13 +69,15 @@ public class UpdateLookupTests
             [{ "tag_name": "win-v2.0.0", "html_url": "https://github.com/rana-gmbh/NetFluss/releases/tag/win-v2.0.0", "assets": [
                 { "name": "NetFluss-2.0.0-{{arch}}-portable.zip", "browser_download_url": "https://github.com/x/portable.zip" },
                 { "name": "NetFluss-Setup-2.0.0-{{arch}}.exe", "browser_download_url": "https://github.com/x/NetFluss-Setup-2.0.0-{{arch}}.exe" },
-                { "name": "SHA256SUMS.txt", "browser_download_url": "https://github.com/x/SHA256SUMS.txt" }
+                { "name": "SHA256SUMS.txt", "browser_download_url": "https://github.com/x/SHA256SUMS.txt" },
+                { "name": "SHA256SUMS.txt.sig", "browser_download_url": "https://github.com/x/SHA256SUMS.txt.sig" }
             ] }]
             """;
 
         var update = UpdateLookup.Newest(json, "1.0.0")!;
         Assert.Equal($"https://github.com/x/NetFluss-Setup-2.0.0-{arch}.exe", update.Installer!.ToString());
         Assert.Equal("https://github.com/x/SHA256SUMS.txt", update.Checksums!.ToString());
+        Assert.Equal("https://github.com/x/SHA256SUMS.txt.sig", update.Signature!.ToString());
     }
 
     [Fact]

@@ -5,8 +5,9 @@
 # For each architecture: a self-contained publish (no .NET install needed on the target),
 # the helper service in a Helper\ folder beside the app (the folder the in-app installer
 # copies into Program Files), a portable .zip, and — when Inno Setup's iscc.exe is
-# available — the per-user installer. SHA256SUMS.txt covers every file; the in-app updater
-# refuses an installer it cannot match against it.
+# available — the per-user installer. SHA256SUMS.txt covers every file and, with
+# NETFLUSS_UPDATE_SIGNING_KEY set, is signed into SHA256SUMS.txt.sig; the in-app updater
+# refuses an installer it cannot match against a correctly signed list.
 #
 # Output: windows/artifacts/release/
 
@@ -77,4 +78,13 @@ $sums = Get-ChildItem $release -File | Where-Object Name -ne 'SHA256SUMS.txt' | 
     '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name
 }
 Set-Content -Path (Join-Path $release 'SHA256SUMS.txt') -Value $sums -Encoding ascii
+
+# The signature the in-app updater requires (NetFluss.Core/UpdateSignature.cs). Without the
+# key the release files are still built, but installed copies will refuse to update to them.
+if ($env:NETFLUSS_UPDATE_SIGNING_KEY) {
+    Invoke-Checked dotnet @('run', '--project', (Join-Path $windows 'tools\UpdateSigning'), '-c', 'Release', '--',
+        'sign', (Join-Path $release 'SHA256SUMS.txt'))
+} else {
+    Write-Warning 'NETFLUSS_UPDATE_SIGNING_KEY is not set: SHA256SUMS.txt is unsigned, and the in-app updater will not install this build.'
+}
 Get-ChildItem $release | Format-Table Name, Length
