@@ -1760,7 +1760,7 @@ No network traffic is sent — only local counters from your machine are recorde
     <value>A WEP key is 5 or 13 characters, or 10 or 26 hex digits.</value>
   </data>
   <data name="A single line gets the full icon height, which is sharper at 100% scaling." xml:space="preserve">
-    <value>A single line gets the full icon height, which is sharper at 100{0}caling.</value>
+    <value>A single line gets the full icon height, which is sharper at 100% scaling.</value>
   </data>
   <data name="Adapter" xml:space="preserve">
     <value>Adapter</value>
@@ -2439,5 +2439,11 @@ No network traffic is sent — only local counters from your machine are recorde
   </data>
   <data name="This config uses “{0}”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." xml:space="preserve">
     <value>This config uses “{0}”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config.</value>
+  </data>
+  <data name="Taskbar settings…" xml:space="preserve">
+    <value>Taskbar settings…</value>
+  </data>
+  <data name="Shows on the taskbar meter and the widget whether a VPN is connected." xml:space="preserve">
+    <value>Shows on the taskbar meter and the widget whether a VPN is connected.</value>
   </data>
 </root>

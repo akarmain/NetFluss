@@ -222,6 +222,19 @@ internal static class Program
                 Console.Error.WriteLine($"warning: {language} has {extra.Count} key(s) not in English: {string.Join(", ", extra.Take(3))}...");
             }
 
+            // A translation must fill exactly the placeholders its key has. One that differs is a
+            // typo — "100% scaling" where the key says "100%% scaling" turns "% s" into an
+            // argument nobody passes — and at runtime it either throws or prints "{0}".
+            var mismatched = macEntries.Entries.Concat(windowsEntries.Entries)
+                .Where(entry => Placeholders(entry.Value) != Placeholders(entry.Key))
+                .Select(entry => $"\"{entry.Key}\"")
+                .ToList();
+            if (mismatched.Count > 0)
+            {
+                throw new CatalogueException(
+                    $"error: {language} has {mismatched.Count} translation(s) whose placeholders differ from the key: {string.Join(", ", mismatched.Take(5))}");
+            }
+
             var converted = new List<KeyValuePair<string, string>>();
 
             foreach (var (key, macValue) in macEntries.Entries)
@@ -417,6 +430,9 @@ internal static class Program
     }
 
     private static readonly Regex LiteralPercentOrSpecifier = new("%%|" + SpecifierPattern, RegexOptions.CultureInvariant);
+
+    private static int Placeholders(string text)
+        => LiteralPercentOrSpecifier.Matches(text).Count(match => match.Value != "%%");
 
     private static string ConvertSpecifiers(string text)
     {

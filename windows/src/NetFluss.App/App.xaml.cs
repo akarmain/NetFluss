@@ -275,7 +275,7 @@ public partial class NetFlussApplication : Application
 
     /// <summary>
     /// Renders a window to a PNG without showing it to anyone — the verification harness.
-    /// Targets: "popover[:bottom|:section]", "preferences[:tab]", "speedtest".
+    /// Targets: "popover[:bottom|:section]", "preferences[:tab]", "speedtest", "widget", "taskbar".
     /// </summary>
     private async Task SnapshotAsync(string target, string path, int delayMilliseconds)
     {
@@ -297,6 +297,19 @@ public partial class NetFlussApplication : Application
 
             Snapshot.Save(_popover, path);
             _popover.HideOffScreen();
+            return;
+        }
+
+        // The live meters as they are on screen right now, accessories included.
+        if (target is "widget" or "taskbar")
+        {
+            Window? live = target == "widget" ? _widget : _overlay;
+            if (live is not null)
+            {
+                await Task.Delay(delayMilliseconds);
+                Snapshot.Save(live, path);
+            }
+
             return;
         }
 

@@ -2440,4 +2440,10 @@ Es wird kein Netzwerkverkehr gesendet — nur lokale Zähler von Ihrem Mac werde
   <data name="This config uses “{0}”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." xml:space="preserve">
     <value>Diese Konfiguration verwendet „{0}“, was NetFluss nicht mit Administratorrechten ausführt; die Verbindung wird daher abgelehnt. Bitte deinen Anbieter um eine Standard-Client-Konfiguration.</value>
   </data>
+  <data name="Taskbar settings…" xml:space="preserve">
+    <value>Taskleisten-Einstellungen…</value>
+  </data>
+  <data name="Shows on the taskbar meter and the widget whether a VPN is connected." xml:space="preserve">
+    <value>Zeigt in der Taskleistenanzeige und im Widget, ob ein VPN verbunden ist.</value>
+  </data>
 </root>

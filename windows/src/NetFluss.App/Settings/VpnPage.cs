@@ -30,6 +30,41 @@ internal static class VpnPage
         page.Children.Add(Kit.Header(Kit.L("VPN")));
         page.Children.Add(Kit.Card(Kit.L("Show VPN in popover"), null, Kit.Switch(settings, nameof(AppSettings.ShowVpn))));
 
+        // The indicator is set up on the Taskbar page, beside the meter it sits on, as on
+        // macOS — but this is where people look for it, so say where it is and how it is set.
+        var indicatorState = Kit.Caption(string.Empty);
+        indicatorState.VerticalAlignment = VerticalAlignment.Center;
+        indicatorState.Margin = new Thickness(0, 0, 12, 0);
+        void ShowIndicatorState() => indicatorState.Text = settings.VpnIndicator switch
+        {
+            "dot" => Kit.L("Dot"),
+            "shield" => Kit.L("Shield"),
+            _ => Kit.L("Off"),
+        };
+        ShowIndicatorState();
+
+        var openTaskbar = Kit.Button(Kit.L("Taskbar settings…"), () =>
+        {
+            if (Window.GetWindow(page) is PreferencesWindow preferences)
+            {
+                preferences.SelectTab("taskbar");
+                preferences.Dispatcher.BeginInvoke(preferences.ScrollToEnd, System.Windows.Threading.DispatcherPriority.Loaded);
+            }
+        });
+
+        page.Children.Add(Kit.Card(
+            Kit.L("VPN indicator"),
+            Kit.L("Shows on the taskbar meter and the widget whether a VPN is connected."),
+            new StackPanel { Orientation = Orientation.Horizontal, Children = { indicatorState, openTaskbar } }));
+
+        Kit.Watch(page, settings, name =>
+        {
+            if (name is null or nameof(AppSettings.VpnIndicator))
+            {
+                ShowIndicatorState();
+            }
+        });
+
         var importStatus = Kit.Caption(string.Empty);
         importStatus.TextWrapping = TextWrapping.Wrap;
         importStatus.Visibility = Visibility.Collapsed;

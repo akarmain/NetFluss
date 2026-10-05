@@ -2440,4 +2440,10 @@
   <data name="This config uses “{0}”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." xml:space="preserve">
     <value>此配置使用了“{0}”，NetFluss 不会以管理员权限运行它，因此连接将被拒绝。请向你的服务商索取标准客户端配置。</value>
   </data>
+  <data name="Taskbar settings…" xml:space="preserve">
+    <value>任务栏设置…</value>
+  </data>
+  <data name="Shows on the taskbar meter and the widget whether a VPN is connected." xml:space="preserve">
+    <value>在任务栏速率显示和小组件中显示 VPN 是否已连接。</value>
+  </data>
 </root>

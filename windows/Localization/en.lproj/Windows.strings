@@ -10,7 +10,7 @@
 "'%@' is not an IP address." = "'%@' is not an IP address.";
 "A 16–32 px icon, depending on your display scaling. Cramped, and it never breaks." = "A 16–32 px icon, depending on your display scaling. Cramped, and it never breaks.";
 "A WEP key is 5 or 13 characters, or 10 or 26 hex digits." = "A WEP key is 5 or 13 characters, or 10 or 26 hex digits.";
-"A single line gets the full icon height, which is sharper at 100%% scaling." = "A single line gets the full icon height, which is sharper at 100% scaling.";
+"A single line gets the full icon height, which is sharper at 100%% scaling." = "A single line gets the full icon height, which is sharper at 100%% scaling.";
 "Adapter" = "Adapter";
 "Adapter statistics are collected continuously while NetFluss runs. App statistics come from Windows' own data usage records." = "Adapter statistics are collected continuously while NetFluss runs. App statistics come from Windows' own data usage records.";
 "Added “%@”." = "Added “%@”.";
@@ -237,3 +237,5 @@
 "The update could not be verified, so it was not installed." = "The update could not be verified, so it was not installed.";
 "This release has no installer for this PC." = "This release has no installer for this PC.";
 "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." = "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config.";
+"Taskbar settings…" = "Taskbar settings…";
+"Shows on the taskbar meter and the widget whether a VPN is connected." = "Shows on the taskbar meter and the widget whether a VPN is connected.";

@@ -233,3 +233,5 @@
 "The update could not be verified, so it was not installed." = "無法驗證此更新，因此未安裝。";
 "This release has no installer for this PC." = "此版本沒有適用於這台電腦的安裝程式。";
 "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." = "此設定使用了「%@」，NetFluss 不會以系統管理員權限執行它，因此連線將被拒絕。請向您的服務供應商索取標準用戶端設定。";
+"Taskbar settings…" = "工作列設定…";
+"Shows on the taskbar meter and the widget whether a VPN is connected." = "在工作列速率顯示和小工具中顯示 VPN 是否已連線。";

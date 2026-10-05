@@ -233,3 +233,5 @@
 "The update could not be verified, so it was not installed." = "Das Update konnte nicht überprüft werden und wurde daher nicht installiert.";
 "This release has no installer for this PC." = "Diese Version enthält kein Installationsprogramm für diesen PC.";
 "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." = "Diese Konfiguration verwendet „%@“, was NetFluss nicht mit Administratorrechten ausführt; die Verbindung wird daher abgelehnt. Bitte deinen Anbieter um eine Standard-Client-Konfiguration.";
+"Taskbar settings…" = "Taskleisten-Einstellungen…";
+"Shows on the taskbar meter and the widget whether a VPN is connected." = "Zeigt in der Taskleistenanzeige und im Widget, ob ein VPN verbunden ist.";
