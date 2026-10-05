@@ -12,7 +12,7 @@ Latest release: **NetFluss 2.6**
 
 NetFluss now runs on Windows too: a native Windows 10 and 11 app with the same feature set as NetFluss 2.6 for Mac — live rates on the taskbar, the popover, Bandwidth Statistics, Speed Test, Network Slice, router monitoring and the built-in VPN client.
 
-**[Download NetFluss 2.6 Beta 1 for Windows](https://github.com/rana-gmbh/NetFluss/releases/tag/win-v2.6.0-beta.1)** — the installer needs no administrator rights and keeps itself up to date. The beta is not yet code-signed for Windows, so SmartScreen asks you to confirm the first start (**More info → Run anyway**). Feedback is very welcome: [open an issue](https://github.com/rana-gmbh/NetFluss/issues/new) and mention Windows. Building it yourself is described in [windows/README.md](windows/README.md).
+**[Download NetFluss 2.6 Beta 2 for Windows](https://github.com/rana-gmbh/NetFluss/releases/tag/win-v2.6.0-beta.2)** — the installer needs no administrator rights and keeps itself up to date. The beta is not yet code-signed for Windows, so SmartScreen asks you to confirm the first start (**More info → Run anyway**). Feedback is very welcome: [open an issue](https://github.com/rana-gmbh/NetFluss/issues/new) and mention Windows. Building it yourself is described in [windows/README.md](windows/README.md).
 
 ## New in 2.6
 

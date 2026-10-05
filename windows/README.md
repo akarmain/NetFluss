@@ -3,7 +3,7 @@
 Native Windows port of NetFluss, tracking the macOS app's feature set.
 Design and rationale live in [../docs/WINDOWS-PORT-PLAN.md](../docs/WINDOWS-PORT-PLAN.md).
 
-**Status: public beta (2.6.0-beta.1), at feature parity with NetFluss 2.6 for macOS.**
+**Status: public beta (2.6.0-beta.2), at feature parity with NetFluss 2.6 for macOS.**
 Every macOS feature has a Windows counterpart:
 
 | Area | Windows |
