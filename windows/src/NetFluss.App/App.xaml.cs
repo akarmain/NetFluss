@@ -311,6 +311,31 @@ public partial class NetFlussApplication : Application
 
             window = preferences;
         }
+        else if (target == "menu" && _commands is not null)
+        {
+            // A popup cannot be placed off-screen and a ContextMenu cannot live in a window,
+            // so its items are laid out in a frame matching its template, with its resources.
+            var menu = SurfaceMenu.Build(_commands);
+            var items = menu.Items.Cast<object>().ToList();
+            menu.Items.Clear();
+            var panel = new System.Windows.Controls.StackPanel();
+            foreach (var item in items.Cast<UIElement>())
+            {
+                if (item is System.Windows.Controls.Separator separator)
+                {
+                    separator.SetResourceReference(FrameworkElement.StyleProperty, System.Windows.Controls.MenuItem.SeparatorStyleKey);
+                }
+
+                panel.Children.Add(item);
+            }
+
+            var frame = new System.Windows.Controls.Border { Padding = new Thickness(4), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Child = panel, Margin = new Thickness(12) };
+            frame.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, "NfMenuBackground");
+            frame.SetResourceReference(System.Windows.Controls.Border.BorderBrushProperty, "NfMenuBorder");
+            var host = new Window { Content = frame, SizeToContent = SizeToContent.WidthAndHeight, WindowStyle = WindowStyle.None, FontFamily = menu.FontFamily, FontSize = 13 };
+            host.Resources.MergedDictionaries.Add(menu.Resources);
+            window = host;
+        }
         else if (target == "about" && _store is not null && _updates is not null)
         {
             var (surface, download, upload) = Palette();

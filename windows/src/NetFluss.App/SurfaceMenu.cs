@@ -34,6 +34,15 @@ internal static class SurfaceMenu
     internal static ContextMenu Build(AppCommands commands)
     {
         var menu = new ContextMenu();
+        menu.Resources.MergedDictionaries.Add(new System.Windows.ResourceDictionary
+        {
+            Source = new Uri("pack://application:,,,/NetFluss;component/MenuResources.xaml"),
+        });
+
+        // Painted at open time, so a menu built before the user switched Windows between
+        // light and dark still opens in the current one.
+        menu.Opened += (_, _) => ApplyColors(menu);
+        ApplyColors(menu);
 
         void Add(string key, Action action)
         {
@@ -61,6 +70,35 @@ internal static class SurfaceMenu
                 : System.Windows.Visibility.Collapsed;
 
         return menu;
+    }
+
+    /// <summary>The Windows 11 context-menu palette for the current app theme.</summary>
+    private static void ApplyColors(ContextMenu menu)
+    {
+        var light = SystemTheme.IsAppLight();
+        void Set(string key, byte a, byte r, byte g, byte b)
+        {
+            var brush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(a, r, g, b));
+            brush.Freeze();
+            menu.Resources[key] = brush;
+        }
+
+        if (light)
+        {
+            Set("NfMenuBackground", 0xFF, 0xF9, 0xF9, 0xF9);
+            Set("NfMenuBorder", 0x1F, 0x00, 0x00, 0x00);
+            Set("NfMenuText", 0xFF, 0x1A, 0x1A, 0x1A);
+            Set("NfMenuHover", 0x0F, 0x00, 0x00, 0x00);
+            Set("NfMenuSeparator", 0x14, 0x00, 0x00, 0x00);
+        }
+        else
+        {
+            Set("NfMenuBackground", 0xFF, 0x2C, 0x2C, 0x2C);
+            Set("NfMenuBorder", 0x33, 0xFF, 0xFF, 0xFF);
+            Set("NfMenuText", 0xFF, 0xFF, 0xFF, 0xFF);
+            Set("NfMenuHover", 0x14, 0xFF, 0xFF, 0xFF);
+            Set("NfMenuSeparator", 0x1A, 0xFF, 0xFF, 0xFF);
+        }
     }
 
     private static void OpenSupport()
