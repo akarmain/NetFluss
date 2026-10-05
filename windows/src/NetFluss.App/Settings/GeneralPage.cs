@@ -149,6 +149,14 @@ internal static class GeneralPage
                 install.Content = Kit.L("Install Privileged Helper…");
                 remove.Visibility = Visibility.Collapsed;
             }
+            else if (!helper.SupportsVpn)
+            {
+                // Still serving traffic, but too old for the VPN client.
+                status.Text = Kit.L("Installed, version {0} — an update adds the VPN client's OpenVPN and WireGuard support.", helper.HelperVersion ?? "?");
+                status.SetResourceReference(TextBlock.ForegroundProperty, "WarningBrush");
+                install.Content = Kit.L("Update helper…");
+                remove.Visibility = Visibility.Visible;
+            }
             else if (!helper.IsCurrentVersion)
             {
                 status.Text = Kit.L("Installed, version {0} — out of date.", helper.HelperVersion ?? "?");
