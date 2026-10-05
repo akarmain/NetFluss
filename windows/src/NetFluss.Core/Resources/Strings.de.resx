@@ -1741,4 +1741,682 @@ Es wird kein Netzwerkverkehr gesendet — nur lokale Zähler von Ihrem Mac werde
   <data name="Auto-selected nearby edge" xml:space="preserve">
     <value>Automatisch gewählter nahegelegener Edge-Server</value>
   </data>
+  <data name="&apos;{0}&apos; already exists." xml:space="preserve">
+    <value>„{0}“ ist bereits vorhanden.</value>
+  </data>
+  <data name="&apos;{0}&apos; is listed twice." xml:space="preserve">
+    <value>„{0}“ ist doppelt aufgeführt.</value>
+  </data>
+  <data name="&apos;{0}&apos; is not IPv4 or IPv6." xml:space="preserve">
+    <value>„{0}“ ist weder IPv4 noch IPv6.</value>
+  </data>
+  <data name="&apos;{0}&apos; is not an IP address." xml:space="preserve">
+    <value>„{0}“ ist keine IP-Adresse.</value>
+  </data>
+  <data name="A 16–32 px icon, depending on your display scaling. Cramped, and it never breaks." xml:space="preserve">
+    <value>Ein Symbol mit 16–32 px, je nach Anzeigeskalierung. Eng, aber es funktioniert immer.</value>
+  </data>
+  <data name="A WEP key is 5 or 13 characters, or 10 or 26 hex digits." xml:space="preserve">
+    <value>Ein WEP-Schlüssel hat 5 oder 13 Zeichen oder 10 oder 26 Hexadezimalziffern.</value>
+  </data>
+  <data name="A single line gets the full icon height, which is sharper at 100% scaling." xml:space="preserve">
+    <value>Eine einzelne Zeile nutzt die volle Symbolhöhe und ist bei 100 % Skalierung schärfer.</value>
+  </data>
+  <data name="Adapter" xml:space="preserve">
+    <value>Adapter</value>
+  </data>
+  <data name="Adapter statistics are collected continuously while NetFluss runs. App statistics come from Windows&apos; own data usage records." xml:space="preserve">
+    <value>Adapterstatistiken werden laufend gesammelt, solange NetFluss läuft. App-Statistiken stammen aus der Datennutzungserfassung von Windows.</value>
+  </data>
+  <data name="Added “{0}”." xml:space="preserve">
+    <value>„{0}“ hinzugefügt.</value>
+  </data>
+  <data name="Adds NetFluss to your sign-in apps, where Task Manager can also turn it off." xml:space="preserve">
+    <value>Fügt NetFluss zu den Autostart-Apps hinzu, wo es auch im Task-Manager deaktiviert werden kann.</value>
+  </data>
+  <data name="Adds a VPN connection set up in Windows Settings, so NetFluss can connect it from the popover." xml:space="preserve">
+    <value>Fügt eine in den Windows-Einstellungen eingerichtete VPN-Verbindung hinzu, damit NetFluss sie im Popover verbinden kann.</value>
+  </data>
+  <data name="Add…" xml:space="preserve">
+    <value>Hinzufügen…</value>
+  </data>
+  <data name="An always-on-top panel you can drag anywhere. Works alongside the other placements, and depends on nothing that a Windows update can move." xml:space="preserve">
+    <value>Ein immer sichtbares Feld, das sich frei verschieben lässt. Funktioniert zusätzlich zu den anderen Positionen und hängt von nichts ab, was ein Windows-Update verschieben könnte.</value>
+  </data>
+  <data name="An app stays listed for a few seconds after it goes quiet, so the list does not reshuffle between bursts." xml:space="preserve">
+    <value>Eine App bleibt noch einige Sekunden gelistet, nachdem sie ruhig geworden ist, damit sich die Liste zwischen kurzen Aktivitätsphasen nicht ständig umsortiert.</value>
+  </data>
+  <data name="An optional background service that shows which apps use the network (Top Apps, Network Slice) and changes DNS without asking each time. Installing it needs administrator approval once." xml:space="preserve">
+    <value>Ein optionaler Hintergrunddienst, der zeigt, welche Apps das Netzwerk nutzen (Top-Apps, Network Slice), und DNS ohne Rückfrage ändert. Die Installation erfordert einmalig die Zustimmung eines Administrators.</value>
+  </data>
+  <data name="Appears when a router is configured." xml:space="preserve">
+    <value>Erscheint, sobald ein Router eingerichtet ist.</value>
+  </data>
+  <data name="Applies to the taskbar meter and the floating widget." xml:space="preserve">
+    <value>Gilt für die Anzeige in der Taskleiste und das schwebende Widget.</value>
+  </data>
+  <data name="Applying {0}…" xml:space="preserve">
+    <value>{0} wird angewendet…</value>
+  </data>
+  <data name="Applying {0}… confirm the administrator prompt." xml:space="preserve">
+    <value>{0} wird angewendet… bitte die Administratorabfrage bestätigen.</value>
+  </data>
+  <data name="At most {0} servers." xml:space="preserve">
+    <value>Höchstens {0} Server.</value>
+  </data>
+  <data name="Automatic" xml:space="preserve">
+    <value>Automatisch</value>
+  </data>
+  <data name="Beside the clock, with room for full units. Windows offers no supported way to do this, so it is best effort — NetFluss falls back to the notification area if the taskbar moves out from under it." xml:space="preserve">
+    <value>Neben der Uhr, mit Platz für vollständige Einheiten. Windows bietet dafür keinen offiziellen Weg, daher geschieht dies nach bestem Bemühen — NetFluss weicht in den Infobereich aus, wenn sich die Taskleiste verändert.</value>
+  </data>
+  <data name="Black" xml:space="preserve">
+    <value>Schwarz</value>
+  </data>
+  <data name="Blank server address." xml:space="preserve">
+    <value>Leere Serveradresse.</value>
+  </data>
+  <data name="Blue" xml:space="preserve">
+    <value>Blau</value>
+  </data>
+  <data name="Buy me a coffee" xml:space="preserve">
+    <value>Spendier mir einen Kaffee</value>
+  </data>
+  <data name="Bytes per second, or bits as ISPs quote them." xml:space="preserve">
+    <value>Bytes pro Sekunde oder Bits, wie Internetanbieter sie angeben.</value>
+  </data>
+  <data name="Cancelled." xml:space="preserve">
+    <value>Abgebrochen.</value>
+  </data>
+  <data name="Cancelled. DNS was not changed." xml:space="preserve">
+    <value>Abgebrochen. DNS wurde nicht geändert.</value>
+  </data>
+  <data name="Changing DNS needs administrator rights: each change asks for approval, unless the optional NetFluss helper is installed (General → System access)." xml:space="preserve">
+    <value>DNS-Änderungen erfordern Administratorrechte: Jede Änderung fragt nach einer Bestätigung, außer der optionale NetFluss-Helfer ist installiert (Allgemein → Systemzugriff).</value>
+  </data>
+  <data name="Click to copy {0}" xml:space="preserve">
+    <value>Klicken, um {0} zu kopieren</value>
+  </data>
+  <data name="Colours" xml:space="preserve">
+    <value>Farben</value>
+  </data>
+  <data name="Combined total" xml:space="preserve">
+    <value>Gesamtsumme</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="Costs width the digits need below 24 px. The row colour already shows direction." xml:space="preserve">
+    <value>Kostet Breite, die die Ziffern unter 24 px brauchen. Die Zeilenfarbe zeigt die Richtung bereits an.</value>
+  </data>
+  <data name="Could not add that preset." xml:space="preserve">
+    <value>Diese Vorlage konnte nicht hinzugefügt werden.</value>
+  </data>
+  <data name="Could not check for updates: {0}" xml:space="preserve">
+    <value>Suche nach Updates fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Could not join “{0}”." xml:space="preserve">
+    <value>Verbindung mit „{0}“ fehlgeschlagen.</value>
+  </data>
+  <data name="Could not reach the OpenVPN management interface." xml:space="preserve">
+    <value>Die OpenVPN-Verwaltungsschnittstelle ist nicht erreichbar.</value>
+  </data>
+  <data name="Could not start the elevated helper." xml:space="preserve">
+    <value>Der Helfer mit erhöhten Rechten konnte nicht gestartet werden.</value>
+  </data>
+  <data name="Creates an IKEv2 connection in Windows (username and password, EAP-MSCHAPv2) that NetFluss connects directly. The password is stored in Windows Credential Manager. If the server uses a private CA, import its certificate into the Trusted Root store first." xml:space="preserve">
+    <value>Erstellt eine IKEv2-Verbindung in Windows (Benutzername und Passwort, EAP-MSCHAPv2), die NetFluss direkt verbindet. Das Passwort wird in der Windows-Anmeldeinformationsverwaltung gespeichert. Verwendet der Server eine eigene Zertifizierungsstelle, importiere zuerst deren Zertifikat in den Speicher „Vertrauenswürdige Stammzertifizierungsstellen“.</value>
+  </data>
+  <data name="Creating the Windows VPN connection…" xml:space="preserve">
+    <value>Windows-VPN-Verbindung wird erstellt…</value>
+  </data>
+  <data name="Credentials required" xml:space="preserve">
+    <value>Zugangsdaten erforderlich</value>
+  </data>
+  <data name="Credentials stored" xml:space="preserve">
+    <value>Zugangsdaten gespeichert</value>
+  </data>
+  <data name="DNS preset" xml:space="preserve">
+    <value>DNS-Vorlage</value>
+  </data>
+  <data name="Darkens or brightens the rate colours so both rows read equally on your taskbar." xml:space="preserve">
+    <value>Dunkelt die Farben der Raten ab oder hellt sie auf, damit beide Zeilen auf deiner Taskleiste gleich gut lesbar sind.</value>
+  </data>
+  <data name="Dashboard Basic" xml:space="preserve">
+    <value>Dashboard Basis</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="Delete history" xml:space="preserve">
+    <value>Verlauf löschen</value>
+  </data>
+  <data name="Denied — open Settings to allow NetFluss under “Let desktop apps access your location”." xml:space="preserve">
+    <value>Verweigert — öffne die Einstellungen und erlaube NetFluss unter „Desktop-Apps den Zugriff auf deinen Standort erlauben“.</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Getrennt</value>
+  </data>
+  <data name="Dismiss" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+  <data name="Download and upload" xml:space="preserve">
+    <value>Download und Upload</value>
+  </data>
+  <data name="Download and upload history by adapter and by app, from the last hour to the last year." xml:space="preserve">
+    <value>Download- und Upload-Verlauf nach Adapter und App, von der letzten Stunde bis zum letzten Jahr.</value>
+  </data>
+  <data name="Download only" xml:space="preserve">
+    <value>Nur Download</value>
+  </data>
+  <data name="Download…" xml:space="preserve">
+    <value>Herunterladen…</value>
+  </data>
+  <data name="Drag to reorder" xml:space="preserve">
+    <value>Zum Umsortieren ziehen</value>
+  </data>
+  <data name="Drag to reorder sections in the popover. Toggling a row mirrors the corresponding setting on the DNS, Wi-Fi, Top Apps and Statistics pages." xml:space="preserve">
+    <value>Ziehe die Abschnitte, um sie im Popover umzusortieren. Das Ein- und Ausschalten einer Zeile entspricht der jeweiligen Einstellung auf den Seiten DNS, WLAN, Top-Apps und Statistiken.</value>
+  </data>
+  <data name="Enterprise networks need to be joined from Windows Settings." xml:space="preserve">
+    <value>Unternehmensnetzwerke müssen über die Windows-Einstellungen verbunden werden.</value>
+  </data>
+  <data name="Ethernet" xml:space="preserve">
+    <value>Ethernet</value>
+  </data>
+  <data name="Fill in both fields." xml:space="preserve">
+    <value>Bitte beide Felder ausfüllen.</value>
+  </data>
+  <data name="Fill in the name, server and username." xml:space="preserve">
+    <value>Bitte Name, Server und Benutzername ausfüllen.</value>
+  </data>
+  <data name="Floating widget" xml:space="preserve">
+    <value>Schwebendes Widget</value>
+  </data>
+  <data name="Flow draws the path from this PC through the router (and a VPN) to the internet; list shows each address with a copy button." xml:space="preserve">
+    <value>„Fluss“ zeichnet den Weg von diesem PC über den Router (und ein VPN) ins Internet; „Liste“ zeigt jede Adresse mit einer Kopierschaltfläche.</value>
+  </data>
+  <data name="Give the preset a name." xml:space="preserve">
+    <value>Gib der Vorlage einen Namen.</value>
+  </data>
+  <data name="Give the preset at least one server." xml:space="preserve">
+    <value>Gib der Vorlage mindestens einen Server.</value>
+  </data>
+  <data name="Green" xml:space="preserve">
+    <value>Grün</value>
+  </data>
+  <data name="Hidden apps stay out of Top Apps and the statistics lists. Pick one that used the network in the last minute, or type its name." xml:space="preserve">
+    <value>Ausgeblendete Apps erscheinen weder in den Top-Apps noch in den Statistiklisten. Wähle eine App, die in der letzten Minute das Netzwerk genutzt hat, oder gib ihren Namen ein.</value>
+  </data>
+  <data name="Hide" xml:space="preserve">
+    <value>Ausblenden</value>
+  </data>
+  <data name="Hide from Top Apps" xml:space="preserve">
+    <value>In Top-Apps ausblenden</value>
+  </data>
+  <data name="Hide the notification area icon" xml:space="preserve">
+    <value>Symbol im Infobereich ausblenden</value>
+  </data>
+  <data name="Icon only" xml:space="preserve">
+    <value>Nur Symbol</value>
+  </data>
+  <data name="If a VPN connection fails, copy this log and send it — it records the installed tools, Windows&apos; VPN connections, and the connection tool&apos;s full output." xml:space="preserve">
+    <value>Wenn eine VPN-Verbindung fehlschlägt, kopiere dieses Protokoll und sende es uns — es enthält die installierten Werkzeuge, die VPN-Verbindungen von Windows und die vollständige Ausgabe des Verbindungsprogramms.</value>
+  </data>
+  <data name="Import a folder of profiles…" xml:space="preserve">
+    <value>Ordner mit Profilen importieren…</value>
+  </data>
+  <data name="Install helper…" xml:space="preserve">
+    <value>Helfer installieren…</value>
+  </data>
+  <data name="Installed and running, version {0}." xml:space="preserve">
+    <value>Installiert und aktiv, Version {0}.</value>
+  </data>
+  <data name="Installed, version {0} — an update adds the VPN client&apos;s OpenVPN and WireGuard support." xml:space="preserve">
+    <value>Installiert, Version {0} — ein Update ergänzt die OpenVPN- und WireGuard-Unterstützung des VPN-Clients.</value>
+  </data>
+  <data name="Installed, version {0} — out of date." xml:space="preserve">
+    <value>Installiert, Version {0} — veraltet.</value>
+  </data>
+  <data name="Interfaces that are neither Wi-Fi nor Ethernet: VPN tunnels, Hyper-V and WSL switches, Bluetooth networking." xml:space="preserve">
+    <value>Schnittstellen, die weder WLAN noch Ethernet sind: VPN-Tunnel, Hyper-V- und WSL-Switches, Bluetooth-Netzwerke.</value>
+  </data>
+  <data name="Invalid servers." xml:space="preserve">
+    <value>Ungültige Server.</value>
+  </data>
+  <data name="Keep colours readable" xml:space="preserve">
+    <value>Farben lesbar halten</value>
+  </data>
+  <data name="Keeps minute, hourly and daily totals per adapter on this PC, for the Statistics window and the Data Usage section. Off by default; collecting costs one subtraction per adapter per tick." xml:space="preserve">
+    <value>Speichert Minuten-, Stunden- und Tagessummen pro Adapter auf diesem PC, für das Statistikfenster und den Abschnitt Datennutzung. Standardmäßig aus; das Sammeln kostet eine Subtraktion pro Adapter und Aktualisierung.</value>
+  </data>
+  <data name="Keeps the indicator visible, dimmed, while no VPN is connected." xml:space="preserve">
+    <value>Lässt die Anzeige abgedunkelt sichtbar, solange kein VPN verbunden ist.</value>
+  </data>
+  <data name="Large" xml:space="preserve">
+    <value>Groß</value>
+  </data>
+  <data name="Largest" xml:space="preserve">
+    <value>Am größten</value>
+  </data>
+  <data name="Lists nearby Wi-Fi networks. Click a row to join — saved networks reconnect immediately, new secured networks ask for the password, and Windows remembers it for its own Wi-Fi menu too." xml:space="preserve">
+    <value>Listet WLANs in der Nähe auf. Klicke auf eine Zeile, um dich zu verbinden — gespeicherte Netze verbinden sofort, neue geschützte Netze fragen nach dem Passwort, und Windows merkt es sich auch für sein eigenes WLAN-Menü.</value>
+  </data>
+  <data name="Location access" xml:space="preserve">
+    <value>Standortzugriff</value>
+  </data>
+  <data name="Location access is required to list nearby Wi-Fi networks. Windows uses the same restriction in Settings → Privacy &amp; security → Location." xml:space="preserve">
+    <value>Zum Auflisten von WLANs in der Nähe ist Standortzugriff nötig. Windows verwendet dieselbe Einschränkung unter Einstellungen → Datenschutz und Sicherheit → Standort.</value>
+  </data>
+  <data name="Longer intervals use less battery on an idle machine." xml:space="preserve">
+    <value>Längere Intervalle schonen den Akku eines Geräts im Leerlauf.</value>
+  </data>
+  <data name="Meter location" xml:space="preserve">
+    <value>Position der Anzeige</value>
+  </data>
+  <data name="Meter style" xml:space="preserve">
+    <value>Anzeigestil</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>Mehr</value>
+  </data>
+  <data name="Most machines carry a dozen idle virtual and tunnel interfaces, so this is off by default." xml:space="preserve">
+    <value>Die meisten Rechner haben ein Dutzend ungenutzter virtueller und Tunnel-Schnittstellen, daher ist dies standardmäßig aus.</value>
+  </data>
+  <data name="Needs the NetFluss helper" xml:space="preserve">
+    <value>Benötigt den NetFluss-Helfer</value>
+  </data>
+  <data name="NetFluss Preferences" xml:space="preserve">
+    <value>NetFluss-Einstellungen</value>
+  </data>
+  <data name="NetFluss could not find room on the taskbar, so the meter fell back to the notification area. It will move back on its own if the taskbar becomes available." xml:space="preserve">
+    <value>NetFluss hat auf der Taskleiste keinen Platz gefunden, daher wird die Anzeige im Infobereich dargestellt. Sie wechselt von selbst zurück, sobald die Taskleiste wieder verfügbar ist.</value>
+  </data>
+  <data name="NetFluss helper" xml:space="preserve">
+    <value>NetFluss-Helfer</value>
+  </data>
+  <data name="No VPN connected" xml:space="preserve">
+    <value>Kein VPN verbunden</value>
+  </data>
+  <data name="No Windows VPN connections found. Set one up in Windows Settings → Network &amp; internet → VPN, or add an IKEv2 VPN here." xml:space="preserve">
+    <value>Keine Windows-VPN-Verbindungen gefunden. Richte eine unter Windows-Einstellungen → Netzwerk und Internet → VPN ein oder füge hier ein IKEv2-VPN hinzu.</value>
+  </data>
+  <data name="No adapter named &apos;{0}&apos;." xml:space="preserve">
+    <value>Kein Adapter namens „{0}“.</value>
+  </data>
+  <data name="No adapter with an internet connection was found." xml:space="preserve">
+    <value>Es wurde kein Adapter mit Internetverbindung gefunden.</value>
+  </data>
+  <data name="No adapters reported yet." xml:space="preserve">
+    <value>Noch keine Adapter gemeldet.</value>
+  </data>
+  <data name="No apps are hidden." xml:space="preserve">
+    <value>Keine Apps ausgeblendet.</value>
+  </data>
+  <data name="No networks are pinned." xml:space="preserve">
+    <value>Keine Netzwerke angeheftet.</value>
+  </data>
+  <data name="Not installed. DNS changes and Ethernet resets ask for administrator approval each time, and Top Apps is unavailable." xml:space="preserve">
+    <value>Nicht installiert. DNS-Änderungen und Ethernet-Neustarts fragen jedes Mal nach einer Administratorbestätigung, und Top-Apps ist nicht verfügbar.</value>
+  </data>
+  <data name="Notification area" xml:space="preserve">
+    <value>Infobereich</value>
+  </data>
+  <data name="On the taskbar" xml:space="preserve">
+    <value>Auf der Taskleiste</value>
+  </data>
+  <data name="Once a day, NetFluss looks for a new Windows release on GitHub and tells you once when one is available. You can also check any time in About." xml:space="preserve">
+    <value>Einmal täglich sucht NetFluss auf GitHub nach einer neuen Windows-Version und meldet sich einmal, wenn eine verfügbar ist. Du kannst auch jederzeit unter „Über“ nachsehen.</value>
+  </data>
+  <data name="One line" xml:space="preserve">
+    <value>Eine Zeile</value>
+  </data>
+  <data name="One line has room for full units; stacked matches the notification area." xml:space="preserve">
+    <value>Eine Zeile bietet Platz für vollständige Einheiten; gestapelt entspricht dem Infobereich.</value>
+  </data>
+  <data name="Only available when the meter is on the taskbar — otherwise this is where the meter lives." xml:space="preserve">
+    <value>Nur verfügbar, wenn die Anzeige auf der Taskleiste ist — andernfalls befindet sich die Anzeige hier.</value>
+  </data>
+  <data name="Open VPN log folder" xml:space="preserve">
+    <value>VPN-Protokollordner öffnen</value>
+  </data>
+  <data name="OpenVPN and WireGuard connections run through the NetFluss helper (General → System access)." xml:space="preserve">
+    <value>OpenVPN- und WireGuard-Verbindungen laufen über den NetFluss-Helfer (Allgemein → Systemzugriff).</value>
+  </data>
+  <data name="OpenVPN and WireGuard connections run through the NetFluss helper. Install it under Preferences → General → System access, then connect again." xml:space="preserve">
+    <value>OpenVPN- und WireGuard-Verbindungen laufen über den NetFluss-Helfer. Installiere ihn unter Einstellungen → Allgemein → Systemzugriff und verbinde dich dann erneut.</value>
+  </data>
+  <data name="OpenVPN is not installed. Install OpenVPN Community from openvpn.net, then connect again." xml:space="preserve">
+    <value>OpenVPN ist nicht installiert. Installiere OpenVPN Community von openvpn.net und verbinde dich dann erneut.</value>
+  </data>
+  <data name="Open…" xml:space="preserve">
+    <value>Öffnen…</value>
+  </data>
+  <data name="Orange" xml:space="preserve">
+    <value>Orange</value>
+  </data>
+  <data name="Password for “{0}”" xml:space="preserve">
+    <value>Passwort für „{0}“</value>
+  </data>
+  <data name="Pink" xml:space="preserve">
+    <value>Pink</value>
+  </data>
+  <data name="Pinned networks stay at the top of the list, and stay listed as “Not available” while out of range. Pin one with the pin button in the popover." xml:space="preserve">
+    <value>Angeheftete Netzwerke stehen oben in der Liste und bleiben als „Nicht verfügbar“ gelistet, wenn sie außer Reichweite sind. Hefte eines mit der Stecknadel im Popover an.</value>
+  </data>
+  <data name="Preset added." xml:space="preserve">
+    <value>Vorlage hinzugefügt.</value>
+  </data>
+  <data name="Presets" xml:space="preserve">
+    <value>Vorlagen</value>
+  </data>
+  <data name="Preview" xml:space="preserve">
+    <value>Vorschau</value>
+  </data>
+  <data name="Purple" xml:space="preserve">
+    <value>Lila</value>
+  </data>
+  <data name="Recent results saved on this PC. Add notes to remember the exact place." xml:space="preserve">
+    <value>Letzte Ergebnisse, auf diesem PC gespeichert. Füge Notizen hinzu, um dir den genauen Ort zu merken.</value>
+  </data>
+  <data name="Recording…" xml:space="preserve">
+    <value>Aufzeichnung läuft…</value>
+  </data>
+  <data name="Reinstall helper…" xml:space="preserve">
+    <value>Helfer neu installieren…</value>
+  </data>
+  <data name="Reinstall…" xml:space="preserve">
+    <value>Neu installieren…</value>
+  </data>
+  <data name="Release Notes" xml:space="preserve">
+    <value>Versionshinweise</value>
+  </data>
+  <data name="Release Page" xml:space="preserve">
+    <value>Release-Seite</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="Rename. Clear the field to restore the Windows name." xml:space="preserve">
+    <value>Umbenennen. Leere das Feld, um den Windows-Namen wiederherzustellen.</value>
+  </data>
+  <data name="Required to list nearby Wi-Fi networks. Windows uses the same gate for its own Wi-Fi menu." xml:space="preserve">
+    <value>Erforderlich, um WLANs in der Nähe aufzulisten. Windows verwendet dieselbe Sperre für sein eigenes WLAN-Menü.</value>
+  </data>
+  <data name="Reset Statistics" xml:space="preserve">
+    <value>Statistiken zurücksetzen</value>
+  </data>
+  <data name="Reset Statistics…" xml:space="preserve">
+    <value>Statistiken zurücksetzen…</value>
+  </data>
+  <data name="Reset order" xml:space="preserve">
+    <value>Reihenfolge zurücksetzen</value>
+  </data>
+  <data name="Router traffic in {0}" xml:space="preserve">
+    <value>Routerverkehr in {0}</value>
+  </data>
+  <data name="Rx Rate" xml:space="preserve">
+    <value>Empfangsrate</value>
+  </data>
+  <data name="Saved in Windows Credential Manager for {0}." xml:space="preserve">
+    <value>In der Windows-Anmeldeinformationsverwaltung für {0} gespeichert.</value>
+  </data>
+  <data name="Saved network" xml:space="preserve">
+    <value>Gespeichertes Netzwerk</value>
+  </data>
+  <data name="Server {0}" xml:space="preserve">
+    <value>Server {0}</value>
+  </data>
+  <data name="Server (host or IP)" xml:space="preserve">
+    <value>Server (Host oder IP)</value>
+  </data>
+  <data name="Sets the popover, the widget and the rate colours. A colour below set to anything but Automatic keeps that colour." xml:space="preserve">
+    <value>Legt Popover, Widget und die Farben der Raten fest. Eine Farbe unten, die nicht auf Automatisch steht, behält ihren Wert.</value>
+  </data>
+  <data name="Settings are stored in {0}" xml:space="preserve">
+    <value>Einstellungen werden in {0} gespeichert</value>
+  </data>
+  <data name="Show again" xml:space="preserve">
+    <value>Wieder anzeigen</value>
+  </data>
+  <data name="Show direction arrows" xml:space="preserve">
+    <value>Richtungspfeile anzeigen</value>
+  </data>
+  <data name="Show in the popover" xml:space="preserve">
+    <value>Im Popover anzeigen</value>
+  </data>
+  <data name="Showing in the notification area instead" xml:space="preserve">
+    <value>Wird stattdessen im Infobereich angezeigt</value>
+  </data>
+  <data name="Shown to the right of the rates on the taskbar meter and the widget. Detects VPNs started by any app, not only NetFluss." xml:space="preserve">
+    <value>Wird rechts neben den Raten in der Taskleistenanzeige und im Widget angezeigt. Erkennt VPNs aller Apps, nicht nur von NetFluss.</value>
+  </data>
+  <data name="Shows an adapter only while it carries traffic, and for a few seconds after — useful for a VPN that comes and goes." xml:space="preserve">
+    <value>Zeigt einen Adapter nur, solange er Datenverkehr hat, und noch einige Sekunden danach — praktisch für ein VPN, das kommt und geht.</value>
+  </data>
+  <data name="Shows the country your public IP is in, looked up via ipify.org and ipwho.is. Windows has no flag glyphs, so it appears as the country code." xml:space="preserve">
+    <value>Zeigt das Land deiner öffentlichen IP, ermittelt über ipify.org und ipwho.is. Windows hat keine Flaggensymbole, daher erscheint es als Ländercode.</value>
+  </data>
+  <data name="Signal" xml:space="preserve">
+    <value>Signal</value>
+  </data>
+  <data name="Small" xml:space="preserve">
+    <value>Klein</value>
+  </data>
+  <data name="Start with Windows" xml:space="preserve">
+    <value>Mit Windows starten</value>
+  </data>
+  <data name="Starts the adapter history over from now." xml:space="preserve">
+    <value>Beginnt den Adapterverlauf ab jetzt neu.</value>
+  </data>
+  <data name="Statistics were reset." xml:space="preserve">
+    <value>Statistiken wurden zurückgesetzt.</value>
+  </data>
+  <data name="Switch a preset off to keep it out of the popover. A green check marks the one in use." xml:space="preserve">
+    <value>Schalte eine Vorlage aus, um sie aus dem Popover herauszuhalten. Ein grünes Häkchen markiert die verwendete.</value>
+  </data>
+  <data name="System Default follows the language selected in Windows." xml:space="preserve">
+    <value>Systemstandard folgt der in Windows gewählten Sprache.</value>
+  </data>
+  <data name="System VPN · {0}" xml:space="preserve">
+    <value>System-VPN · {0}</value>
+  </data>
+  <data name="Taskbar and widget layout" xml:space="preserve">
+    <value>Layout von Taskleiste und Widget</value>
+  </data>
+  <data name="Teal" xml:space="preserve">
+    <value>Blaugrün</value>
+  </data>
+  <data name="Text size" xml:space="preserve">
+    <value>Textgröße</value>
+  </data>
+  <data name="That adapter&apos;s name cannot be used from a script." xml:space="preserve">
+    <value>Der Name dieses Adapters kann nicht in einem Skript verwendet werden.</value>
+  </data>
+  <data name="That network name cannot be used." xml:space="preserve">
+    <value>Dieser Netzwerkname kann nicht verwendet werden.</value>
+  </data>
+  <data name="The NetFluss helper is installed — OpenVPN and WireGuard connections can start." xml:space="preserve">
+    <value>Der NetFluss-Helfer ist installiert — OpenVPN- und WireGuard-Verbindungen können starten.</value>
+  </data>
+  <data name="The NetFluss helper is installed, so DNS changes apply without asking." xml:space="preserve">
+    <value>Der NetFluss-Helfer ist installiert, daher werden DNS-Änderungen ohne Rückfrage angewendet.</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it to see which apps are using the network." xml:space="preserve">
+    <value>Der NetFluss-Helfer ist veraltet. Aktualisiere ihn, um zu sehen, welche Apps das Netzwerk nutzen.</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it to see who this PC is talking to." xml:space="preserve">
+    <value>Der NetFluss-Helfer ist veraltet. Aktualisiere ihn, um zu sehen, mit wem dieser PC kommuniziert.</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it under Preferences → General → System access, then connect again." xml:space="preserve">
+    <value>Der NetFluss-Helfer ist veraltet. Aktualisiere ihn unter Einstellungen → Allgemein → Systemzugriff und verbinde dich dann erneut.</value>
+  </data>
+  <data name="The NetFluss helper is running, but Windows refused it access to network activity. Reinstalling the helper usually fixes this." xml:space="preserve">
+    <value>Der NetFluss-Helfer läuft, aber Windows verweigert ihm den Zugriff auf die Netzwerkaktivität. Eine Neuinstallation des Helfers behebt das meist.</value>
+  </data>
+  <data name="The clipboard is busy. Try again in a moment." xml:space="preserve">
+    <value>Die Zwischenablage ist belegt. Versuche es gleich noch einmal.</value>
+  </data>
+  <data name="The helper could not be installed (error {0})." xml:space="preserve">
+    <value>Der Helfer konnte nicht installiert werden (Fehler {0}).</value>
+  </data>
+  <data name="The helper could not change DNS." xml:space="preserve">
+    <value>Der Helfer konnte DNS nicht ändern.</value>
+  </data>
+  <data name="The helper is missing from this copy of NetFluss." xml:space="preserve">
+    <value>In dieser NetFluss-Kopie fehlt der Helfer.</value>
+  </data>
+  <data name="The icon stays as a plain glyph so the rates are not shown twice. Hiding it leaves right-clicking the taskbar meter as the only way to reach Preferences or quit." xml:space="preserve">
+    <value>Das Symbol bleibt ein einfaches Zeichen, damit die Raten nicht doppelt erscheinen. Ist es ausgeblendet, erreichst du Einstellungen und Beenden nur noch per Rechtsklick auf die Taskleistenanzeige.</value>
+  </data>
+  <data name="The installed NetFluss helper predates the VPN client. Update it under General → System access to connect OpenVPN and WireGuard profiles." xml:space="preserve">
+    <value>Der installierte NetFluss-Helfer ist älter als der VPN-Client. Aktualisiere ihn unter Allgemein → Systemzugriff, um OpenVPN- und WireGuard-Profile zu verbinden.</value>
+  </data>
+  <data name="The speed test engine could not start: {0}" xml:space="preserve">
+    <value>Der Geschwindigkeitstest konnte nicht gestartet werden: {0}</value>
+  </data>
+  <data name="The speed test needs Microsoft Edge WebView2, which is not installed. Everything else in NetFluss works without it." xml:space="preserve">
+    <value>Der Geschwindigkeitstest benötigt Microsoft Edge WebView2, das nicht installiert ist. Alles andere in NetFluss funktioniert ohne.</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Design</value>
+  </data>
+  <data name="This deletes all recorded adapter history. Windows&apos; own app records are not affected." xml:space="preserve">
+    <value>Dies löscht den gesamten aufgezeichneten Adapterverlauf. Die App-Aufzeichnungen von Windows bleiben unberührt.</value>
+  </data>
+  <data name="Top download and upload apps come from Windows&apos; own data usage records — the numbers behind Settings → Network &amp; internet → Data usage. It costs nothing to keep on, goes back to before NetFluss was installed, and is updated by Windows about once an hour." xml:space="preserve">
+    <value>Die Top-Download- und -Upload-Apps stammen aus der Datennutzungserfassung von Windows — den Zahlen hinter Einstellungen → Netzwerk und Internet → Datennutzung. Das kostet nichts, reicht bis vor die Installation von NetFluss zurück und wird von Windows etwa stündlich aktualisiert.</value>
+  </data>
+  <data name="Totals" xml:space="preserve">
+    <value>Summen</value>
+  </data>
+  <data name="Turn on statistics" xml:space="preserve">
+    <value>Statistiken einschalten</value>
+  </data>
+  <data name="Turns on statistics collection." xml:space="preserve">
+    <value>Schaltet die Statistikerfassung ein.</value>
+  </data>
+  <data name="Two lines" xml:space="preserve">
+    <value>Zwei Zeilen</value>
+  </data>
+  <data name="Up to four IPv4 or IPv6 servers. A preset with only IPv4 also puts IPv6 back on automatic, so a leftover IPv6 resolver cannot keep answering." xml:space="preserve">
+    <value>Bis zu vier IPv4- oder IPv6-Server. Eine Vorlage nur mit IPv4 stellt IPv6 wieder auf automatisch, damit kein übrig gebliebener IPv6-Resolver weiter antwortet.</value>
+  </data>
+  <data name="Update helper…" xml:space="preserve">
+    <value>Helfer aktualisieren…</value>
+  </data>
+  <data name="Upload only" xml:space="preserve">
+    <value>Nur Upload</value>
+  </data>
+  <data name="Used when the meter style is set to Icon only. Drawn to fit whatever size your display asks for." xml:space="preserve">
+    <value>Wird verwendet, wenn der Anzeigestil „Nur Symbol“ ist. Wird in der Größe gezeichnet, die deine Anzeige verlangt.</value>
+  </data>
+  <data name="Uses the credentials saved in Windows" xml:space="preserve">
+    <value>Verwendet die in Windows gespeicherten Zugangsdaten</value>
+  </data>
+  <data name="VPN connected" xml:space="preserve">
+    <value>VPN verbunden</value>
+  </data>
+  <data name="Waiting for the NetFluss helper." xml:space="preserve">
+    <value>Warte auf den NetFluss-Helfer.</value>
+  </data>
+  <data name="When enabled, VPN and tunnel adapters (WireGuard, OpenVPN, built-in VPN connections) are excluded from totals. Loopback and the Windows filter interfaces are always excluded, since they only mirror other adapters. All adapters remain visible in the adapter list." xml:space="preserve">
+    <value>Wenn aktiviert, werden VPN- und Tunneladapter (WireGuard, OpenVPN, integrierte VPN-Verbindungen) aus den Summen ausgeschlossen. Loopback und die Windows-Filterschnittstellen sind immer ausgeschlossen, da sie nur andere Adapter spiegeln. Alle Adapter bleiben in der Adapterliste sichtbar.</value>
+  </data>
+  <data name="When enabled, the Download/Upload summary and the meter use only adapters that are visible here." xml:space="preserve">
+    <value>Wenn aktiviert, verwenden die Download/Upload-Übersicht und die Anzeige nur die hier sichtbaren Adapter.</value>
+  </data>
+  <data name="Where to show it" xml:space="preserve">
+    <value>Wo sie erscheint</value>
+  </data>
+  <data name="Which adapter the switcher changes. Automatic follows the one carrying the internet connection." xml:space="preserve">
+    <value>Welchen Adapter der Umschalter ändert. „Automatisch“ folgt dem Adapter mit der Internetverbindung.</value>
+  </data>
+  <data name="Which adapters to show" xml:space="preserve">
+    <value>Welche Adapter angezeigt werden</value>
+  </data>
+  <data name="Which public address to show. Looked up via ipify.org." xml:space="preserve">
+    <value>Welche öffentliche Adresse angezeigt wird. Ermittelt über ipify.org.</value>
+  </data>
+  <data name="White" xml:space="preserve">
+    <value>Weiß</value>
+  </data>
+  <data name="Who your PC is talking to right now." xml:space="preserve">
+    <value>Mit wem dein PC gerade kommuniziert.</value>
+  </data>
+  <data name="Wi-Fi passwords are 8 to 63 characters long." xml:space="preserve">
+    <value>WLAN-Passwörter sind 8 bis 63 Zeichen lang.</value>
+  </data>
+  <data name="Windows only lets administrators watch connections by app and host. The optional NetFluss helper does it for you; installing it asks for approval once." xml:space="preserve">
+    <value>Windows erlaubt nur Administratoren, Verbindungen nach App und Host zu beobachten. Der optionale NetFluss-Helfer übernimmt das für dich; die Installation fragt einmalig nach einer Bestätigung.</value>
+  </data>
+  <data name="Windows only lets administrators watch per-app network traffic, so Top Apps uses the optional helper service. Install it under General → System access." xml:space="preserve">
+    <value>Windows erlaubt nur Administratoren, den Netzwerkverkehr pro App zu beobachten, daher nutzt Top-Apps den optionalen Helferdienst. Installiere ihn unter Allgemein → Systemzugriff.</value>
+  </data>
+  <data name="Windows only lets administrators watch per-app network traffic. The optional NetFluss helper does it for you; installing it asks for approval once." xml:space="preserve">
+    <value>Windows erlaubt nur Administratoren, den Netzwerkverkehr pro App zu beobachten. Der optionale NetFluss-Helfer übernimmt das für dich; die Installation fragt einmalig nach einer Bestätigung.</value>
+  </data>
+  <data name="Windows refused the network settings (error {0})." xml:space="preserve">
+    <value>Windows hat die Netzwerkeinstellungen abgelehnt (Fehler {0}).</value>
+  </data>
+  <data name="WireGuard is not installed. Install WireGuard for Windows from wireguard.com, then connect again." xml:space="preserve">
+    <value>WireGuard ist nicht installiert. Installiere WireGuard für Windows von wireguard.com und verbinde dich dann erneut.</value>
+  </data>
+  <data name="Write &apos;{0}&apos; as &apos;{1}&apos;." xml:space="preserve">
+    <value>Schreibe „{0}“ als „{1}“.</value>
+  </data>
+  <data name="Yellow" xml:space="preserve">
+    <value>Gelb</value>
+  </data>
+  <data name="Your taskbar is dark. Shown at each display scaling." xml:space="preserve">
+    <value>Deine Taskleiste ist dunkel. Dargestellt in jeder Anzeigeskalierung.</value>
+  </data>
+  <data name="Your taskbar is light, where saturated greens lose contrast against the blues." xml:space="preserve">
+    <value>Deine Taskleiste ist hell, wo satte Grüntöne gegenüber den Blautönen an Kontrast verlieren.</value>
+  </data>
+  <data name="Your taskbar is light. Shown at each display scaling." xml:space="preserve">
+    <value>Deine Taskleiste ist hell. Dargestellt in jeder Anzeigeskalierung.</value>
+  </data>
+  <data name="netsh exited with code {0}." xml:space="preserve">
+    <value>netsh wurde mit Code {0} beendet.</value>
+  </data>
+  <data name="{0} adapters, {1} hidden." xml:space="preserve">
+    <value>{0} Adapter, {1} ausgeblendet.</value>
+  </data>
+  <data name="{0} adapters. Switch one off to keep it out of the popover." xml:space="preserve">
+    <value>{0} Adapter. Schalte einen aus, um ihn aus dem Popover herauszuhalten.</value>
+  </data>
+  <data name="{0} is back on automatic DNS." xml:space="preserve">
+    <value>{0} verwendet wieder automatisches DNS.</value>
+  </data>
+  <data name="{0} is installed." xml:space="preserve">
+    <value>{0} ist installiert.</value>
+  </data>
+  <data name="{0} is not installed; it is needed for those profiles." xml:space="preserve">
+    <value>{0} ist nicht installiert; es wird für diese Profile benötigt.</value>
+  </data>
+  <data name="{0} is on automatic DNS." xml:space="preserve">
+    <value>{0} verwendet automatisches DNS.</value>
+  </data>
+  <data name="{0} now uses {1}." xml:space="preserve">
+    <value>{0} verwendet jetzt {1}.</value>
+  </data>
+  <data name="{0} seconds left. Start a large download now." xml:space="preserve">
+    <value>Noch {0} Sekunden. Starte jetzt einen großen Download.</value>
+  </data>
+  <data name="{0} snapshots were captured. Paste them into a GitHub issue so the developer can see what each adapter reported." xml:space="preserve">
+    <value>{0} Momentaufnahmen wurden erfasst. Füge sie in ein GitHub-Issue ein, damit der Entwickler sieht, was jeder Adapter gemeldet hat.</value>
+  </data>
+  <data name="{0} uses {1}." xml:space="preserve">
+    <value>{0} verwendet {1}.</value>
+  </data>
+  <data name="{0} · {1} server(s)" xml:space="preserve">
+    <value>{0} · {1} Server</value>
+  </data>
+  <data name="Taskbar" xml:space="preserve">
+    <value>Taskleiste</value>
+  </data>
 </root>

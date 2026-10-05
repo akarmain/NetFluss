@@ -39,7 +39,7 @@ public sealed class SettingsStore
     {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.Never,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new LenientEnumConverterFactory() },
     };
 
     private readonly string _path;
@@ -121,9 +121,27 @@ public sealed class SettingsStore
             return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(_path), SerializerOptions)
                    ?? new AppSettings();
         }
-        catch (Exception e) when (e is JsonException or IOException or UnauthorizedAccessException)
+        catch (JsonException)
+        {
+            // Keep the unreadable file before anything can save defaults over it: the next
+            // preference change would otherwise destroy every setting the user had.
+            Preserve();
+            return new AppSettings();
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             return new AppSettings();
+        }
+    }
+
+    private void Preserve()
+    {
+        try
+        {
+            File.Copy(_path, $"{_path}.unreadable-{DateTime.Now:yyyyMMdd-HHmmss}.json", overwrite: true);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
         }
     }
 

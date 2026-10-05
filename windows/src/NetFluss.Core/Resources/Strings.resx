@@ -1741,4 +1741,682 @@ No network traffic is sent — only local counters from your machine are recorde
   <data name="Auto-selected nearby edge" xml:space="preserve">
     <value>Auto-selected nearby edge</value>
   </data>
+  <data name="&apos;{0}&apos; already exists." xml:space="preserve">
+    <value>'{0}' already exists.</value>
+  </data>
+  <data name="&apos;{0}&apos; is listed twice." xml:space="preserve">
+    <value>'{0}' is listed twice.</value>
+  </data>
+  <data name="&apos;{0}&apos; is not IPv4 or IPv6." xml:space="preserve">
+    <value>'{0}' is not IPv4 or IPv6.</value>
+  </data>
+  <data name="&apos;{0}&apos; is not an IP address." xml:space="preserve">
+    <value>'{0}' is not an IP address.</value>
+  </data>
+  <data name="A 16–32 px icon, depending on your display scaling. Cramped, and it never breaks." xml:space="preserve">
+    <value>A 16–32 px icon, depending on your display scaling. Cramped, and it never breaks.</value>
+  </data>
+  <data name="A WEP key is 5 or 13 characters, or 10 or 26 hex digits." xml:space="preserve">
+    <value>A WEP key is 5 or 13 characters, or 10 or 26 hex digits.</value>
+  </data>
+  <data name="A single line gets the full icon height, which is sharper at 100% scaling." xml:space="preserve">
+    <value>A single line gets the full icon height, which is sharper at 100{0}caling.</value>
+  </data>
+  <data name="Adapter" xml:space="preserve">
+    <value>Adapter</value>
+  </data>
+  <data name="Adapter statistics are collected continuously while NetFluss runs. App statistics come from Windows&apos; own data usage records." xml:space="preserve">
+    <value>Adapter statistics are collected continuously while NetFluss runs. App statistics come from Windows' own data usage records.</value>
+  </data>
+  <data name="Added “{0}”." xml:space="preserve">
+    <value>Added “{0}”.</value>
+  </data>
+  <data name="Adds NetFluss to your sign-in apps, where Task Manager can also turn it off." xml:space="preserve">
+    <value>Adds NetFluss to your sign-in apps, where Task Manager can also turn it off.</value>
+  </data>
+  <data name="Adds a VPN connection set up in Windows Settings, so NetFluss can connect it from the popover." xml:space="preserve">
+    <value>Adds a VPN connection set up in Windows Settings, so NetFluss can connect it from the popover.</value>
+  </data>
+  <data name="Add…" xml:space="preserve">
+    <value>Add…</value>
+  </data>
+  <data name="An always-on-top panel you can drag anywhere. Works alongside the other placements, and depends on nothing that a Windows update can move." xml:space="preserve">
+    <value>An always-on-top panel you can drag anywhere. Works alongside the other placements, and depends on nothing that a Windows update can move.</value>
+  </data>
+  <data name="An app stays listed for a few seconds after it goes quiet, so the list does not reshuffle between bursts." xml:space="preserve">
+    <value>An app stays listed for a few seconds after it goes quiet, so the list does not reshuffle between bursts.</value>
+  </data>
+  <data name="An optional background service that shows which apps use the network (Top Apps, Network Slice) and changes DNS without asking each time. Installing it needs administrator approval once." xml:space="preserve">
+    <value>An optional background service that shows which apps use the network (Top Apps, Network Slice) and changes DNS without asking each time. Installing it needs administrator approval once.</value>
+  </data>
+  <data name="Appears when a router is configured." xml:space="preserve">
+    <value>Appears when a router is configured.</value>
+  </data>
+  <data name="Applies to the taskbar meter and the floating widget." xml:space="preserve">
+    <value>Applies to the taskbar meter and the floating widget.</value>
+  </data>
+  <data name="Applying {0}…" xml:space="preserve">
+    <value>Applying {0}…</value>
+  </data>
+  <data name="Applying {0}… confirm the administrator prompt." xml:space="preserve">
+    <value>Applying {0}… confirm the administrator prompt.</value>
+  </data>
+  <data name="At most {0} servers." xml:space="preserve">
+    <value>At most {0} servers.</value>
+  </data>
+  <data name="Automatic" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="Beside the clock, with room for full units. Windows offers no supported way to do this, so it is best effort — NetFluss falls back to the notification area if the taskbar moves out from under it." xml:space="preserve">
+    <value>Beside the clock, with room for full units. Windows offers no supported way to do this, so it is best effort — NetFluss falls back to the notification area if the taskbar moves out from under it.</value>
+  </data>
+  <data name="Black" xml:space="preserve">
+    <value>Black</value>
+  </data>
+  <data name="Blank server address." xml:space="preserve">
+    <value>Blank server address.</value>
+  </data>
+  <data name="Blue" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="Buy me a coffee" xml:space="preserve">
+    <value>Buy me a coffee</value>
+  </data>
+  <data name="Bytes per second, or bits as ISPs quote them." xml:space="preserve">
+    <value>Bytes per second, or bits as ISPs quote them.</value>
+  </data>
+  <data name="Cancelled." xml:space="preserve">
+    <value>Cancelled.</value>
+  </data>
+  <data name="Cancelled. DNS was not changed." xml:space="preserve">
+    <value>Cancelled. DNS was not changed.</value>
+  </data>
+  <data name="Changing DNS needs administrator rights: each change asks for approval, unless the optional NetFluss helper is installed (General → System access)." xml:space="preserve">
+    <value>Changing DNS needs administrator rights: each change asks for approval, unless the optional NetFluss helper is installed (General → System access).</value>
+  </data>
+  <data name="Click to copy {0}" xml:space="preserve">
+    <value>Click to copy {0}</value>
+  </data>
+  <data name="Colours" xml:space="preserve">
+    <value>Colours</value>
+  </data>
+  <data name="Combined total" xml:space="preserve">
+    <value>Combined total</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Costs width the digits need below 24 px. The row colour already shows direction." xml:space="preserve">
+    <value>Costs width the digits need below 24 px. The row colour already shows direction.</value>
+  </data>
+  <data name="Could not add that preset." xml:space="preserve">
+    <value>Could not add that preset.</value>
+  </data>
+  <data name="Could not check for updates: {0}" xml:space="preserve">
+    <value>Could not check for updates: {0}</value>
+  </data>
+  <data name="Could not join “{0}”." xml:space="preserve">
+    <value>Could not join “{0}”.</value>
+  </data>
+  <data name="Could not reach the OpenVPN management interface." xml:space="preserve">
+    <value>Could not reach the OpenVPN management interface.</value>
+  </data>
+  <data name="Could not start the elevated helper." xml:space="preserve">
+    <value>Could not start the elevated helper.</value>
+  </data>
+  <data name="Creates an IKEv2 connection in Windows (username and password, EAP-MSCHAPv2) that NetFluss connects directly. The password is stored in Windows Credential Manager. If the server uses a private CA, import its certificate into the Trusted Root store first." xml:space="preserve">
+    <value>Creates an IKEv2 connection in Windows (username and password, EAP-MSCHAPv2) that NetFluss connects directly. The password is stored in Windows Credential Manager. If the server uses a private CA, import its certificate into the Trusted Root store first.</value>
+  </data>
+  <data name="Creating the Windows VPN connection…" xml:space="preserve">
+    <value>Creating the Windows VPN connection…</value>
+  </data>
+  <data name="Credentials required" xml:space="preserve">
+    <value>Credentials required</value>
+  </data>
+  <data name="Credentials stored" xml:space="preserve">
+    <value>Credentials stored</value>
+  </data>
+  <data name="DNS preset" xml:space="preserve">
+    <value>DNS preset</value>
+  </data>
+  <data name="Darkens or brightens the rate colours so both rows read equally on your taskbar." xml:space="preserve">
+    <value>Darkens or brightens the rate colours so both rows read equally on your taskbar.</value>
+  </data>
+  <data name="Dashboard Basic" xml:space="preserve">
+    <value>Dashboard Basic</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="Delete history" xml:space="preserve">
+    <value>Delete history</value>
+  </data>
+  <data name="Denied — open Settings to allow NetFluss under “Let desktop apps access your location”." xml:space="preserve">
+    <value>Denied — open Settings to allow NetFluss under “Let desktop apps access your location”.</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Disconnected</value>
+  </data>
+  <data name="Dismiss" xml:space="preserve">
+    <value>Dismiss</value>
+  </data>
+  <data name="Download and upload" xml:space="preserve">
+    <value>Download and upload</value>
+  </data>
+  <data name="Download and upload history by adapter and by app, from the last hour to the last year." xml:space="preserve">
+    <value>Download and upload history by adapter and by app, from the last hour to the last year.</value>
+  </data>
+  <data name="Download only" xml:space="preserve">
+    <value>Download only</value>
+  </data>
+  <data name="Download…" xml:space="preserve">
+    <value>Download…</value>
+  </data>
+  <data name="Drag to reorder" xml:space="preserve">
+    <value>Drag to reorder</value>
+  </data>
+  <data name="Drag to reorder sections in the popover. Toggling a row mirrors the corresponding setting on the DNS, Wi-Fi, Top Apps and Statistics pages." xml:space="preserve">
+    <value>Drag to reorder sections in the popover. Toggling a row mirrors the corresponding setting on the DNS, Wi-Fi, Top Apps and Statistics pages.</value>
+  </data>
+  <data name="Enterprise networks need to be joined from Windows Settings." xml:space="preserve">
+    <value>Enterprise networks need to be joined from Windows Settings.</value>
+  </data>
+  <data name="Ethernet" xml:space="preserve">
+    <value>Ethernet</value>
+  </data>
+  <data name="Fill in both fields." xml:space="preserve">
+    <value>Fill in both fields.</value>
+  </data>
+  <data name="Fill in the name, server and username." xml:space="preserve">
+    <value>Fill in the name, server and username.</value>
+  </data>
+  <data name="Floating widget" xml:space="preserve">
+    <value>Floating widget</value>
+  </data>
+  <data name="Flow draws the path from this PC through the router (and a VPN) to the internet; list shows each address with a copy button." xml:space="preserve">
+    <value>Flow draws the path from this PC through the router (and a VPN) to the internet; list shows each address with a copy button.</value>
+  </data>
+  <data name="Give the preset a name." xml:space="preserve">
+    <value>Give the preset a name.</value>
+  </data>
+  <data name="Give the preset at least one server." xml:space="preserve">
+    <value>Give the preset at least one server.</value>
+  </data>
+  <data name="Green" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="Hidden apps stay out of Top Apps and the statistics lists. Pick one that used the network in the last minute, or type its name." xml:space="preserve">
+    <value>Hidden apps stay out of Top Apps and the statistics lists. Pick one that used the network in the last minute, or type its name.</value>
+  </data>
+  <data name="Hide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="Hide from Top Apps" xml:space="preserve">
+    <value>Hide from Top Apps</value>
+  </data>
+  <data name="Hide the notification area icon" xml:space="preserve">
+    <value>Hide the notification area icon</value>
+  </data>
+  <data name="Icon only" xml:space="preserve">
+    <value>Icon only</value>
+  </data>
+  <data name="If a VPN connection fails, copy this log and send it — it records the installed tools, Windows&apos; VPN connections, and the connection tool&apos;s full output." xml:space="preserve">
+    <value>If a VPN connection fails, copy this log and send it — it records the installed tools, Windows' VPN connections, and the connection tool's full output.</value>
+  </data>
+  <data name="Import a folder of profiles…" xml:space="preserve">
+    <value>Import a folder of profiles…</value>
+  </data>
+  <data name="Install helper…" xml:space="preserve">
+    <value>Install helper…</value>
+  </data>
+  <data name="Installed and running, version {0}." xml:space="preserve">
+    <value>Installed and running, version {0}.</value>
+  </data>
+  <data name="Installed, version {0} — an update adds the VPN client&apos;s OpenVPN and WireGuard support." xml:space="preserve">
+    <value>Installed, version {0} — an update adds the VPN client's OpenVPN and WireGuard support.</value>
+  </data>
+  <data name="Installed, version {0} — out of date." xml:space="preserve">
+    <value>Installed, version {0} — out of date.</value>
+  </data>
+  <data name="Interfaces that are neither Wi-Fi nor Ethernet: VPN tunnels, Hyper-V and WSL switches, Bluetooth networking." xml:space="preserve">
+    <value>Interfaces that are neither Wi-Fi nor Ethernet: VPN tunnels, Hyper-V and WSL switches, Bluetooth networking.</value>
+  </data>
+  <data name="Invalid servers." xml:space="preserve">
+    <value>Invalid servers.</value>
+  </data>
+  <data name="Keep colours readable" xml:space="preserve">
+    <value>Keep colours readable</value>
+  </data>
+  <data name="Keeps minute, hourly and daily totals per adapter on this PC, for the Statistics window and the Data Usage section. Off by default; collecting costs one subtraction per adapter per tick." xml:space="preserve">
+    <value>Keeps minute, hourly and daily totals per adapter on this PC, for the Statistics window and the Data Usage section. Off by default; collecting costs one subtraction per adapter per tick.</value>
+  </data>
+  <data name="Keeps the indicator visible, dimmed, while no VPN is connected." xml:space="preserve">
+    <value>Keeps the indicator visible, dimmed, while no VPN is connected.</value>
+  </data>
+  <data name="Large" xml:space="preserve">
+    <value>Large</value>
+  </data>
+  <data name="Largest" xml:space="preserve">
+    <value>Largest</value>
+  </data>
+  <data name="Lists nearby Wi-Fi networks. Click a row to join — saved networks reconnect immediately, new secured networks ask for the password, and Windows remembers it for its own Wi-Fi menu too." xml:space="preserve">
+    <value>Lists nearby Wi-Fi networks. Click a row to join — saved networks reconnect immediately, new secured networks ask for the password, and Windows remembers it for its own Wi-Fi menu too.</value>
+  </data>
+  <data name="Location access" xml:space="preserve">
+    <value>Location access</value>
+  </data>
+  <data name="Location access is required to list nearby Wi-Fi networks. Windows uses the same restriction in Settings → Privacy &amp; security → Location." xml:space="preserve">
+    <value>Location access is required to list nearby Wi-Fi networks. Windows uses the same restriction in Settings → Privacy &amp; security → Location.</value>
+  </data>
+  <data name="Longer intervals use less battery on an idle machine." xml:space="preserve">
+    <value>Longer intervals use less battery on an idle machine.</value>
+  </data>
+  <data name="Meter location" xml:space="preserve">
+    <value>Meter location</value>
+  </data>
+  <data name="Meter style" xml:space="preserve">
+    <value>Meter style</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="Most machines carry a dozen idle virtual and tunnel interfaces, so this is off by default." xml:space="preserve">
+    <value>Most machines carry a dozen idle virtual and tunnel interfaces, so this is off by default.</value>
+  </data>
+  <data name="Needs the NetFluss helper" xml:space="preserve">
+    <value>Needs the NetFluss helper</value>
+  </data>
+  <data name="NetFluss Preferences" xml:space="preserve">
+    <value>NetFluss Preferences</value>
+  </data>
+  <data name="NetFluss could not find room on the taskbar, so the meter fell back to the notification area. It will move back on its own if the taskbar becomes available." xml:space="preserve">
+    <value>NetFluss could not find room on the taskbar, so the meter fell back to the notification area. It will move back on its own if the taskbar becomes available.</value>
+  </data>
+  <data name="NetFluss helper" xml:space="preserve">
+    <value>NetFluss helper</value>
+  </data>
+  <data name="No VPN connected" xml:space="preserve">
+    <value>No VPN connected</value>
+  </data>
+  <data name="No Windows VPN connections found. Set one up in Windows Settings → Network &amp; internet → VPN, or add an IKEv2 VPN here." xml:space="preserve">
+    <value>No Windows VPN connections found. Set one up in Windows Settings → Network &amp; internet → VPN, or add an IKEv2 VPN here.</value>
+  </data>
+  <data name="No adapter named &apos;{0}&apos;." xml:space="preserve">
+    <value>No adapter named '{0}'.</value>
+  </data>
+  <data name="No adapter with an internet connection was found." xml:space="preserve">
+    <value>No adapter with an internet connection was found.</value>
+  </data>
+  <data name="No adapters reported yet." xml:space="preserve">
+    <value>No adapters reported yet.</value>
+  </data>
+  <data name="No apps are hidden." xml:space="preserve">
+    <value>No apps are hidden.</value>
+  </data>
+  <data name="No networks are pinned." xml:space="preserve">
+    <value>No networks are pinned.</value>
+  </data>
+  <data name="Not installed. DNS changes and Ethernet resets ask for administrator approval each time, and Top Apps is unavailable." xml:space="preserve">
+    <value>Not installed. DNS changes and Ethernet resets ask for administrator approval each time, and Top Apps is unavailable.</value>
+  </data>
+  <data name="Notification area" xml:space="preserve">
+    <value>Notification area</value>
+  </data>
+  <data name="On the taskbar" xml:space="preserve">
+    <value>On the taskbar</value>
+  </data>
+  <data name="Once a day, NetFluss looks for a new Windows release on GitHub and tells you once when one is available. You can also check any time in About." xml:space="preserve">
+    <value>Once a day, NetFluss looks for a new Windows release on GitHub and tells you once when one is available. You can also check any time in About.</value>
+  </data>
+  <data name="One line" xml:space="preserve">
+    <value>One line</value>
+  </data>
+  <data name="One line has room for full units; stacked matches the notification area." xml:space="preserve">
+    <value>One line has room for full units; stacked matches the notification area.</value>
+  </data>
+  <data name="Only available when the meter is on the taskbar — otherwise this is where the meter lives." xml:space="preserve">
+    <value>Only available when the meter is on the taskbar — otherwise this is where the meter lives.</value>
+  </data>
+  <data name="Open VPN log folder" xml:space="preserve">
+    <value>Open VPN log folder</value>
+  </data>
+  <data name="OpenVPN and WireGuard connections run through the NetFluss helper (General → System access)." xml:space="preserve">
+    <value>OpenVPN and WireGuard connections run through the NetFluss helper (General → System access).</value>
+  </data>
+  <data name="OpenVPN and WireGuard connections run through the NetFluss helper. Install it under Preferences → General → System access, then connect again." xml:space="preserve">
+    <value>OpenVPN and WireGuard connections run through the NetFluss helper. Install it under Preferences → General → System access, then connect again.</value>
+  </data>
+  <data name="OpenVPN is not installed. Install OpenVPN Community from openvpn.net, then connect again." xml:space="preserve">
+    <value>OpenVPN is not installed. Install OpenVPN Community from openvpn.net, then connect again.</value>
+  </data>
+  <data name="Open…" xml:space="preserve">
+    <value>Open…</value>
+  </data>
+  <data name="Orange" xml:space="preserve">
+    <value>Orange</value>
+  </data>
+  <data name="Password for “{0}”" xml:space="preserve">
+    <value>Password for “{0}”</value>
+  </data>
+  <data name="Pink" xml:space="preserve">
+    <value>Pink</value>
+  </data>
+  <data name="Pinned networks stay at the top of the list, and stay listed as “Not available” while out of range. Pin one with the pin button in the popover." xml:space="preserve">
+    <value>Pinned networks stay at the top of the list, and stay listed as “Not available” while out of range. Pin one with the pin button in the popover.</value>
+  </data>
+  <data name="Preset added." xml:space="preserve">
+    <value>Preset added.</value>
+  </data>
+  <data name="Presets" xml:space="preserve">
+    <value>Presets</value>
+  </data>
+  <data name="Preview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="Purple" xml:space="preserve">
+    <value>Purple</value>
+  </data>
+  <data name="Recent results saved on this PC. Add notes to remember the exact place." xml:space="preserve">
+    <value>Recent results saved on this PC. Add notes to remember the exact place.</value>
+  </data>
+  <data name="Recording…" xml:space="preserve">
+    <value>Recording…</value>
+  </data>
+  <data name="Reinstall helper…" xml:space="preserve">
+    <value>Reinstall helper…</value>
+  </data>
+  <data name="Reinstall…" xml:space="preserve">
+    <value>Reinstall…</value>
+  </data>
+  <data name="Release Notes" xml:space="preserve">
+    <value>Release Notes</value>
+  </data>
+  <data name="Release Page" xml:space="preserve">
+    <value>Release Page</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Rename. Clear the field to restore the Windows name." xml:space="preserve">
+    <value>Rename. Clear the field to restore the Windows name.</value>
+  </data>
+  <data name="Required to list nearby Wi-Fi networks. Windows uses the same gate for its own Wi-Fi menu." xml:space="preserve">
+    <value>Required to list nearby Wi-Fi networks. Windows uses the same gate for its own Wi-Fi menu.</value>
+  </data>
+  <data name="Reset Statistics" xml:space="preserve">
+    <value>Reset Statistics</value>
+  </data>
+  <data name="Reset Statistics…" xml:space="preserve">
+    <value>Reset Statistics…</value>
+  </data>
+  <data name="Reset order" xml:space="preserve">
+    <value>Reset order</value>
+  </data>
+  <data name="Router traffic in {0}" xml:space="preserve">
+    <value>Router traffic in {0}</value>
+  </data>
+  <data name="Rx Rate" xml:space="preserve">
+    <value>Rx Rate</value>
+  </data>
+  <data name="Saved in Windows Credential Manager for {0}." xml:space="preserve">
+    <value>Saved in Windows Credential Manager for {0}.</value>
+  </data>
+  <data name="Saved network" xml:space="preserve">
+    <value>Saved network</value>
+  </data>
+  <data name="Server (host or IP)" xml:space="preserve">
+    <value>Server (host or IP)</value>
+  </data>
+  <data name="Server {0}" xml:space="preserve">
+    <value>Server {0}</value>
+  </data>
+  <data name="Sets the popover, the widget and the rate colours. A colour below set to anything but Automatic keeps that colour." xml:space="preserve">
+    <value>Sets the popover, the widget and the rate colours. A colour below set to anything but Automatic keeps that colour.</value>
+  </data>
+  <data name="Settings are stored in {0}" xml:space="preserve">
+    <value>Settings are stored in {0}</value>
+  </data>
+  <data name="Show again" xml:space="preserve">
+    <value>Show again</value>
+  </data>
+  <data name="Show direction arrows" xml:space="preserve">
+    <value>Show direction arrows</value>
+  </data>
+  <data name="Show in the popover" xml:space="preserve">
+    <value>Show in the popover</value>
+  </data>
+  <data name="Showing in the notification area instead" xml:space="preserve">
+    <value>Showing in the notification area instead</value>
+  </data>
+  <data name="Shown to the right of the rates on the taskbar meter and the widget. Detects VPNs started by any app, not only NetFluss." xml:space="preserve">
+    <value>Shown to the right of the rates on the taskbar meter and the widget. Detects VPNs started by any app, not only NetFluss.</value>
+  </data>
+  <data name="Shows an adapter only while it carries traffic, and for a few seconds after — useful for a VPN that comes and goes." xml:space="preserve">
+    <value>Shows an adapter only while it carries traffic, and for a few seconds after — useful for a VPN that comes and goes.</value>
+  </data>
+  <data name="Shows the country your public IP is in, looked up via ipify.org and ipwho.is. Windows has no flag glyphs, so it appears as the country code." xml:space="preserve">
+    <value>Shows the country your public IP is in, looked up via ipify.org and ipwho.is. Windows has no flag glyphs, so it appears as the country code.</value>
+  </data>
+  <data name="Signal" xml:space="preserve">
+    <value>Signal</value>
+  </data>
+  <data name="Small" xml:space="preserve">
+    <value>Small</value>
+  </data>
+  <data name="Start with Windows" xml:space="preserve">
+    <value>Start with Windows</value>
+  </data>
+  <data name="Starts the adapter history over from now." xml:space="preserve">
+    <value>Starts the adapter history over from now.</value>
+  </data>
+  <data name="Statistics were reset." xml:space="preserve">
+    <value>Statistics were reset.</value>
+  </data>
+  <data name="Switch a preset off to keep it out of the popover. A green check marks the one in use." xml:space="preserve">
+    <value>Switch a preset off to keep it out of the popover. A green check marks the one in use.</value>
+  </data>
+  <data name="System Default follows the language selected in Windows." xml:space="preserve">
+    <value>System Default follows the language selected in Windows.</value>
+  </data>
+  <data name="System VPN · {0}" xml:space="preserve">
+    <value>System VPN · {0}</value>
+  </data>
+  <data name="Taskbar and widget layout" xml:space="preserve">
+    <value>Taskbar and widget layout</value>
+  </data>
+  <data name="Teal" xml:space="preserve">
+    <value>Teal</value>
+  </data>
+  <data name="Text size" xml:space="preserve">
+    <value>Text size</value>
+  </data>
+  <data name="That adapter&apos;s name cannot be used from a script." xml:space="preserve">
+    <value>That adapter's name cannot be used from a script.</value>
+  </data>
+  <data name="That network name cannot be used." xml:space="preserve">
+    <value>That network name cannot be used.</value>
+  </data>
+  <data name="The NetFluss helper is installed — OpenVPN and WireGuard connections can start." xml:space="preserve">
+    <value>The NetFluss helper is installed — OpenVPN and WireGuard connections can start.</value>
+  </data>
+  <data name="The NetFluss helper is installed, so DNS changes apply without asking." xml:space="preserve">
+    <value>The NetFluss helper is installed, so DNS changes apply without asking.</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it to see which apps are using the network." xml:space="preserve">
+    <value>The NetFluss helper is out of date. Update it to see which apps are using the network.</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it to see who this PC is talking to." xml:space="preserve">
+    <value>The NetFluss helper is out of date. Update it to see who this PC is talking to.</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it under Preferences → General → System access, then connect again." xml:space="preserve">
+    <value>The NetFluss helper is out of date. Update it under Preferences → General → System access, then connect again.</value>
+  </data>
+  <data name="The NetFluss helper is running, but Windows refused it access to network activity. Reinstalling the helper usually fixes this." xml:space="preserve">
+    <value>The NetFluss helper is running, but Windows refused it access to network activity. Reinstalling the helper usually fixes this.</value>
+  </data>
+  <data name="The clipboard is busy. Try again in a moment." xml:space="preserve">
+    <value>The clipboard is busy. Try again in a moment.</value>
+  </data>
+  <data name="The helper could not be installed (error {0})." xml:space="preserve">
+    <value>The helper could not be installed (error {0}).</value>
+  </data>
+  <data name="The helper could not change DNS." xml:space="preserve">
+    <value>The helper could not change DNS.</value>
+  </data>
+  <data name="The helper is missing from this copy of NetFluss." xml:space="preserve">
+    <value>The helper is missing from this copy of NetFluss.</value>
+  </data>
+  <data name="The icon stays as a plain glyph so the rates are not shown twice. Hiding it leaves right-clicking the taskbar meter as the only way to reach Preferences or quit." xml:space="preserve">
+    <value>The icon stays as a plain glyph so the rates are not shown twice. Hiding it leaves right-clicking the taskbar meter as the only way to reach Preferences or quit.</value>
+  </data>
+  <data name="The installed NetFluss helper predates the VPN client. Update it under General → System access to connect OpenVPN and WireGuard profiles." xml:space="preserve">
+    <value>The installed NetFluss helper predates the VPN client. Update it under General → System access to connect OpenVPN and WireGuard profiles.</value>
+  </data>
+  <data name="The speed test engine could not start: {0}" xml:space="preserve">
+    <value>The speed test engine could not start: {0}</value>
+  </data>
+  <data name="The speed test needs Microsoft Edge WebView2, which is not installed. Everything else in NetFluss works without it." xml:space="preserve">
+    <value>The speed test needs Microsoft Edge WebView2, which is not installed. Everything else in NetFluss works without it.</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="This deletes all recorded adapter history. Windows&apos; own app records are not affected." xml:space="preserve">
+    <value>This deletes all recorded adapter history. Windows' own app records are not affected.</value>
+  </data>
+  <data name="Top download and upload apps come from Windows&apos; own data usage records — the numbers behind Settings → Network &amp; internet → Data usage. It costs nothing to keep on, goes back to before NetFluss was installed, and is updated by Windows about once an hour." xml:space="preserve">
+    <value>Top download and upload apps come from Windows' own data usage records — the numbers behind Settings → Network &amp; internet → Data usage. It costs nothing to keep on, goes back to before NetFluss was installed, and is updated by Windows about once an hour.</value>
+  </data>
+  <data name="Totals" xml:space="preserve">
+    <value>Totals</value>
+  </data>
+  <data name="Turn on statistics" xml:space="preserve">
+    <value>Turn on statistics</value>
+  </data>
+  <data name="Turns on statistics collection." xml:space="preserve">
+    <value>Turns on statistics collection.</value>
+  </data>
+  <data name="Two lines" xml:space="preserve">
+    <value>Two lines</value>
+  </data>
+  <data name="Up to four IPv4 or IPv6 servers. A preset with only IPv4 also puts IPv6 back on automatic, so a leftover IPv6 resolver cannot keep answering." xml:space="preserve">
+    <value>Up to four IPv4 or IPv6 servers. A preset with only IPv4 also puts IPv6 back on automatic, so a leftover IPv6 resolver cannot keep answering.</value>
+  </data>
+  <data name="Update helper…" xml:space="preserve">
+    <value>Update helper…</value>
+  </data>
+  <data name="Upload only" xml:space="preserve">
+    <value>Upload only</value>
+  </data>
+  <data name="Used when the meter style is set to Icon only. Drawn to fit whatever size your display asks for." xml:space="preserve">
+    <value>Used when the meter style is set to Icon only. Drawn to fit whatever size your display asks for.</value>
+  </data>
+  <data name="Uses the credentials saved in Windows" xml:space="preserve">
+    <value>Uses the credentials saved in Windows</value>
+  </data>
+  <data name="VPN connected" xml:space="preserve">
+    <value>VPN connected</value>
+  </data>
+  <data name="Waiting for the NetFluss helper." xml:space="preserve">
+    <value>Waiting for the NetFluss helper.</value>
+  </data>
+  <data name="When enabled, VPN and tunnel adapters (WireGuard, OpenVPN, built-in VPN connections) are excluded from totals. Loopback and the Windows filter interfaces are always excluded, since they only mirror other adapters. All adapters remain visible in the adapter list." xml:space="preserve">
+    <value>When enabled, VPN and tunnel adapters (WireGuard, OpenVPN, built-in VPN connections) are excluded from totals. Loopback and the Windows filter interfaces are always excluded, since they only mirror other adapters. All adapters remain visible in the adapter list.</value>
+  </data>
+  <data name="When enabled, the Download/Upload summary and the meter use only adapters that are visible here." xml:space="preserve">
+    <value>When enabled, the Download/Upload summary and the meter use only adapters that are visible here.</value>
+  </data>
+  <data name="Where to show it" xml:space="preserve">
+    <value>Where to show it</value>
+  </data>
+  <data name="Which adapter the switcher changes. Automatic follows the one carrying the internet connection." xml:space="preserve">
+    <value>Which adapter the switcher changes. Automatic follows the one carrying the internet connection.</value>
+  </data>
+  <data name="Which adapters to show" xml:space="preserve">
+    <value>Which adapters to show</value>
+  </data>
+  <data name="Which public address to show. Looked up via ipify.org." xml:space="preserve">
+    <value>Which public address to show. Looked up via ipify.org.</value>
+  </data>
+  <data name="White" xml:space="preserve">
+    <value>White</value>
+  </data>
+  <data name="Who your PC is talking to right now." xml:space="preserve">
+    <value>Who your PC is talking to right now.</value>
+  </data>
+  <data name="Wi-Fi passwords are 8 to 63 characters long." xml:space="preserve">
+    <value>Wi-Fi passwords are 8 to 63 characters long.</value>
+  </data>
+  <data name="Windows only lets administrators watch connections by app and host. The optional NetFluss helper does it for you; installing it asks for approval once." xml:space="preserve">
+    <value>Windows only lets administrators watch connections by app and host. The optional NetFluss helper does it for you; installing it asks for approval once.</value>
+  </data>
+  <data name="Windows only lets administrators watch per-app network traffic, so Top Apps uses the optional helper service. Install it under General → System access." xml:space="preserve">
+    <value>Windows only lets administrators watch per-app network traffic, so Top Apps uses the optional helper service. Install it under General → System access.</value>
+  </data>
+  <data name="Windows only lets administrators watch per-app network traffic. The optional NetFluss helper does it for you; installing it asks for approval once." xml:space="preserve">
+    <value>Windows only lets administrators watch per-app network traffic. The optional NetFluss helper does it for you; installing it asks for approval once.</value>
+  </data>
+  <data name="Windows refused the network settings (error {0})." xml:space="preserve">
+    <value>Windows refused the network settings (error {0}).</value>
+  </data>
+  <data name="WireGuard is not installed. Install WireGuard for Windows from wireguard.com, then connect again." xml:space="preserve">
+    <value>WireGuard is not installed. Install WireGuard for Windows from wireguard.com, then connect again.</value>
+  </data>
+  <data name="Write &apos;{0}&apos; as &apos;{1}&apos;." xml:space="preserve">
+    <value>Write '{0}' as '{1}'.</value>
+  </data>
+  <data name="Yellow" xml:space="preserve">
+    <value>Yellow</value>
+  </data>
+  <data name="Your taskbar is dark. Shown at each display scaling." xml:space="preserve">
+    <value>Your taskbar is dark. Shown at each display scaling.</value>
+  </data>
+  <data name="Your taskbar is light, where saturated greens lose contrast against the blues." xml:space="preserve">
+    <value>Your taskbar is light, where saturated greens lose contrast against the blues.</value>
+  </data>
+  <data name="Your taskbar is light. Shown at each display scaling." xml:space="preserve">
+    <value>Your taskbar is light. Shown at each display scaling.</value>
+  </data>
+  <data name="netsh exited with code {0}." xml:space="preserve">
+    <value>netsh exited with code {0}.</value>
+  </data>
+  <data name="{0} adapters, {1} hidden." xml:space="preserve">
+    <value>{0} adapters, {1} hidden.</value>
+  </data>
+  <data name="{0} adapters. Switch one off to keep it out of the popover." xml:space="preserve">
+    <value>{0} adapters. Switch one off to keep it out of the popover.</value>
+  </data>
+  <data name="{0} is back on automatic DNS." xml:space="preserve">
+    <value>{0} is back on automatic DNS.</value>
+  </data>
+  <data name="{0} is installed." xml:space="preserve">
+    <value>{0} is installed.</value>
+  </data>
+  <data name="{0} is not installed; it is needed for those profiles." xml:space="preserve">
+    <value>{0} is not installed; it is needed for those profiles.</value>
+  </data>
+  <data name="{0} is on automatic DNS." xml:space="preserve">
+    <value>{0} is on automatic DNS.</value>
+  </data>
+  <data name="{0} now uses {1}." xml:space="preserve">
+    <value>{0} now uses {1}.</value>
+  </data>
+  <data name="{0} seconds left. Start a large download now." xml:space="preserve">
+    <value>{0} seconds left. Start a large download now.</value>
+  </data>
+  <data name="{0} snapshots were captured. Paste them into a GitHub issue so the developer can see what each adapter reported." xml:space="preserve">
+    <value>{0} snapshots were captured. Paste them into a GitHub issue so the developer can see what each adapter reported.</value>
+  </data>
+  <data name="{0} uses {1}." xml:space="preserve">
+    <value>{0} uses {1}.</value>
+  </data>
+  <data name="{0} · {1} server(s)" xml:space="preserve">
+    <value>{0} · {1} server(s)</value>
+  </data>
+  <data name="Taskbar" xml:space="preserve">
+    <value>Taskbar</value>
+  </data>
 </root>

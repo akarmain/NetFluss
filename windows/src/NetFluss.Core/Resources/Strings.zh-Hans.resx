@@ -1741,4 +1741,682 @@
   <data name="Auto-selected nearby edge" xml:space="preserve">
     <value>自动选择的附近边缘节点</value>
   </data>
+  <data name="&apos;{0}&apos; already exists." xml:space="preserve">
+    <value>“{0}”已存在。</value>
+  </data>
+  <data name="&apos;{0}&apos; is listed twice." xml:space="preserve">
+    <value>“{0}”重复列出。</value>
+  </data>
+  <data name="&apos;{0}&apos; is not IPv4 or IPv6." xml:space="preserve">
+    <value>“{0}”既不是 IPv4 也不是 IPv6。</value>
+  </data>
+  <data name="&apos;{0}&apos; is not an IP address." xml:space="preserve">
+    <value>“{0}”不是 IP 地址。</value>
+  </data>
+  <data name="A 16–32 px icon, depending on your display scaling. Cramped, and it never breaks." xml:space="preserve">
+    <value>16–32 像素的图标，取决于显示缩放。空间局促，但始终可用。</value>
+  </data>
+  <data name="A WEP key is 5 or 13 characters, or 10 or 26 hex digits." xml:space="preserve">
+    <value>WEP 密钥为 5 或 13 个字符，或 10 或 26 位十六进制数字。</value>
+  </data>
+  <data name="A single line gets the full icon height, which is sharper at 100% scaling." xml:space="preserve">
+    <value>单行可使用完整的图标高度，在 100% 缩放下更清晰。</value>
+  </data>
+  <data name="Adapter" xml:space="preserve">
+    <value>适配器</value>
+  </data>
+  <data name="Adapter statistics are collected continuously while NetFluss runs. App statistics come from Windows&apos; own data usage records." xml:space="preserve">
+    <value>NetFluss 运行期间会持续收集适配器统计。App 统计来自 Windows 自身的数据使用量记录。</value>
+  </data>
+  <data name="Added “{0}”." xml:space="preserve">
+    <value>已添加“{0}”。</value>
+  </data>
+  <data name="Adds NetFluss to your sign-in apps, where Task Manager can also turn it off." xml:space="preserve">
+    <value>将 NetFluss 添加到登录启动应用中，也可在任务管理器中将其关闭。</value>
+  </data>
+  <data name="Adds a VPN connection set up in Windows Settings, so NetFluss can connect it from the popover." xml:space="preserve">
+    <value>添加在 Windows 设置中配置的 VPN 连接，以便 NetFluss 可从弹出窗口中连接。</value>
+  </data>
+  <data name="Add…" xml:space="preserve">
+    <value>添加…</value>
+  </data>
+  <data name="An always-on-top panel you can drag anywhere. Works alongside the other placements, and depends on nothing that a Windows update can move." xml:space="preserve">
+    <value>始终置顶、可拖动到任意位置的面板。可与其他位置同时使用，不依赖任何可能因 Windows 更新而变化的内容。</value>
+  </data>
+  <data name="An app stays listed for a few seconds after it goes quiet, so the list does not reshuffle between bursts." xml:space="preserve">
+    <value>App 停止传输后仍会保留几秒，避免列表在流量间隙中频繁重排。</value>
+  </data>
+  <data name="An optional background service that shows which apps use the network (Top Apps, Network Slice) and changes DNS without asking each time. Installing it needs administrator approval once." xml:space="preserve">
+    <value>可选的后台服务，用于显示哪些 App 在使用网络（热门 App、Network Slice），并可在不每次询问的情况下更改 DNS。安装时需要管理员批准一次。</value>
+  </data>
+  <data name="Appears when a router is configured." xml:space="preserve">
+    <value>配置路由器后显示。</value>
+  </data>
+  <data name="Applies to the taskbar meter and the floating widget." xml:space="preserve">
+    <value>适用于任务栏速率显示和浮动小组件。</value>
+  </data>
+  <data name="Applying {0}…" xml:space="preserve">
+    <value>正在应用 {0}…</value>
+  </data>
+  <data name="Applying {0}… confirm the administrator prompt." xml:space="preserve">
+    <value>正在应用 {0}… 请确认管理员提示。</value>
+  </data>
+  <data name="At most {0} servers." xml:space="preserve">
+    <value>最多 {0} 个服务器。</value>
+  </data>
+  <data name="Automatic" xml:space="preserve">
+    <value>自动</value>
+  </data>
+  <data name="Beside the clock, with room for full units. Windows offers no supported way to do this, so it is best effort — NetFluss falls back to the notification area if the taskbar moves out from under it." xml:space="preserve">
+    <value>显示在时钟旁边，可容纳完整单位。Windows 未提供官方支持的方式，因此尽力而为——若任务栏发生变化，NetFluss 会改为显示在通知区域。</value>
+  </data>
+  <data name="Black" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="Blank server address." xml:space="preserve">
+    <value>服务器地址为空。</value>
+  </data>
+  <data name="Blue" xml:space="preserve">
+    <value>蓝色</value>
+  </data>
+  <data name="Buy me a coffee" xml:space="preserve">
+    <value>请我喝杯咖啡</value>
+  </data>
+  <data name="Bytes per second, or bits as ISPs quote them." xml:space="preserve">
+    <value>每秒字节数，或按运营商的惯例使用比特。</value>
+  </data>
+  <data name="Cancelled." xml:space="preserve">
+    <value>已取消。</value>
+  </data>
+  <data name="Cancelled. DNS was not changed." xml:space="preserve">
+    <value>已取消。DNS 未更改。</value>
+  </data>
+  <data name="Changing DNS needs administrator rights: each change asks for approval, unless the optional NetFluss helper is installed (General → System access)." xml:space="preserve">
+    <value>更改 DNS 需要管理员权限：每次更改都会请求批准，除非已安装可选的 NetFluss 辅助工具（通用 → 系统访问）。</value>
+  </data>
+  <data name="Click to copy {0}" xml:space="preserve">
+    <value>点击复制 {0}</value>
+  </data>
+  <data name="Colours" xml:space="preserve">
+    <value>颜色</value>
+  </data>
+  <data name="Combined total" xml:space="preserve">
+    <value>合计</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Costs width the digits need below 24 px. The row colour already shows direction." xml:space="preserve">
+    <value>会占用 24 像素以下数字所需的宽度。行的颜色已表示方向。</value>
+  </data>
+  <data name="Could not add that preset." xml:space="preserve">
+    <value>无法添加该预设。</value>
+  </data>
+  <data name="Could not check for updates: {0}" xml:space="preserve">
+    <value>无法检查更新：{0}</value>
+  </data>
+  <data name="Could not join “{0}”." xml:space="preserve">
+    <value>无法加入“{0}”。</value>
+  </data>
+  <data name="Could not reach the OpenVPN management interface." xml:space="preserve">
+    <value>无法连接到 OpenVPN 管理接口。</value>
+  </data>
+  <data name="Could not start the elevated helper." xml:space="preserve">
+    <value>无法启动提权的辅助工具。</value>
+  </data>
+  <data name="Creates an IKEv2 connection in Windows (username and password, EAP-MSCHAPv2) that NetFluss connects directly. The password is stored in Windows Credential Manager. If the server uses a private CA, import its certificate into the Trusted Root store first." xml:space="preserve">
+    <value>在 Windows 中创建一个 IKEv2 连接（用户名和密码，EAP-MSCHAPv2），由 NetFluss 直接连接。密码存储在 Windows 凭据管理器中。如果服务器使用私有 CA，请先将其证书导入“受信任的根证书颁发机构”存储。</value>
+  </data>
+  <data name="Creating the Windows VPN connection…" xml:space="preserve">
+    <value>正在创建 Windows VPN 连接…</value>
+  </data>
+  <data name="Credentials required" xml:space="preserve">
+    <value>需要凭据</value>
+  </data>
+  <data name="Credentials stored" xml:space="preserve">
+    <value>凭据已存储</value>
+  </data>
+  <data name="DNS preset" xml:space="preserve">
+    <value>DNS 预设</value>
+  </data>
+  <data name="Darkens or brightens the rate colours so both rows read equally on your taskbar." xml:space="preserve">
+    <value>调暗或调亮速率颜色，使两行在任务栏上同样清晰易读。</value>
+  </data>
+  <data name="Dashboard Basic" xml:space="preserve">
+    <value>基础仪表盘</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="Delete history" xml:space="preserve">
+    <value>删除历史记录</value>
+  </data>
+  <data name="Denied — open Settings to allow NetFluss under “Let desktop apps access your location”." xml:space="preserve">
+    <value>已拒绝——请打开设置，在“允许桌面应用访问你的位置”下允许 NetFluss。</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>详细信息</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>已断开</value>
+  </data>
+  <data name="Dismiss" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Download and upload" xml:space="preserve">
+    <value>下载和上传</value>
+  </data>
+  <data name="Download and upload history by adapter and by app, from the last hour to the last year." xml:space="preserve">
+    <value>按适配器和 App 显示的下载与上传历史，从最近一小时到最近一年。</value>
+  </data>
+  <data name="Download only" xml:space="preserve">
+    <value>仅下载</value>
+  </data>
+  <data name="Download…" xml:space="preserve">
+    <value>下载…</value>
+  </data>
+  <data name="Drag to reorder" xml:space="preserve">
+    <value>拖动以重新排序</value>
+  </data>
+  <data name="Drag to reorder sections in the popover. Toggling a row mirrors the corresponding setting on the DNS, Wi-Fi, Top Apps and Statistics pages." xml:space="preserve">
+    <value>拖动以重新排列弹出窗口中的各个部分。切换某一行等同于更改 DNS、Wi-Fi、热门 App 和统计页面上的相应设置。</value>
+  </data>
+  <data name="Enterprise networks need to be joined from Windows Settings." xml:space="preserve">
+    <value>企业网络需要在 Windows 设置中加入。</value>
+  </data>
+  <data name="Ethernet" xml:space="preserve">
+    <value>以太网</value>
+  </data>
+  <data name="Fill in both fields." xml:space="preserve">
+    <value>请填写两个字段。</value>
+  </data>
+  <data name="Fill in the name, server and username." xml:space="preserve">
+    <value>请填写名称、服务器和用户名。</value>
+  </data>
+  <data name="Floating widget" xml:space="preserve">
+    <value>浮动小组件</value>
+  </data>
+  <data name="Flow draws the path from this PC through the router (and a VPN) to the internet; list shows each address with a copy button." xml:space="preserve">
+    <value>“流向”绘制从这台电脑经由路由器（及 VPN）到互联网的路径；“列表”显示每个地址并附带复制按钮。</value>
+  </data>
+  <data name="Give the preset a name." xml:space="preserve">
+    <value>请为预设命名。</value>
+  </data>
+  <data name="Give the preset at least one server." xml:space="preserve">
+    <value>请为预设至少提供一个服务器。</value>
+  </data>
+  <data name="Green" xml:space="preserve">
+    <value>绿色</value>
+  </data>
+  <data name="Hidden apps stay out of Top Apps and the statistics lists. Pick one that used the network in the last minute, or type its name." xml:space="preserve">
+    <value>隐藏的 App 不会出现在热门 App 和统计列表中。请选择最近一分钟内使用过网络的 App，或输入其名称。</value>
+  </data>
+  <data name="Hide" xml:space="preserve">
+    <value>隐藏</value>
+  </data>
+  <data name="Hide from Top Apps" xml:space="preserve">
+    <value>从热门 App 中隐藏</value>
+  </data>
+  <data name="Hide the notification area icon" xml:space="preserve">
+    <value>隐藏通知区域图标</value>
+  </data>
+  <data name="Icon only" xml:space="preserve">
+    <value>仅图标</value>
+  </data>
+  <data name="If a VPN connection fails, copy this log and send it — it records the installed tools, Windows&apos; VPN connections, and the connection tool&apos;s full output." xml:space="preserve">
+    <value>如果 VPN 连接失败，请复制并发送此日志——其中记录了已安装的工具、Windows 的 VPN 连接以及连接工具的完整输出。</value>
+  </data>
+  <data name="Import a folder of profiles…" xml:space="preserve">
+    <value>导入配置文件夹…</value>
+  </data>
+  <data name="Install helper…" xml:space="preserve">
+    <value>安装辅助工具…</value>
+  </data>
+  <data name="Installed and running, version {0}." xml:space="preserve">
+    <value>已安装并运行，版本 {0}。</value>
+  </data>
+  <data name="Installed, version {0} — an update adds the VPN client&apos;s OpenVPN and WireGuard support." xml:space="preserve">
+    <value>已安装，版本 {0}——更新后将支持 VPN 客户端的 OpenVPN 和 WireGuard。</value>
+  </data>
+  <data name="Installed, version {0} — out of date." xml:space="preserve">
+    <value>已安装，版本 {0}——已过时。</value>
+  </data>
+  <data name="Interfaces that are neither Wi-Fi nor Ethernet: VPN tunnels, Hyper-V and WSL switches, Bluetooth networking." xml:space="preserve">
+    <value>既非 Wi-Fi 也非以太网的接口：VPN 隧道、Hyper-V 和 WSL 交换机、蓝牙网络。</value>
+  </data>
+  <data name="Invalid servers." xml:space="preserve">
+    <value>服务器无效。</value>
+  </data>
+  <data name="Keep colours readable" xml:space="preserve">
+    <value>保持颜色清晰可读</value>
+  </data>
+  <data name="Keeps minute, hourly and daily totals per adapter on this PC, for the Statistics window and the Data Usage section. Off by default; collecting costs one subtraction per adapter per tick." xml:space="preserve">
+    <value>在这台电脑上按适配器保存每分钟、每小时和每天的合计，供统计窗口和数据用量部分使用。默认关闭；收集时每次刷新每个适配器仅需一次减法运算。</value>
+  </data>
+  <data name="Keeps the indicator visible, dimmed, while no VPN is connected." xml:space="preserve">
+    <value>未连接 VPN 时，指示器仍以变暗方式显示。</value>
+  </data>
+  <data name="Large" xml:space="preserve">
+    <value>大</value>
+  </data>
+  <data name="Largest" xml:space="preserve">
+    <value>最大</value>
+  </data>
+  <data name="Lists nearby Wi-Fi networks. Click a row to join — saved networks reconnect immediately, new secured networks ask for the password, and Windows remembers it for its own Wi-Fi menu too." xml:space="preserve">
+    <value>列出附近的 Wi-Fi 网络。点击某一行即可加入——已保存的网络会立即重新连接，新的加密网络会要求输入密码，Windows 也会为其自身的 Wi-Fi 菜单记住该密码。</value>
+  </data>
+  <data name="Location access" xml:space="preserve">
+    <value>位置访问</value>
+  </data>
+  <data name="Location access is required to list nearby Wi-Fi networks. Windows uses the same restriction in Settings → Privacy &amp; security → Location." xml:space="preserve">
+    <value>列出附近的 Wi-Fi 网络需要位置访问权限。Windows 在“设置 → 隐私和安全性 → 位置”中使用相同的限制。</value>
+  </data>
+  <data name="Longer intervals use less battery on an idle machine." xml:space="preserve">
+    <value>较长的间隔可在空闲时节省电量。</value>
+  </data>
+  <data name="Meter location" xml:space="preserve">
+    <value>速率显示位置</value>
+  </data>
+  <data name="Meter style" xml:space="preserve">
+    <value>速率显示样式</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="Most machines carry a dozen idle virtual and tunnel interfaces, so this is off by default." xml:space="preserve">
+    <value>大多数电脑都有十几个闲置的虚拟和隧道接口，因此默认关闭。</value>
+  </data>
+  <data name="Needs the NetFluss helper" xml:space="preserve">
+    <value>需要 NetFluss 辅助工具</value>
+  </data>
+  <data name="NetFluss Preferences" xml:space="preserve">
+    <value>NetFluss 设置</value>
+  </data>
+  <data name="NetFluss could not find room on the taskbar, so the meter fell back to the notification area. It will move back on its own if the taskbar becomes available." xml:space="preserve">
+    <value>NetFluss 在任务栏上找不到空间，因此速率显示改为显示在通知区域。任务栏可用时会自动移回。</value>
+  </data>
+  <data name="NetFluss helper" xml:space="preserve">
+    <value>NetFluss 辅助工具</value>
+  </data>
+  <data name="No VPN connected" xml:space="preserve">
+    <value>未连接 VPN</value>
+  </data>
+  <data name="No Windows VPN connections found. Set one up in Windows Settings → Network &amp; internet → VPN, or add an IKEv2 VPN here." xml:space="preserve">
+    <value>未找到 Windows VPN 连接。请在“Windows 设置 → 网络和 Internet → VPN”中设置，或在此添加 IKEv2 VPN。</value>
+  </data>
+  <data name="No adapter named &apos;{0}&apos;." xml:space="preserve">
+    <value>没有名为“{0}”的适配器。</value>
+  </data>
+  <data name="No adapter with an internet connection was found." xml:space="preserve">
+    <value>未找到具有互联网连接的适配器。</value>
+  </data>
+  <data name="No adapters reported yet." xml:space="preserve">
+    <value>尚未报告任何适配器。</value>
+  </data>
+  <data name="No apps are hidden." xml:space="preserve">
+    <value>没有隐藏的 App。</value>
+  </data>
+  <data name="No networks are pinned." xml:space="preserve">
+    <value>没有固定的网络。</value>
+  </data>
+  <data name="Not installed. DNS changes and Ethernet resets ask for administrator approval each time, and Top Apps is unavailable." xml:space="preserve">
+    <value>未安装。DNS 更改和以太网重置每次都需要管理员批准，且热门 App 不可用。</value>
+  </data>
+  <data name="Notification area" xml:space="preserve">
+    <value>通知区域</value>
+  </data>
+  <data name="On the taskbar" xml:space="preserve">
+    <value>在任务栏上</value>
+  </data>
+  <data name="Once a day, NetFluss looks for a new Windows release on GitHub and tells you once when one is available. You can also check any time in About." xml:space="preserve">
+    <value>NetFluss 每天在 GitHub 上检查一次新的 Windows 版本，并在有可用版本时提醒你一次。你也可以随时在“关于”中检查。</value>
+  </data>
+  <data name="One line" xml:space="preserve">
+    <value>单行</value>
+  </data>
+  <data name="One line has room for full units; stacked matches the notification area." xml:space="preserve">
+    <value>单行可容纳完整单位；堆叠样式与通知区域一致。</value>
+  </data>
+  <data name="Only available when the meter is on the taskbar — otherwise this is where the meter lives." xml:space="preserve">
+    <value>仅当速率显示位于任务栏时可用——否则速率显示就在这里。</value>
+  </data>
+  <data name="Open VPN log folder" xml:space="preserve">
+    <value>打开 VPN 日志文件夹</value>
+  </data>
+  <data name="OpenVPN and WireGuard connections run through the NetFluss helper (General → System access)." xml:space="preserve">
+    <value>OpenVPN 和 WireGuard 连接通过 NetFluss 辅助工具运行（通用 → 系统访问）。</value>
+  </data>
+  <data name="OpenVPN and WireGuard connections run through the NetFluss helper. Install it under Preferences → General → System access, then connect again." xml:space="preserve">
+    <value>OpenVPN 和 WireGuard 连接通过 NetFluss 辅助工具运行。请在“设置 → 通用 → 系统访问”中安装，然后重新连接。</value>
+  </data>
+  <data name="OpenVPN is not installed. Install OpenVPN Community from openvpn.net, then connect again." xml:space="preserve">
+    <value>未安装 OpenVPN。请从 openvpn.net 安装 OpenVPN Community，然后重新连接。</value>
+  </data>
+  <data name="Open…" xml:space="preserve">
+    <value>打开…</value>
+  </data>
+  <data name="Orange" xml:space="preserve">
+    <value>橙色</value>
+  </data>
+  <data name="Password for “{0}”" xml:space="preserve">
+    <value>“{0}”的密码</value>
+  </data>
+  <data name="Pink" xml:space="preserve">
+    <value>粉色</value>
+  </data>
+  <data name="Pinned networks stay at the top of the list, and stay listed as “Not available” while out of range. Pin one with the pin button in the popover." xml:space="preserve">
+    <value>固定的网络会保持在列表顶部，超出范围时显示为“不可用”。可使用弹出窗口中的图钉按钮固定网络。</value>
+  </data>
+  <data name="Preset added." xml:space="preserve">
+    <value>已添加预设。</value>
+  </data>
+  <data name="Presets" xml:space="preserve">
+    <value>预设</value>
+  </data>
+  <data name="Preview" xml:space="preserve">
+    <value>预览</value>
+  </data>
+  <data name="Purple" xml:space="preserve">
+    <value>紫色</value>
+  </data>
+  <data name="Recent results saved on this PC. Add notes to remember the exact place." xml:space="preserve">
+    <value>保存在这台电脑上的最近结果。添加备注以记住具体地点。</value>
+  </data>
+  <data name="Recording…" xml:space="preserve">
+    <value>正在记录…</value>
+  </data>
+  <data name="Reinstall helper…" xml:space="preserve">
+    <value>重新安装辅助工具…</value>
+  </data>
+  <data name="Reinstall…" xml:space="preserve">
+    <value>重新安装…</value>
+  </data>
+  <data name="Release Notes" xml:space="preserve">
+    <value>发行说明</value>
+  </data>
+  <data name="Release Page" xml:space="preserve">
+    <value>发布页面</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>移除</value>
+  </data>
+  <data name="Rename. Clear the field to restore the Windows name." xml:space="preserve">
+    <value>重命名。清空字段可恢复 Windows 名称。</value>
+  </data>
+  <data name="Required to list nearby Wi-Fi networks. Windows uses the same gate for its own Wi-Fi menu." xml:space="preserve">
+    <value>列出附近的 Wi-Fi 网络所必需。Windows 自身的 Wi-Fi 菜单也使用相同的限制。</value>
+  </data>
+  <data name="Reset Statistics" xml:space="preserve">
+    <value>重置统计</value>
+  </data>
+  <data name="Reset Statistics…" xml:space="preserve">
+    <value>重置统计…</value>
+  </data>
+  <data name="Reset order" xml:space="preserve">
+    <value>重置顺序</value>
+  </data>
+  <data name="Router traffic in {0}" xml:space="preserve">
+    <value>路由器流量，单位 {0}</value>
+  </data>
+  <data name="Rx Rate" xml:space="preserve">
+    <value>接收速率</value>
+  </data>
+  <data name="Saved in Windows Credential Manager for {0}." xml:space="preserve">
+    <value>已为 {0} 保存到 Windows 凭据管理器。</value>
+  </data>
+  <data name="Saved network" xml:space="preserve">
+    <value>已保存的网络</value>
+  </data>
+  <data name="Server {0}" xml:space="preserve">
+    <value>服务器 {0}</value>
+  </data>
+  <data name="Server (host or IP)" xml:space="preserve">
+    <value>服务器（主机名或 IP）</value>
+  </data>
+  <data name="Sets the popover, the widget and the rate colours. A colour below set to anything but Automatic keeps that colour." xml:space="preserve">
+    <value>设置弹出窗口、小组件和速率颜色。下方任何未设为“自动”的颜色会保持其设置。</value>
+  </data>
+  <data name="Settings are stored in {0}" xml:space="preserve">
+    <value>设置存储在 {0}</value>
+  </data>
+  <data name="Show again" xml:space="preserve">
+    <value>重新显示</value>
+  </data>
+  <data name="Show direction arrows" xml:space="preserve">
+    <value>显示方向箭头</value>
+  </data>
+  <data name="Show in the popover" xml:space="preserve">
+    <value>在弹出窗口中显示</value>
+  </data>
+  <data name="Showing in the notification area instead" xml:space="preserve">
+    <value>改为显示在通知区域</value>
+  </data>
+  <data name="Shown to the right of the rates on the taskbar meter and the widget. Detects VPNs started by any app, not only NetFluss." xml:space="preserve">
+    <value>显示在任务栏速率显示和小组件中速率的右侧。可检测任何 App 启动的 VPN，而不仅限于 NetFluss。</value>
+  </data>
+  <data name="Shows an adapter only while it carries traffic, and for a few seconds after — useful for a VPN that comes and goes." xml:space="preserve">
+    <value>仅在适配器有流量时及之后几秒内显示——适用于时连时断的 VPN。</value>
+  </data>
+  <data name="Shows the country your public IP is in, looked up via ipify.org and ipwho.is. Windows has no flag glyphs, so it appears as the country code." xml:space="preserve">
+    <value>显示你的公网 IP 所在的国家，通过 ipify.org 和 ipwho.is 查询。Windows 没有国旗字符，因此以国家代码显示。</value>
+  </data>
+  <data name="Signal" xml:space="preserve">
+    <value>信号</value>
+  </data>
+  <data name="Small" xml:space="preserve">
+    <value>小</value>
+  </data>
+  <data name="Start with Windows" xml:space="preserve">
+    <value>随 Windows 启动</value>
+  </data>
+  <data name="Starts the adapter history over from now." xml:space="preserve">
+    <value>从现在开始重新记录适配器历史。</value>
+  </data>
+  <data name="Statistics were reset." xml:space="preserve">
+    <value>统计已重置。</value>
+  </data>
+  <data name="Switch a preset off to keep it out of the popover. A green check marks the one in use." xml:space="preserve">
+    <value>关闭某个预设即可使其不出现在弹出窗口中。绿色对勾表示正在使用的预设。</value>
+  </data>
+  <data name="System Default follows the language selected in Windows." xml:space="preserve">
+    <value>“系统默认”跟随 Windows 中选择的语言。</value>
+  </data>
+  <data name="System VPN · {0}" xml:space="preserve">
+    <value>系统 VPN · {0}</value>
+  </data>
+  <data name="Taskbar and widget layout" xml:space="preserve">
+    <value>任务栏和小组件布局</value>
+  </data>
+  <data name="Teal" xml:space="preserve">
+    <value>青色</value>
+  </data>
+  <data name="Text size" xml:space="preserve">
+    <value>文字大小</value>
+  </data>
+  <data name="That adapter&apos;s name cannot be used from a script." xml:space="preserve">
+    <value>该适配器的名称无法在脚本中使用。</value>
+  </data>
+  <data name="That network name cannot be used." xml:space="preserve">
+    <value>无法使用该网络名称。</value>
+  </data>
+  <data name="The NetFluss helper is installed — OpenVPN and WireGuard connections can start." xml:space="preserve">
+    <value>NetFluss 辅助工具已安装——可以启动 OpenVPN 和 WireGuard 连接。</value>
+  </data>
+  <data name="The NetFluss helper is installed, so DNS changes apply without asking." xml:space="preserve">
+    <value>已安装 NetFluss 辅助工具，因此 DNS 更改无需询问即可应用。</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it to see which apps are using the network." xml:space="preserve">
+    <value>NetFluss 辅助工具已过时。请更新以查看哪些 App 正在使用网络。</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it to see who this PC is talking to." xml:space="preserve">
+    <value>NetFluss 辅助工具已过时。请更新以查看这台电脑正在与谁通信。</value>
+  </data>
+  <data name="The NetFluss helper is out of date. Update it under Preferences → General → System access, then connect again." xml:space="preserve">
+    <value>NetFluss 辅助工具已过时。请在“设置 → 通用 → 系统访问”中更新，然后重新连接。</value>
+  </data>
+  <data name="The NetFluss helper is running, but Windows refused it access to network activity. Reinstalling the helper usually fixes this." xml:space="preserve">
+    <value>NetFluss 辅助工具正在运行，但 Windows 拒绝其访问网络活动。重新安装辅助工具通常可以解决此问题。</value>
+  </data>
+  <data name="The clipboard is busy. Try again in a moment." xml:space="preserve">
+    <value>剪贴板正忙。请稍后再试。</value>
+  </data>
+  <data name="The helper could not be installed (error {0})." xml:space="preserve">
+    <value>无法安装辅助工具（错误 {0}）。</value>
+  </data>
+  <data name="The helper could not change DNS." xml:space="preserve">
+    <value>辅助工具无法更改 DNS。</value>
+  </data>
+  <data name="The helper is missing from this copy of NetFluss." xml:space="preserve">
+    <value>此 NetFluss 副本中缺少辅助工具。</value>
+  </data>
+  <data name="The icon stays as a plain glyph so the rates are not shown twice. Hiding it leaves right-clicking the taskbar meter as the only way to reach Preferences or quit." xml:space="preserve">
+    <value>图标保持为简单符号，以免速率重复显示。隐藏后，只能通过右键点击任务栏速率显示来打开设置或退出。</value>
+  </data>
+  <data name="The installed NetFluss helper predates the VPN client. Update it under General → System access to connect OpenVPN and WireGuard profiles." xml:space="preserve">
+    <value>已安装的 NetFluss 辅助工具早于 VPN 客户端。请在“通用 → 系统访问”中更新，以连接 OpenVPN 和 WireGuard 配置。</value>
+  </data>
+  <data name="The speed test engine could not start: {0}" xml:space="preserve">
+    <value>测速引擎无法启动：{0}</value>
+  </data>
+  <data name="The speed test needs Microsoft Edge WebView2, which is not installed. Everything else in NetFluss works without it." xml:space="preserve">
+    <value>测速需要 Microsoft Edge WebView2，但它尚未安装。NetFluss 的其他功能不需要它。</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="This deletes all recorded adapter history. Windows&apos; own app records are not affected." xml:space="preserve">
+    <value>这会删除所有已记录的适配器历史。Windows 自身的 App 记录不受影响。</value>
+  </data>
+  <data name="Top download and upload apps come from Windows&apos; own data usage records — the numbers behind Settings → Network &amp; internet → Data usage. It costs nothing to keep on, goes back to before NetFluss was installed, and is updated by Windows about once an hour." xml:space="preserve">
+    <value>下载和上传排行 App 来自 Windows 自身的数据使用量记录——即“设置 → 网络和 Internet → 数据使用量”背后的数据。保持开启不消耗资源，可追溯到安装 NetFluss 之前，并由 Windows 大约每小时更新一次。</value>
+  </data>
+  <data name="Totals" xml:space="preserve">
+    <value>合计</value>
+  </data>
+  <data name="Turn on statistics" xml:space="preserve">
+    <value>开启统计</value>
+  </data>
+  <data name="Turns on statistics collection." xml:space="preserve">
+    <value>开启统计收集。</value>
+  </data>
+  <data name="Two lines" xml:space="preserve">
+    <value>双行</value>
+  </data>
+  <data name="Up to four IPv4 or IPv6 servers. A preset with only IPv4 also puts IPv6 back on automatic, so a leftover IPv6 resolver cannot keep answering." xml:space="preserve">
+    <value>最多四个 IPv4 或 IPv6 服务器。仅含 IPv4 的预设也会将 IPv6 恢复为自动，避免残留的 IPv6 解析器继续响应。</value>
+  </data>
+  <data name="Update helper…" xml:space="preserve">
+    <value>更新辅助工具…</value>
+  </data>
+  <data name="Upload only" xml:space="preserve">
+    <value>仅上传</value>
+  </data>
+  <data name="Used when the meter style is set to Icon only. Drawn to fit whatever size your display asks for." xml:space="preserve">
+    <value>当速率显示样式设为“仅图标”时使用。会按显示器要求的尺寸绘制。</value>
+  </data>
+  <data name="Uses the credentials saved in Windows" xml:space="preserve">
+    <value>使用 Windows 中保存的凭据</value>
+  </data>
+  <data name="VPN connected" xml:space="preserve">
+    <value>VPN 已连接</value>
+  </data>
+  <data name="Waiting for the NetFluss helper." xml:space="preserve">
+    <value>正在等待 NetFluss 辅助工具。</value>
+  </data>
+  <data name="When enabled, VPN and tunnel adapters (WireGuard, OpenVPN, built-in VPN connections) are excluded from totals. Loopback and the Windows filter interfaces are always excluded, since they only mirror other adapters. All adapters remain visible in the adapter list." xml:space="preserve">
+    <value>启用后，VPN 和隧道适配器（WireGuard、OpenVPN、内置 VPN 连接）将不计入合计。环回和 Windows 筛选器接口始终不计入，因为它们只是镜像其他适配器。所有适配器仍会显示在适配器列表中。</value>
+  </data>
+  <data name="When enabled, the Download/Upload summary and the meter use only adapters that are visible here." xml:space="preserve">
+    <value>启用后，下载/上传摘要和速率显示只使用此处可见的适配器。</value>
+  </data>
+  <data name="Where to show it" xml:space="preserve">
+    <value>显示位置</value>
+  </data>
+  <data name="Which adapter the switcher changes. Automatic follows the one carrying the internet connection." xml:space="preserve">
+    <value>切换器所更改的适配器。“自动”会跟随承载互联网连接的适配器。</value>
+  </data>
+  <data name="Which adapters to show" xml:space="preserve">
+    <value>显示哪些适配器</value>
+  </data>
+  <data name="Which public address to show. Looked up via ipify.org." xml:space="preserve">
+    <value>显示哪个公网地址。通过 ipify.org 查询。</value>
+  </data>
+  <data name="White" xml:space="preserve">
+    <value>白色</value>
+  </data>
+  <data name="Who your PC is talking to right now." xml:space="preserve">
+    <value>你的电脑此刻正在与谁通信。</value>
+  </data>
+  <data name="Wi-Fi passwords are 8 to 63 characters long." xml:space="preserve">
+    <value>Wi-Fi 密码长度为 8 到 63 个字符。</value>
+  </data>
+  <data name="Windows only lets administrators watch connections by app and host. The optional NetFluss helper does it for you; installing it asks for approval once." xml:space="preserve">
+    <value>Windows 只允许管理员按 App 和主机查看连接。可选的 NetFluss 辅助工具可代为完成；安装时会请求批准一次。</value>
+  </data>
+  <data name="Windows only lets administrators watch per-app network traffic, so Top Apps uses the optional helper service. Install it under General → System access." xml:space="preserve">
+    <value>Windows 只允许管理员查看每个 App 的网络流量，因此热门 App 使用可选的辅助服务。请在“通用 → 系统访问”中安装。</value>
+  </data>
+  <data name="Windows only lets administrators watch per-app network traffic. The optional NetFluss helper does it for you; installing it asks for approval once." xml:space="preserve">
+    <value>Windows 只允许管理员查看每个 App 的网络流量。可选的 NetFluss 辅助工具可代为完成；安装时会请求批准一次。</value>
+  </data>
+  <data name="Windows refused the network settings (error {0})." xml:space="preserve">
+    <value>Windows 拒绝了网络设置（错误 {0}）。</value>
+  </data>
+  <data name="WireGuard is not installed. Install WireGuard for Windows from wireguard.com, then connect again." xml:space="preserve">
+    <value>未安装 WireGuard。请从 wireguard.com 安装 WireGuard for Windows，然后重新连接。</value>
+  </data>
+  <data name="Write &apos;{0}&apos; as &apos;{1}&apos;." xml:space="preserve">
+    <value>请将“{0}”写为“{1}”。</value>
+  </data>
+  <data name="Yellow" xml:space="preserve">
+    <value>黄色</value>
+  </data>
+  <data name="Your taskbar is dark. Shown at each display scaling." xml:space="preserve">
+    <value>你的任务栏为深色。以各种显示缩放比例显示。</value>
+  </data>
+  <data name="Your taskbar is light, where saturated greens lose contrast against the blues." xml:space="preserve">
+    <value>你的任务栏为浅色，饱和的绿色在其上与蓝色的对比度会降低。</value>
+  </data>
+  <data name="Your taskbar is light. Shown at each display scaling." xml:space="preserve">
+    <value>你的任务栏为浅色。以各种显示缩放比例显示。</value>
+  </data>
+  <data name="netsh exited with code {0}." xml:space="preserve">
+    <value>netsh 退出，代码 {0}。</value>
+  </data>
+  <data name="{0} adapters, {1} hidden." xml:space="preserve">
+    <value>{0} 个适配器，{1} 个已隐藏。</value>
+  </data>
+  <data name="{0} adapters. Switch one off to keep it out of the popover." xml:space="preserve">
+    <value>{0} 个适配器。关闭某个适配器即可使其不出现在弹出窗口中。</value>
+  </data>
+  <data name="{0} is back on automatic DNS." xml:space="preserve">
+    <value>{0} 已恢复为自动 DNS。</value>
+  </data>
+  <data name="{0} is installed." xml:space="preserve">
+    <value>已安装 {0}。</value>
+  </data>
+  <data name="{0} is not installed; it is needed for those profiles." xml:space="preserve">
+    <value>未安装 {0}；这些配置需要它。</value>
+  </data>
+  <data name="{0} is on automatic DNS." xml:space="preserve">
+    <value>{0} 使用自动 DNS。</value>
+  </data>
+  <data name="{0} now uses {1}." xml:space="preserve">
+    <value>{0} 现在使用 {1}。</value>
+  </data>
+  <data name="{0} seconds left. Start a large download now." xml:space="preserve">
+    <value>剩余 {0} 秒。请立即开始一个大文件下载。</value>
+  </data>
+  <data name="{0} snapshots were captured. Paste them into a GitHub issue so the developer can see what each adapter reported." xml:space="preserve">
+    <value>已捕获 {0} 个快照。请将其粘贴到 GitHub issue 中，以便开发者查看每个适配器报告的内容。</value>
+  </data>
+  <data name="{0} uses {1}." xml:space="preserve">
+    <value>{0} 使用 {1}。</value>
+  </data>
+  <data name="{0} · {1} server(s)" xml:space="preserve">
+    <value>{0} · {1} 个服务器</value>
+  </data>
+  <data name="Taskbar" xml:space="preserve">
+    <value>任务栏</value>
+  </data>
 </root>

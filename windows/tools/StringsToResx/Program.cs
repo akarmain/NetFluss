@@ -192,6 +192,11 @@ internal static class Program
             }
         }
 
+        if (Environment.GetCommandLineArgs().Contains("--missing"))
+        {
+            return ReportMissing(root, seen);
+        }
+
         var names = ResolveCaseCollisions(ordered);
         var collisions = names.Where(pair => pair.Key != pair.Value).ToList();
 
@@ -354,6 +359,65 @@ internal static class Program
         => text.Replace("\\\"", "\"").Replace("\\n", "\n").Replace("\\t", "\t").Replace("\\\\", "\\");
 
     /// <summary>Cocoa positional specifiers → composite format items, in source order.</summary>
+    /// <summary>Calls whose first string argument is a localization key the callee looks up.</summary>
+    private static readonly Regex KeyCallPattern = new(
+        """(?<![A-Za-z0-9_])(?:L|Tile|InfoCard|DetailRow|Option|SectionTitle|Section|SliceColumn|Requirement|Header)\(\s*"((?:[^"\\]|\\.)*)"(?=\s*[,)])""",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Keys that reach L() one step removed: the arms of a ternary (<c>L(on ? "a" : "b")</c>)
+    /// and the first element of a tuple table (<c>("Import…", VpnProtocol.OpenVpn)</c>).
+    /// Only sentence-like literals — a capital letter and a space — to keep ids out.
+    /// </summary>
+    private static readonly Regex SecondaryKeyPattern = new(
+        """(?:[?:]\s*|\(\s*)"([A-Z][^"\\]*\s[^"\\]*)"(?=\s*[,):?])""",
+        RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// "--missing": the keys the Windows sources look up that neither catalogue has, written
+    /// as Windows.strings lines ("{0}" back to "%@") ready to paste into
+    /// windows/Localization/en.lproj/Windows.strings. Literal keys only; a key computed at
+    /// run time cannot be found this way and still needs a reviewer's eye.
+    /// </summary>
+    private static int ReportMissing(string root, HashSet<string> known)
+    {
+        var sources = Path.Combine(root, "windows", "src");
+        var missing = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (var file in Directory.EnumerateFiles(sources, "*.cs", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(sources, file);
+            if (relative.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) ||
+                relative.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal) ||
+                relative.Contains(".Tests", StringComparison.Ordinal) || relative.StartsWith("NetFluss.Service", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var text = File.ReadAllText(file);
+            var matches = KeyCallPattern.Matches(text).Concat(
+                text.Contains("L(", StringComparison.Ordinal) ? SecondaryKeyPattern.Matches(text) : Enumerable.Empty<Match>());
+            foreach (var match in matches)
+            {
+                var key = Regex.Unescape(match.Groups[1].Value);
+                if (key.Length > 1 && key.Any(char.IsLetter) && !known.Contains(key))
+                {
+                    missing.Add(key);
+                }
+            }
+        }
+
+        foreach (var key in missing)
+        {
+            var cocoa = Regex.Replace(key, @"\{\d+\}", "%@").Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal);
+            Console.WriteLine($"\"{cocoa}\" = \"{cocoa}\";");
+        }
+
+        Console.Error.WriteLine($"{missing.Count} key(s) missing.");
+        return 0;
+    }
+
+    private static readonly Regex LiteralPercentOrSpecifier = new("%%|" + SpecifierPattern, RegexOptions.CultureInvariant);
+
     private static string ConvertSpecifiers(string text)
     {
         var index = 0;
@@ -361,7 +425,10 @@ internal static class Program
         // Braces are literal in .NET composite formatting and must be doubled first,
         // otherwise a string containing "{" would throw at runtime.
         text = text.Replace("{", "{{").Replace("}", "}}");
-        return SpecifierPattern.Replace(text, _ => "{" + index++ + "}");
+
+        // "%%" is Cocoa's literal percent sign ("100%% scaling"); without it, "% s" in
+        // "100% scaling" reads as a space-flagged %s and becomes a placeholder.
+        return LiteralPercentOrSpecifier.Replace(text, match => match.Value == "%%" ? "%" : "{" + index++ + "}");
     }
 
     private static Catalogue ParseStrings(string path)

@@ -32,6 +32,34 @@ public class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void UnknownEnumValue_CostsOnlyThatPreference()
+    {
+        Directory.CreateDirectory(_directory);
+        File.WriteAllText(Path_, """{ "Language": "de", "ReadoutStyle": "Hologram", "ShowVpn": true, "UniFiEnabled": true, "MeterStyle": "Icon" }""");
+
+        var settings = new SettingsStore(Path_).Settings;
+
+        Assert.Equal(AppLanguage.System, settings.Language);
+        Assert.Equal(ReadoutStyle.Unified, settings.ReadoutStyle);
+        Assert.Equal(MeterStyle.Icon, settings.MeterStyle);
+        Assert.True(settings.ShowVpn);
+        Assert.True(settings.UniFiEnabled);
+    }
+
+    [Fact]
+    public void UnreadableFile_IsKeptBeforeDefaultsCanReplaceIt()
+    {
+        Directory.CreateDirectory(_directory);
+        File.WriteAllText(Path_, "{ \"ShowVpn\": tru");
+
+        var store = new SettingsStore(Path_);
+        store.Settings.ShowTopApps = !store.Settings.ShowTopApps;
+
+        var kept = Assert.Single(Directory.GetFiles(_directory, "settings.json.unreadable-*.json"));
+        Assert.Equal("{ \"ShowVpn\": tru", File.ReadAllText(kept));
+    }
+
+    [Fact]
     public void Defaults_MatchTheMacOsRegistrationList()
     {
         var settings = new AppSettings();
