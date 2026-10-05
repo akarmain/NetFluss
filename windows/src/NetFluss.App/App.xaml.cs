@@ -157,6 +157,25 @@ public partial class NetFlussApplication : Application
         // running timer: OnExit is not guaranteed to run when Windows ends the session, and
         // a machine that never wakes from sleep never exits at all.
         SessionEnding += (_, _) => PersistState();
+        // While the session is locked nobody sees the popover, the meter's VPN mark or the
+        // router rates: pause their lookups (macOS does the same on lock and display sleep).
+        Microsoft.Win32.SystemEvents.SessionSwitch += (_, args) =>
+        {
+            var quiet = args.Reason switch
+            {
+                Microsoft.Win32.SessionSwitchReason.SessionLock or Microsoft.Win32.SessionSwitchReason.ConsoleDisconnect or
+                    Microsoft.Win32.SessionSwitchReason.RemoteDisconnect => true,
+                Microsoft.Win32.SessionSwitchReason.SessionUnlock or Microsoft.Win32.SessionSwitchReason.ConsoleConnect or
+                    Microsoft.Win32.SessionSwitchReason.RemoteConnect => false,
+                _ => (bool?)null,
+            };
+
+            if (quiet is { } value)
+            {
+                Dispatcher.BeginInvoke(() => _monitor.Quiet = value);
+            }
+        };
+
         Microsoft.Win32.SystemEvents.PowerModeChanged += (_, args) =>
         {
             // Raised on a SystemEvents thread; the settings write fans out to WPF objects.

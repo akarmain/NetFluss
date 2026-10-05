@@ -168,7 +168,7 @@ internal sealed class RouterService : IDisposable
 
     private void OnTick(object? sender, EventArgs e)
     {
-        if (_demand > 0 && DateTime.UtcNow - _lastPoll >= PollInterval)
+        if (_demand > 0 && !_monitor.Quiet && DateTime.UtcNow - _lastPoll >= PollInterval)
         {
             Poll();
         }

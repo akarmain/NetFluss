@@ -245,6 +245,32 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
         }
     }
 
+    /// <summary>
+    /// Set while the session is locked — the macOS app's display-sleep/lock suspension.
+    /// Rates are still sampled; the lookups behind the popover and the meter's accessories
+    /// pause, and run at once when it clears.
+    /// </summary>
+    public bool Quiet
+    {
+        get => _quiet;
+        set
+        {
+            if (_quiet == value)
+            {
+                return;
+            }
+
+            _quiet = value;
+            if (!value)
+            {
+                _lastWifiRefresh = _lastAddressRefresh = _lastPublicIpRefresh = DateTime.MinValue;
+                Refresh();
+            }
+        }
+    }
+
+    private bool _quiet;
+
     /// <summary>Forgets the public address so the next detail tick fetches it again.</summary>
     public void InvalidatePublicAddress() => _lastPublicIpRefresh = DateTime.MinValue;
 
@@ -281,42 +307,11 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
             _lastPublicIpRefresh = DateTime.MinValue;
         }
 
-        if (_detailMonitoring && now - _lastWifiRefresh >= WifiDetailInterval)
+        // Locked: keep counting bytes — statistics and the meter must stay right — but skip
+        // every lookup that only matters to someone looking at the screen.
+        if (!Quiet)
         {
-            _lastWifiRefresh = now;
-            RefreshWifiDetails();
-        }
-
-        // Addresses are read while the popover is open, and — on a faster cadence — whenever
-        // the meter shows a VPN mark or the exit country, since those change with the network
-        // whether or not anything else is on screen.
-        var addressInterval = DetectVpn ? VpnInterval : AddressInterval;
-        if ((_detailMonitoring || DetectVpn) && now - _lastAddressRefresh >= addressInterval)
-        {
-            _lastAddressRefresh = now;
-            var previous = _addresses.Fingerprint;
-            Addresses = NetworkAddresses.Read();
-
-            // A different set of local addresses means a VPN came up or went down or the
-            // network changed: the public address and its country follow now, and once more
-            // a moment later because routes and DNS take a little while to settle.
-            if (_meterShowsCountry && previous.Length > 0 && previous != _addresses.Fingerprint)
-            {
-                _lastPublicIpRefresh = DateTime.MinValue;
-                _settleRefreshAt = now + TimeSpan.FromSeconds(2.5);
-            }
-        }
-
-        if (_settleRefreshAt is { } settle && now >= settle && !_publicIpInFlight)
-        {
-            _settleRefreshAt = null;
-            _lastPublicIpRefresh = DateTime.MinValue;
-        }
-
-        if ((_detailMonitoring || _meterShowsCountry) && !_publicIpInFlight && now - _lastPublicIpRefresh >= PublicIpInterval)
-        {
-            _lastPublicIpRefresh = now;
-            _ = RefreshPublicAddressAsync();
+            RefreshDetails(now);
         }
 
         sampled = AttachWifi(sampled);
@@ -406,6 +401,48 @@ public sealed class NetworkMonitorService : INotifyPropertyChanged, IDisposable
             GraceEnabled = true,
             GraceDeadlines = new Dictionary<string, DateTimeOffset>(_graceDeadlines, StringComparer.OrdinalIgnoreCase),
         };
+    }
+
+    /// <summary>Wi-Fi details, local addresses and the public address, each on its own cadence.</summary>
+    private void RefreshDetails(DateTime now)
+    {
+        if (_detailMonitoring && now - _lastWifiRefresh >= WifiDetailInterval)
+        {
+            _lastWifiRefresh = now;
+            RefreshWifiDetails();
+        }
+
+        // Addresses are read while the popover is open, and — on a faster cadence — whenever
+        // the meter shows a VPN mark or the exit country, since those change with the network
+        // whether or not anything else is on screen.
+        var addressInterval = DetectVpn ? VpnInterval : AddressInterval;
+        if ((_detailMonitoring || DetectVpn) && now - _lastAddressRefresh >= addressInterval)
+        {
+            _lastAddressRefresh = now;
+            var previous = _addresses.Fingerprint;
+            Addresses = NetworkAddresses.Read();
+
+            // A different set of local addresses means a VPN came up or went down or the
+            // network changed: the public address and its country follow now, and once more
+            // a moment later because routes and DNS take a little while to settle.
+            if (_meterShowsCountry && previous.Length > 0 && previous != _addresses.Fingerprint)
+            {
+                _lastPublicIpRefresh = DateTime.MinValue;
+                _settleRefreshAt = now + TimeSpan.FromSeconds(2.5);
+            }
+        }
+
+        if (_settleRefreshAt is { } settle && now >= settle && !_publicIpInFlight)
+        {
+            _settleRefreshAt = null;
+            _lastPublicIpRefresh = DateTime.MinValue;
+        }
+
+        if ((_detailMonitoring || _meterShowsCountry) && !_publicIpInFlight && now - _lastPublicIpRefresh >= PublicIpInterval)
+        {
+            _lastPublicIpRefresh = now;
+            _ = RefreshPublicAddressAsync();
+        }
     }
 
     private void RefreshWifiDetails()
