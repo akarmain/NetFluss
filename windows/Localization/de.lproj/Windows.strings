@@ -235,3 +235,7 @@
 "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." = "Diese Konfiguration verwendet „%@“, was NetFluss nicht mit Administratorrechten ausführt; die Verbindung wird daher abgelehnt. Bitte deinen Anbieter um eine Standard-Client-Konfiguration.";
 "Taskbar settings…" = "Taskleisten-Einstellungen…";
 "Shows on the taskbar meter and the widget whether a VPN is connected." = "Zeigt in der Taskleistenanzeige und im Widget, ob ein VPN verbunden ist.";
+"NetFluss is running" = "NetFluss läuft";
+"Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences." = "Deine Raten stehen in der Taskleiste neben der Uhr. Klicke darauf für Details, Rechtsklick öffnet die Einstellungen.";
+"NetFluss is in the notification area. If you don't see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view." = "NetFluss befindet sich im Infobereich. Wenn du das Symbol nicht siehst, klicke auf ^ neben der Uhr – du kannst das Symbol in die Taskleiste ziehen, damit es sichtbar bleibt.";
+"NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." = "NetFluss wurde beim letzten Mal unerwartet beendet. Klicke hier, um zu sehen, was Windows aufgezeichnet hat, und füge es bitte einer Fehlermeldung bei.";

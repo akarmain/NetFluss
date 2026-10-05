@@ -258,6 +258,12 @@ internal sealed class HelperClient : IDisposable
         catch (Exception e) when (e is IOException or ObjectDisposedException or OperationCanceledException)
         {
         }
+        catch (Exception e)
+        {
+            // Anything else would end this loop unnoticed, leaving a connection that looks
+            // alive and delivers nothing. Record it and reconnect instead.
+            CrashLog.Write("helper", e);
+        }
 
         Disconnect();
     }

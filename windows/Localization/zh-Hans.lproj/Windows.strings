@@ -235,3 +235,7 @@
 "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." = "此配置使用了“%@”，NetFluss 不会以管理员权限运行它，因此连接将被拒绝。请向你的服务商索取标准客户端配置。";
 "Taskbar settings…" = "任务栏设置…";
 "Shows on the taskbar meter and the widget whether a VPN is connected." = "在任务栏速率显示和小组件中显示 VPN 是否已连接。";
+"NetFluss is running" = "NetFluss 正在运行";
+"Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences." = "速率显示在任务栏的时钟旁边。单击查看详细信息，右键单击打开偏好设置。";
+"NetFluss is in the notification area. If you don't see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view." = "NetFluss 位于通知区域。如果看不到它的图标，请单击时钟旁边的 ^ —— 可以将图标拖到任务栏上，使其始终可见。";
+"NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." = "NetFluss 上次意外退出。单击查看 Windows 记录的信息，并请在报告问题时附上。";

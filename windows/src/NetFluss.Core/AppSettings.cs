@@ -150,6 +150,7 @@ public sealed class AppSettings : INotifyPropertyChanged
     private string _opnSenseHost = string.Empty;
     private string _lastNotifiedVersion = string.Empty;
     private DateTimeOffset? _lastUpdateCheck;
+    private bool _firstLaunchHintShown;
     private bool _popoverPinned;
     private double? _pinnedLeft;
     private double? _pinnedTop;
@@ -805,6 +806,17 @@ public sealed class AppSettings : INotifyPropertyChanged
     {
         get => _lastUpdateCheck;
         set => Set(ref _lastUpdateCheck, value);
+    }
+
+    /// <summary>
+    /// Whether NetFluss has said once where it lives. On a Mac the menu bar item is always in
+    /// view; on Windows the meter may have fallen back to an icon that Windows tucks behind
+    /// the "^" overflow, and an app with nothing on screen looks like one that quit.
+    /// </summary>
+    public bool FirstLaunchHintShown
+    {
+        get => _firstLaunchHintShown;
+        set => Set(ref _firstLaunchHintShown, value);
     }
 
     // ==================================== Speed test ====================================

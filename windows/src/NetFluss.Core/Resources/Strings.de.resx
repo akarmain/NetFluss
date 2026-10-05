@@ -2446,4 +2446,16 @@ Es wird kein Netzwerkverkehr gesendet — nur lokale Zähler von Ihrem Mac werde
   <data name="Shows on the taskbar meter and the widget whether a VPN is connected." xml:space="preserve">
     <value>Zeigt in der Taskleistenanzeige und im Widget, ob ein VPN verbunden ist.</value>
   </data>
+  <data name="NetFluss is running" xml:space="preserve">
+    <value>NetFluss läuft</value>
+  </data>
+  <data name="Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences." xml:space="preserve">
+    <value>Deine Raten stehen in der Taskleiste neben der Uhr. Klicke darauf für Details, Rechtsklick öffnet die Einstellungen.</value>
+  </data>
+  <data name="NetFluss is in the notification area. If you don&apos;t see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view." xml:space="preserve">
+    <value>NetFluss befindet sich im Infobereich. Wenn du das Symbol nicht siehst, klicke auf ^ neben der Uhr – du kannst das Symbol in die Taskleiste ziehen, damit es sichtbar bleibt.</value>
+  </data>
+  <data name="NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." xml:space="preserve">
+    <value>NetFluss wurde beim letzten Mal unerwartet beendet. Klicke hier, um zu sehen, was Windows aufgezeichnet hat, und füge es bitte einer Fehlermeldung bei.</value>
+  </data>
 </root>

@@ -2446,4 +2446,16 @@ No network traffic is sent — only local counters from your machine are recorde
   <data name="Shows on the taskbar meter and the widget whether a VPN is connected." xml:space="preserve">
     <value>Shows on the taskbar meter and the widget whether a VPN is connected.</value>
   </data>
+  <data name="NetFluss is running" xml:space="preserve">
+    <value>NetFluss is running</value>
+  </data>
+  <data name="Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences." xml:space="preserve">
+    <value>Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences.</value>
+  </data>
+  <data name="NetFluss is in the notification area. If you don&apos;t see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view." xml:space="preserve">
+    <value>NetFluss is in the notification area. If you don't see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view.</value>
+  </data>
+  <data name="NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." xml:space="preserve">
+    <value>NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report.</value>
+  </data>
 </root>

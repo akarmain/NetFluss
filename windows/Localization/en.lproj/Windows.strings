@@ -239,3 +239,7 @@
 "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config." = "This config uses “%@”, which NetFluss does not run with administrator rights, so connecting will be refused. Ask your provider for a standard client config.";
 "Taskbar settings…" = "Taskbar settings…";
 "Shows on the taskbar meter and the widget whether a VPN is connected." = "Shows on the taskbar meter and the widget whether a VPN is connected.";
+"NetFluss is running" = "NetFluss is running";
+"Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences." = "Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences.";
+"NetFluss is in the notification area. If you don't see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view." = "NetFluss is in the notification area. If you don't see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view.";
+"NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." = "NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report.";

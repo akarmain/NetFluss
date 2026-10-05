@@ -63,6 +63,15 @@ public partial class NetFlussApplication : Application
 
     internal AppCommands Commands => _commands!;
 
+    /// <summary>Set first thing in OnExit: from then on nothing re-applies settings or repaints.</summary>
+    private bool _exiting;
+
+    /// <summary>Whether this instance wrote the session marker, and so removes it on exit.</summary>
+    private bool _ownsSession;
+
+    /// <summary>What clicking the last notification does: About for an update, the popover for the hint.</summary>
+    private Action? _notificationAction;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -79,6 +88,11 @@ public partial class NetFlussApplication : Application
             Shutdown();
             return;
         }
+
+        // Only the primary instance owns the session marker: a second launch that hands over
+        // and quits must not erase the running one's.
+        var uncleanSince = SessionGuard.Begin();
+        _ownsSession = true;
 
         _store = new SettingsStore(SettingsStore.DefaultPath);
         NetFluss.Core.Localization.Use(_store.Settings.Language);
@@ -109,7 +123,7 @@ public partial class NetFlussApplication : Application
 
         _tray = new TrayIconHost(_monitor, BuildMeterOptions(), _commands);
         _tray.LeftClicked += (_, _) => TogglePopover(Screens.CursorAnchor());
-        _tray.NotificationClicked += (_, _) => ShowAbout();
+        _tray.NotificationClicked += (_, _) => (_notificationAction ?? ShowAbout)();
 
         // Preferences writes, then everything re-reads. One direction, so there is no way
         // for the tray and the settings file to disagree about what is configured.
@@ -118,6 +132,11 @@ public partial class NetFlussApplication : Application
         // Surfaces repaint on the same tick that drives the tray meter.
         _monitor.PropertyChanged += (_, args) =>
         {
+            if (_exiting)
+            {
+                return;
+            }
+
             if (args.PropertyName == nameof(NetworkMonitorService.Totals))
             {
                 PushTotals();
@@ -156,7 +175,12 @@ public partial class NetFlussApplication : Application
         // Sign-out, shutdown and sleep must not lose the last few minutes of history or a
         // running timer: OnExit is not guaranteed to run when Windows ends the session, and
         // a machine that never wakes from sleep never exits at all.
-        SessionEnding += (_, _) => PersistState();
+        SessionEnding += (_, _) =>
+        {
+            // Windows ending the session is a clean end, even if OnExit never runs.
+            SessionGuard.End();
+            PersistState();
+        };
         // While the session is locked nobody sees the popover, the meter's VPN mark or the
         // router rates: pause their lookups (macOS does the same on lock and display sleep).
         Microsoft.Win32.SystemEvents.SessionSwitch += (_, args) =>
@@ -181,11 +205,68 @@ public partial class NetFlussApplication : Application
             // Raised on a SystemEvents thread; the settings write fans out to WPF objects.
             if (args.Mode == Microsoft.Win32.PowerModes.Suspend)
             {
-                Dispatcher.Invoke(PersistState);
+                // This runs on the SystemEvents thread, where an exception is not caught by the
+                // UI-thread handler and would end NetFluss as the machine goes to sleep.
+                try
+                {
+                    Dispatcher.Invoke(PersistState);
+                }
+                catch (Exception exception)
+                {
+                    CrashLog.Write("suspend", exception);
+                }
             }
         };
 
         HandleCommand(e.Args);
+
+        // At idle, once the meter has been placed, so the hint can say where it really is.
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, () => AfterStartup(uncleanSince));
+    }
+
+    /// <summary>What can wait until NetFluss is up: the crash report and the first-launch hint.</summary>
+    private async void AfterStartup(DateTimeOffset? uncleanSince)
+    {
+        if (uncleanSince is { } since)
+        {
+            // Reading the event log can take a moment; it is not the UI thread's job.
+            var crashed = await Task.Run(() => SessionGuard.RecordPreviousCrash(since));
+            if (crashed && !_exiting)
+            {
+                _notificationAction = CopyDiagnostics;
+                _tray?.Notify("NetFluss", Localization.L("NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report."));
+                return;
+            }
+        }
+
+        if (_store is { Settings.FirstLaunchHintShown: false })
+        {
+            // A moment for the overlay to anchor, or fall back to the notification area.
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            ShowFirstLaunchHint();
+        }
+    }
+
+    /// <summary>
+    /// Says once where NetFluss lives, and opens the popover there. On a Mac the menu bar item
+    /// is always in view; on Windows a new icon goes behind the "^" overflow by default, and
+    /// an app that shows nothing looks like one that quit.
+    /// </summary>
+    private void ShowFirstLaunchHint()
+    {
+        if (_store is null || _tray is null || _exiting)
+        {
+            return;
+        }
+
+        _store.Batch(settings => settings.FirstLaunchHintShown = true);
+
+        var message = _store.Settings.MeterSurface == MeterSurface.TaskbarOverlay && _overlay is { IsAnchored: true }
+            ? Localization.L("Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences.")
+            : Localization.L("NetFluss is in the notification area. If you don't see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view.");
+        _notificationAction = () => ShowPopover(DefaultAnchor());
+        _tray.Notify(Localization.L("NetFluss is running"), message);
+        ShowPopover(DefaultAnchor());
     }
 
     /// <summary>
@@ -513,7 +594,7 @@ public partial class NetFlussApplication : Application
 
     private void ApplySettings()
     {
-        if (_store is null || _monitor is null || _tray is null)
+        if (_exiting || _store is null || _monitor is null || _tray is null)
         {
             return;
         }
@@ -803,6 +884,7 @@ public partial class NetFlussApplication : Application
     private void OnUpdateFound(object? sender, AvailableUpdate update)
     {
         var message = Localization.L("NetFluss {0} is available!", update.Version);
+        _notificationAction = ShowAbout;
         _tray?.Notify("NetFluss", message);
         _popover?.SetFooterStatus(message);
     }
@@ -897,18 +979,29 @@ public partial class NetFlussApplication : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // Saving the timer is a settings write, and every settings write re-applies settings
+        // to the meters. Do it while they still exist, and let nothing react after this —
+        // re-applying to closed windows and a disposed icon is what used to throw here.
+        _exiting = true;
+        SaveTimer();
+
         _overlay?.Stop();
         _overlay?.Close();
         _widget?.Close();
         _tray?.Dispose();
         _traffic?.Dispose();
-        SaveTimer();
         _statistics?.Dispose();
         _routers?.Dispose();
         _vpn?.Dispose();
         _helper?.Dispose();
         _monitor?.Dispose();
         _instance?.Dispose();
+
+        if (_ownsSession)
+        {
+            SessionGuard.End();
+        }
+
         base.OnExit(e);
     }
 }

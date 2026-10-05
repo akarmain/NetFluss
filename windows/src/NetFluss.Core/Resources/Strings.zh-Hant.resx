@@ -2446,4 +2446,16 @@
   <data name="Shows on the taskbar meter and the widget whether a VPN is connected." xml:space="preserve">
     <value>在工作列速率顯示和小工具中顯示 VPN 是否已連線。</value>
   </data>
+  <data name="NetFluss is running" xml:space="preserve">
+    <value>NetFluss 正在執行</value>
+  </data>
+  <data name="Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences." xml:space="preserve">
+    <value>速率顯示在工作列的時鐘旁邊。按一下查看詳細資訊，按右鍵開啟偏好設定。</value>
+  </data>
+  <data name="NetFluss is in the notification area. If you don&apos;t see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view." xml:space="preserve">
+    <value>NetFluss 位於通知區域。如果看不到它的圖示，請按一下時鐘旁邊的 ^ —— 可以將圖示拖曳到工作列上，使其保持可見。</value>
+  </data>
+  <data name="NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." xml:space="preserve">
+    <value>NetFluss 上次意外結束。按一下查看 Windows 記錄的資訊，並請在回報問題時附上。</value>
+  </data>
 </root>
