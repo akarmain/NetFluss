@@ -3,8 +3,8 @@
 Native Windows port of NetFluss, tracking the macOS app's feature set.
 Design and rationale live in [../docs/WINDOWS-PORT-PLAN.md](../docs/WINDOWS-PORT-PLAN.md).
 
-**Status: feature parity with NetFluss 2.6 for macOS.** Every macOS feature has a Windows
-counterpart:
+**Status: public beta (2.6.0-beta.1), at feature parity with NetFluss 2.6 for macOS.**
+Every macOS feature has a Windows counterpart:
 
 | Area | Windows |
 |---|---|
@@ -15,7 +15,7 @@ counterpart:
 | VPN client | OpenVPN and WireGuard profiles (file, folder or zip; one server per config) and Windows' own IKEv2 / L2TP connections; auto-reconnect, connect at launch, DNS preset while connected, diagnostics log |
 | Helper | Optional LocalSystem service: per-app traffic (Top Apps, Network Slice), DNS changes without a UAC prompt each time, VPN tunnels |
 | Languages | English, German, Simplified and Traditional Chinese |
-| Updates | Installed copies update in place from GitHub releases, checksum-verified |
+| Updates | Installed copies update in place from GitHub releases: signed checksum list (ECDSA, like Sparkle's EdDSA), betas on their own channel |
 
 ## Install
 
@@ -58,15 +58,28 @@ pwsh windows/Packaging/build-release.ps1 -Version 1.0.0
 ```
 
 builds both architectures into `windows/artifacts/release/`: the installer (needs Inno
-Setup 6), a portable zip per architecture, and `SHA256SUMS.txt`, which the in-app updater
-requires — it installs nothing it cannot match against that file. Set `NETFLUSS_SIGN_PFX`
-and `NETFLUSS_SIGN_PASSWORD` to Authenticode-sign the executables and installers.
+Setup 6), a portable zip per architecture, `SHA256SUMS.txt`, and — with the private key in
+`NETFLUSS_UPDATE_SIGNING_KEY` — its signature `SHA256SUMS.txt.sig`. The in-app updater
+requires both: it installs nothing whose list does not carry a valid signature by the key
+compiled into `NetFluss.Core/UpdateSignature.cs`, or whose installer the list does not
+match. `windows/tools/UpdateSigning` signs, verifies and makes key pairs; the CI secret
+of the same name holds the key, and a copy must be kept offline — without it, installed
+copies can no longer update themselves. Set `NETFLUSS_SIGN_PFX` and
+`NETFLUSS_SIGN_PASSWORD` to also Authenticode-sign the executables and installers.
 
 Releases are cut by tag; `.github/workflows/windows-release.yml` does the rest:
 
 ```
 gh release create win-v1.0.0 --title "NetFluss for Windows 1.0.0" --latest=false --notes "…"
 ```
+
+**Betas** are tagged `win-vX.Y.Z-beta.N` (also `alpha`/`rc`) and published as GitHub
+pre-releases, with `--prerelease`. Versions are ordered by semver (2.6.0-beta.1 <
+2.6.0-beta.2 < 2.6.0). Only a pre-release build is offered pre-releases, so stable users
+never see a beta and beta testers get the next beta and then the release, which returns
+them to the stable channel. `NETFLUSS_UPDATE_PRERELEASES=1` opts any build into
+pre-releases, for trying an update end to end on a throwaway pre-release first.
+Release notes live in `windows/Packaging/release-notes/`.
 
 **`--latest=false` is not optional.** The macOS app's Sparkle feed is
 `releases/latest/download/appcast.xml`, so a Windows release marked "latest" would cut every
