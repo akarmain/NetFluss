@@ -2458,4 +2458,13 @@
   <data name="NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." xml:space="preserve">
     <value>NetFluss 上次意外結束。按一下查看 Windows 記錄的資訊，並請在回報問題時附上。</value>
   </data>
+  <data name="This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see which apps are using the network." xml:space="preserve">
+    <value>此 NetFluss 比其輔助工具舊。請更新 NetFluss，或重新安裝此版本的輔助工具，以查看哪些 App 正在使用網路。</value>
+  </data>
+  <data name="This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see who this PC is talking to." xml:space="preserve">
+    <value>此 NetFluss 比其輔助工具舊。請更新 NetFluss，或重新安裝此版本的輔助工具，以查看這台電腦正在與誰通訊。</value>
+  </data>
+  <data name="Installed, version {0} — newer than this NetFluss ({1}). Update NetFluss, or reinstall the helper from this version." xml:space="preserve">
+    <value>已安裝，版本 {0} —— 比此 NetFluss（{1}）新。請更新 NetFluss，或重新安裝此版本的輔助工具。</value>
+  </data>
 </root>

@@ -54,6 +54,13 @@ internal sealed class HelperClient : IDisposable
 
     internal bool IsCurrentVersion => HelperVersion == AppVersion;
 
+    /// <summary>
+    /// The helper comes from a newer NetFluss than this one: an older copy of the app run after
+    /// an update, or a development build beside a released helper. "Out of date" would be
+    /// the wrong way round, and "Update helper" would downgrade it.
+    /// </summary>
+    internal bool IsNewerThanApp => HelperVersion is { } version && UpdateLookup.IsNewer(version, AppVersion);
+
     /// <summary>The protocol the helper speaks; 2 added the VPN operations.</summary>
     internal int HelperProtocolVersion { get; private set; }
 

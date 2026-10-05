@@ -157,6 +157,15 @@ internal static class GeneralPage
                 install.Content = Kit.L("Update helper…");
                 remove.Visibility = Visibility.Visible;
             }
+            else if (!helper.IsCurrentVersion && helper.IsNewerThanApp)
+            {
+                // Reinstalling installs this version's helper — the right fix only if this copy
+                // is the one meant to run, so updating NetFluss is offered first.
+                status.Text = Kit.L("Installed, version {0} — newer than this NetFluss ({1}). Update NetFluss, or reinstall the helper from this version.", helper.HelperVersion ?? "?", HelperClient.AppVersion);
+                status.SetResourceReference(TextBlock.ForegroundProperty, "WarningBrush");
+                install.Content = Kit.L("Reinstall helper…");
+                remove.Visibility = Visibility.Visible;
+            }
             else if (!helper.IsCurrentVersion)
             {
                 status.Text = Kit.L("Installed, version {0} — out of date.", helper.HelperVersion ?? "?");

@@ -98,8 +98,10 @@ internal sealed class TopAppsSection : IPopoverSection
         _needsHelper.Visibility = blocked ? Visibility.Visible : Visibility.Collapsed;
         ((FrameworkElement)_rows.Parent).Visibility = blocked ? Visibility.Collapsed : Visibility.Visible;
 
+        var helperNewer = _context.Traffic.HelperIsNewer;
         _helperText.Text = availability switch
         {
+            TrafficAvailability.HelperOutdated when helperNewer => PopoverContext.L("This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see which apps are using the network."),
             TrafficAvailability.HelperOutdated => PopoverContext.L("The NetFluss helper is out of date. Update it to see which apps are using the network."),
             TrafficAvailability.HelperFailed => PopoverContext.L("The NetFluss helper is running, but Windows refused it access to network activity. Reinstalling the helper usually fixes this."),
             _ => PopoverContext.L("Windows only lets administrators watch per-app network traffic. The optional NetFluss helper does it for you; installing it asks for approval once."),
@@ -109,6 +111,7 @@ internal sealed class TopAppsSection : IPopoverSection
             ? PopoverContext.L("Installing…")
             : availability switch
             {
+                TrafficAvailability.HelperOutdated when helperNewer => PopoverContext.L("Reinstall helper…"),
                 TrafficAvailability.HelperOutdated => PopoverContext.L("Update helper…"),
                 TrafficAvailability.HelperFailed => PopoverContext.L("Reinstall helper…"),
                 _ => PopoverContext.L("Install helper…"),

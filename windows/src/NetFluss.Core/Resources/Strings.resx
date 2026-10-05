@@ -2458,4 +2458,13 @@ No network traffic is sent — only local counters from your machine are recorde
   <data name="NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." xml:space="preserve">
     <value>NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report.</value>
   </data>
+  <data name="This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see which apps are using the network." xml:space="preserve">
+    <value>This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see which apps are using the network.</value>
+  </data>
+  <data name="This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see who this PC is talking to." xml:space="preserve">
+    <value>This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see who this PC is talking to.</value>
+  </data>
+  <data name="Installed, version {0} — newer than this NetFluss ({1}). Update NetFluss, or reinstall the helper from this version." xml:space="preserve">
+    <value>Installed, version {0} — newer than this NetFluss ({1}). Update NetFluss, or reinstall the helper from this version.</value>
+  </data>
 </root>

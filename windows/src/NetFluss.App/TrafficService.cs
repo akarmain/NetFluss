@@ -56,6 +56,9 @@ internal sealed class TrafficService : IDisposable
     private readonly DispatcherTimer _timer;
     private readonly ProcessNames _names = new();
     private readonly HelperClient _helper;
+
+    /// <summary>With <see cref="TrafficAvailability.HelperOutdated"/>: the mismatch is the app's, not the helper's.</summary>
+    internal bool HelperIsNewer => _helper.IsNewerThanApp;
     private KernelNetworkTrace? _local;
     private int _demand;
     private int _flowDemand;

@@ -19,6 +19,25 @@
     <Platforms>AnyCPU;x64;ARM64</Platforms>
   </PropertyGroup>
 
+  <!--
+    A release publish (build-release.ps1 passes a RuntimeIdentifier) is one NetFluss.exe with
+    every managed assembly inside it. Until the release is code-signed, each loose unsigned
+    DLL is one more file Smart App Control may refuse — and some load only when a feature is
+    first used, so a refusal ended the app minutes after it started. The native libraries
+    (WPF's renderer, WebView2's loader) stay beside it: Microsoft signs them, and bundling
+    would unpack them into %TEMP% at every start, where Application Control blocks code.
+    Not compressed: a compressed bundle keeps every assembly unpacked in private memory for
+    the life of the process — measured at 210 MB against 108 MB for an app that runs all day.
+    The installer and the zip compress it anyway, so downloads are no larger.
+  -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
+    <!-- The WebView2 package's IntelliSense files are no use to anyone running the app. -->
+    <PublishReferencesDocumentationFiles>false</PublishReferencesDocumentationFiles>
+  </PropertyGroup>
+
   <ItemGroup>
     <Resource Include="Assets\NetFluss.ico" />
     <Resource Include="Assets\NetFluss.png" />
@@ -56,6 +75,7 @@
     -->
     <ProjectReference Include="../NetFluss.Service/NetFluss.Service.csproj"
                       ReferenceOutputAssembly="false"
+                      Private="false"
                       SkipGetTargetFrameworkProperties="true" />
   </ItemGroup>
 

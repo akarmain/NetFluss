@@ -406,8 +406,10 @@ internal sealed class NetworkSliceWindow : Window
             column.Render();
         }
 
+        var helperNewer = _traffic.HelperIsNewer;
         _helperText.Text = availability switch
         {
+            TrafficAvailability.HelperOutdated when helperNewer => Localization.L("This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see who this PC is talking to."),
             TrafficAvailability.HelperOutdated => Localization.L("The NetFluss helper is out of date. Update it to see who this PC is talking to."),
             TrafficAvailability.HelperFailed => Localization.L("The NetFluss helper is running, but Windows refused it access to network activity. Reinstalling the helper usually fixes this."),
             _ => Localization.L("Windows only lets administrators watch connections by app and host. The optional NetFluss helper does it for you; installing it asks for approval once."),
@@ -417,6 +419,7 @@ internal sealed class NetworkSliceWindow : Window
             ? Localization.L("Installing…")
             : availability switch
             {
+                TrafficAvailability.HelperOutdated when helperNewer => Localization.L("Reinstall helper…"),
                 TrafficAvailability.HelperOutdated => Localization.L("Update helper…"),
                 TrafficAvailability.HelperFailed => Localization.L("Reinstall helper…"),
                 _ => Localization.L("Install helper…"),

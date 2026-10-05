@@ -2458,4 +2458,13 @@ Es wird kein Netzwerkverkehr gesendet — nur lokale Zähler von Ihrem Mac werde
   <data name="NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." xml:space="preserve">
     <value>NetFluss wurde beim letzten Mal unerwartet beendet. Klicke hier, um zu sehen, was Windows aufgezeichnet hat, und füge es bitte einer Fehlermeldung bei.</value>
   </data>
+  <data name="This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see which apps are using the network." xml:space="preserve">
+    <value>Dieses NetFluss ist älter als sein Helfer. Aktualisiere NetFluss oder installiere den Helfer dieser Version neu, um zu sehen, welche Apps das Netzwerk nutzen.</value>
+  </data>
+  <data name="This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see who this PC is talking to." xml:space="preserve">
+    <value>Dieses NetFluss ist älter als sein Helfer. Aktualisiere NetFluss oder installiere den Helfer dieser Version neu, um zu sehen, mit wem dieser PC kommuniziert.</value>
+  </data>
+  <data name="Installed, version {0} — newer than this NetFluss ({1}). Update NetFluss, or reinstall the helper from this version." xml:space="preserve">
+    <value>Installiert, Version {0} – neuer als dieses NetFluss ({1}). Aktualisiere NetFluss oder installiere den Helfer dieser Version neu.</value>
+  </data>
 </root>

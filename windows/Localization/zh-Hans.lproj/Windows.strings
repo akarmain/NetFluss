@@ -239,3 +239,6 @@
 "Your rates are on the taskbar, next to the clock. Click them for details, right-click them for Preferences." = "速率显示在任务栏的时钟旁边。单击查看详细信息，右键单击打开偏好设置。";
 "NetFluss is in the notification area. If you don't see its icon, click ^ next to the clock — you can drag the icon onto the taskbar to keep it in view." = "NetFluss 位于通知区域。如果看不到它的图标，请单击时钟旁边的 ^ —— 可以将图标拖到任务栏上，使其始终可见。";
 "NetFluss quit unexpectedly last time. Click to see what Windows recorded, and please include it in a report." = "NetFluss 上次意外退出。单击查看 Windows 记录的信息，并请在报告问题时附上。";
+"This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see which apps are using the network." = "此 NetFluss 比其辅助工具旧。请更新 NetFluss，或重新安装此版本的辅助工具，以查看哪些 App 正在使用网络。";
+"This NetFluss is older than its helper. Update NetFluss, or reinstall the helper from this version, to see who this PC is talking to." = "此 NetFluss 比其辅助工具旧。请更新 NetFluss，或重新安装此版本的辅助工具，以查看此电脑正在与谁通信。";
+"Installed, version %@ — newer than this NetFluss (%@). Update NetFluss, or reinstall the helper from this version." = "已安装，版本 %@ —— 比此 NetFluss（%@）新。请更新 NetFluss，或重新安装此版本的辅助工具。";
