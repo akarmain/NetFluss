@@ -177,7 +177,7 @@ internal sealed class TrafficService : IDisposable
 
         if (_local is null && !_localUnavailable)
         {
-            var trace = new KernelNetworkTrace();
+            var trace = new KernelNetworkTrace(KernelNetworkTrace.AppSessionName);
             if (trace.Start() == TraceStatus.Running)
             {
                 _local = trace;

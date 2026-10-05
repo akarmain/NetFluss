@@ -61,7 +61,9 @@
 
   <Target Name="CopyHelper" AfterTargets="Build">
     <ItemGroup>
-      <HelperFiles Include="$(MSBuildProjectDirectory)\..\NetFluss.Service\bin\$(Configuration)\net10.0-windows\**\*.*" />
+      <!-- Not the win-x64/win-arm64 folders a RID-specific build or publish of the helper leaves there. -->
+      <HelperFiles Include="$(MSBuildProjectDirectory)\..\NetFluss.Service\bin\$(Configuration)\net10.0-windows\**\*.*"
+                   Exclude="$(MSBuildProjectDirectory)\..\NetFluss.Service\bin\$(Configuration)\net10.0-windows\win-*\**" />
     </ItemGroup>
     <Copy SourceFiles="@(HelperFiles)"
           DestinationFiles="@(HelperFiles->'$(OutDir)Helper\%(RecursiveDir)%(Filename)%(Extension)')"

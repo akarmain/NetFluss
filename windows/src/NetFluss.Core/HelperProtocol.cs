@@ -103,6 +103,9 @@ public sealed record HelperMessage
     /// <summary>Why traffic is unavailable inside the helper, when it is.</summary>
     public string? TraceStatus { get; init; }
 
+    /// <summary>The trace's counters in one line ("Running, delivered 812, counted 640, consuming"), for diagnostics.</summary>
+    public string? TraceDetail { get; init; }
+
     public bool Ok { get; init; }
 
     public string? Message { get; init; }

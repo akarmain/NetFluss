@@ -45,6 +45,15 @@ internal sealed class HelperServer : IDisposable
     private Timer? _sampler;
     private string _traceStatus = "Idle";
 
+    /// <summary>The last trace's diagnostics, kept after it stops.</summary>
+    private string? _traceDetail;
+
+    private long _lastRestart;
+
+    // Progress of the running trace's consumer: events delivered, and when that last grew.
+    private long _lastDelivered;
+    private long _lastDelivery;
+
     internal HelperServer(string pipeName) => _pipeName = pipeName;
 
     /// <summary>Diagnostic output; the console host prints it, the service discards it.</summary>
@@ -191,6 +200,7 @@ internal sealed class HelperServer : IDisposable
                     Version = HelperProtocol.Version,
                     HelperVersion = Version,
                     TraceStatus = _traceStatus,
+                    TraceDetail = _trace?.Diagnostics ?? _traceDetail,
                 });
                 break;
 
@@ -245,10 +255,13 @@ internal sealed class HelperServer : IDisposable
                 if (status == TraceStatus.Running)
                 {
                     _trace = trace;
+                    _lastDelivered = 0;
+                    _lastDelivery = System.Diagnostics.Stopwatch.GetTimestamp();
                     _sampler = new Timer(_ => Sample(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
                 }
                 else
                 {
+                    _traceDetail = trace.Diagnostics;
                     trace.Dispose();
 
                     // Say so, rather than leave subscribers waiting on traffic that will
@@ -264,12 +277,42 @@ internal sealed class HelperServer : IDisposable
             {
                 _sampler?.Dispose();
                 _sampler = null;
+                _traceDetail = _trace.Diagnostics;
                 _trace.Dispose();
                 _trace = null;
                 _traceStatus = "Idle";
                 Log?.Invoke("trace stopped");
             }
         }
+    }
+
+    /// <summary>
+    /// The consumer of a running trace stopped on its own — its session was stopped from
+    /// outside, or ProcessTrace failed — or stalled: nothing delivered while the session
+    /// fills up. Start over rather than stream empty samples forever, though not more often
+    /// than <paramref name="interval"/>, so a session something keeps breaking cannot spin.
+    /// </summary>
+    private bool RestartTrace(KernelNetworkTrace dead, string reason, TimeSpan interval)
+    {
+        lock (_gate)
+        {
+            if (_trace != dead ||
+                System.Diagnostics.Stopwatch.GetElapsedTime(_lastRestart) < interval)
+            {
+                return false;
+            }
+
+            _lastRestart = System.Diagnostics.Stopwatch.GetTimestamp();
+            _traceDetail = dead.Diagnostics;
+            Log?.Invoke($"trace {reason}: {_traceDetail}; restarting");
+            _sampler?.Dispose();
+            _sampler = null;
+            dead.Dispose();
+            _trace = null;
+        }
+
+        UpdateTrace();
+        return true;
     }
 
     private void Sample()
@@ -283,6 +326,26 @@ internal sealed class HelperServer : IDisposable
         }
 
         if (trace is null || subscribers.Count == 0)
+        {
+            return;
+        }
+
+        var delivered = trace.DeliveredCount;
+        if (delivered != _lastDelivered)
+        {
+            _lastDelivered = delivered;
+            _lastDelivery = System.Diagnostics.Stopwatch.GetTimestamp();
+        }
+
+        if (trace.ConsumerExited && RestartTrace(trace, "consumer exited", TimeSpan.FromSeconds(10)))
+        {
+            return;
+        }
+
+        // Any TCP or UDP traffic raises events, so 20 s without one almost always means the
+        // consumer is not reading. On a truly idle machine the restart is harmless.
+        if (System.Diagnostics.Stopwatch.GetElapsedTime(_lastDelivery) > TimeSpan.FromSeconds(20) &&
+            RestartTrace(trace, "stalled", TimeSpan.FromSeconds(60)))
         {
             return;
         }

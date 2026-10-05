@@ -72,8 +72,18 @@ public enum TraceStatus
 /// </summary>
 public sealed unsafe class KernelNetworkTrace : IDisposable
 {
-    /// <summary>The one session name NetFluss uses, so a leaked session is always reclaimed.</summary>
+    /// <summary>
+    /// The helper's session. Each owner has one fixed name, so a leaked session is always
+    /// reclaimed — and the app's own trace, under <see cref="AppSessionName"/>, never reclaims
+    /// (stops) the helper's: a member of Performance Log Users is allowed to.
+    /// </summary>
     public const string SessionName = "NetFluss Kernel Network";
+
+    public const string AppSessionName = "NetFluss Kernel Network (App)";
+
+    private readonly string _name;
+
+    public KernelNetworkTrace(string sessionName = SessionName) => _name = sessionName;
 
     private static readonly Guid KernelNetworkProvider = new("7DD42A49-5329-4832-8DFD-43D979153A88");
 
@@ -109,6 +119,29 @@ public sealed unsafe class KernelNetworkTrace : IDisposable
     public long EventCount => Interlocked.Read(ref _eventCount);
 
     private long _eventCount;
+
+    /// <summary>Every event delivered to the callback, counted or not, for diagnostics.</summary>
+    public long DeliveredCount => Interlocked.Read(ref _delivered);
+
+    private long _delivered;
+
+    /// <summary>
+    /// True when the consumer stopped on its own while the trace should be running — the
+    /// session was stopped from outside, or ProcessTrace failed. The owner restarts it.
+    /// </summary>
+    public bool ConsumerExited => _consumerResult >= 0 && Status == TraceStatus.Running;
+
+    private long _consumerResult = -1;
+
+    /// <summary>Events that arrived without a trace to count them on — none, unless broken.</summary>
+    private static long s_orphans;
+
+    /// <summary>One line for a diagnostics log or the helper's hello.</summary>
+    public string Diagnostics =>
+        $"{Status}, delivered {DeliveredCount}, counted {EventCount}" +
+        (_consumerResult >= 0 ? $", consumer exited ({_consumerResult})" : _thread is null ? string.Empty : ", consuming") +
+        (LastError != 0 ? $", error {LastError}" : string.Empty) +
+        (Interlocked.Read(ref s_orphans) is > 0 and var orphans ? $", orphaned {orphans}" : string.Empty);
 
     /// <summary>
     /// Starts the session and its consumer thread. Safe to call when already running.
@@ -146,7 +179,7 @@ public sealed unsafe class KernelNetworkTrace : IDisposable
         }
 
         _self = GCHandle.Alloc(this);
-        _loggerName = Marshal.StringToHGlobalUni(SessionName);
+        _loggerName = Marshal.StringToHGlobalUni(_name);
 
         // EVENT_TRACE_LOGFILEW (448 bytes on x64/ARM64)
         //   0  LPWSTR LogFileName
@@ -190,7 +223,8 @@ public sealed unsafe class KernelNetworkTrace : IDisposable
             var handles = handle;
 
             // Blocks until the session stops or the trace is closed.
-            _ = ProcessTrace(&handles, 1, nint.Zero, nint.Zero);
+            var result = ProcessTrace(&handles, 1, nint.Zero, nint.Zero);
+            Interlocked.Exchange(ref _consumerResult, result);
         })
         {
             IsBackground = true,
@@ -278,7 +312,7 @@ public sealed unsafe class KernelNetworkTrace : IDisposable
 
     private uint StartSession()
     {
-        var nameBytes = (SessionName.Length + 1) * 2;
+        var nameBytes = (_name.Length + 1) * 2;
         var size = PropertiesSize + nameBytes;
         var properties = (byte*)NativeMemory.AllocZeroed((nuint)size);
 
@@ -287,7 +321,7 @@ public sealed unsafe class KernelNetworkTrace : IDisposable
             WriteProperties(properties, size);
 
             ulong session;
-            var status = StartTraceW(&session, SessionName, properties);
+            var status = StartTraceW(&session, _name, properties);
             if (status == ErrorSuccess)
             {
                 _session = session;
@@ -328,16 +362,16 @@ public sealed unsafe class KernelNetworkTrace : IDisposable
         *(uint*)(p + 116) = PropertiesSize;
     }
 
-    private static void StopSessionByName()
+    private void StopSessionByName()
     {
-        var nameBytes = (SessionName.Length + 1) * 2;
+        var nameBytes = (_name.Length + 1) * 2;
         var size = PropertiesSize + nameBytes;
         var properties = (byte*)NativeMemory.AllocZeroed((nuint)size);
 
         try
         {
             WriteProperties(properties, size);
-            _ = ControlTraceW(0, SessionName, properties, 1); // EVENT_TRACE_CONTROL_STOP
+            _ = ControlTraceW(0, _name, properties, 1); // EVENT_TRACE_CONTROL_STOP
         }
         finally
         {
@@ -390,9 +424,11 @@ public sealed unsafe class KernelNetworkTrace : IDisposable
             var context = *(nint*)(record + 104);
             if (context == nint.Zero || GCHandle.FromIntPtr(context).Target is not KernelNetworkTrace trace)
             {
+                Interlocked.Increment(ref s_orphans);
                 return;
             }
 
+            Interlocked.Increment(ref trace._delivered);
             var id = *(ushort*)(record + 40);
             var length = *(ushort*)(record + 86);
             var data = *(byte**)(record + 96);

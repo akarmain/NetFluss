@@ -176,12 +176,39 @@ internal static unsafe class Installer
 
         // Only the helper's own files. It ships in a folder of its own beside the app, so
         // that folder is exactly what it needs.
-        foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+        var walk = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+        var shipped = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var file in Directory.EnumerateFiles(source, "*", walk))
         {
             var relative = Path.GetRelativePath(source, file);
             var destination = Path.Combine(target, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
             File.Copy(file, destination, overwrite: true);
+            shipped.Add(relative);
+        }
+
+        // An update replaces the folder: what an older helper shipped and this one does not
+        // would otherwise stay in Program Files for good.
+        foreach (var file in Directory.EnumerateFiles(target, "*", walk))
+        {
+            if (!shipped.Contains(Path.GetRelativePath(target, file)))
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+                {
+                }
+            }
+        }
+
+        foreach (var directory in Directory.EnumerateDirectories(target, "*", walk).OrderByDescending(d => d.Length))
+        {
+            if (!Directory.EnumerateFileSystemEntries(directory).Any())
+            {
+                Directory.Delete(directory);
+            }
         }
     }
 
