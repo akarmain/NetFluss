@@ -925,6 +925,11 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
         }
     }
 
+    func revealPopover() {
+        guard let button = statusItem.button else { return }
+        showPopover(relativeTo: button)
+    }
+
     private func togglePinnedWindow() {
         guard let button = statusItem.button else { return }
 
@@ -972,6 +977,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
         )
         .environmentObject(monitor)
         .environmentObject(statisticsManager)
+        .environmentObject(speedTestManager)
         .environmentObject(wifiManager)
         .environmentObject(VPNManager.shared)
         .environment(\.locale, AppLanguage.current(from: UserDefaults.standard.string(forKey: "appLanguage") ?? AppLanguage.system.rawValue).locale)

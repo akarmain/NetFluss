@@ -68,4 +68,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NotificationCenter.default.removeObserver(preferencesObserver)
         }
     }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
+        appState?.statusBar.revealPopover()
+        return true
+    }
 }

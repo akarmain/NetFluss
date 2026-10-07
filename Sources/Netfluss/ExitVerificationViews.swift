@@ -14,6 +14,7 @@ private func verdictColor(_ verdict: ExitVerdict) -> Color {
 
 struct ExitVerificationSection: View {
     @ObservedObject private var verification = ExitVerification.shared
+    @EnvironmentObject private var speedTestManager: SpeedTestManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -23,6 +24,11 @@ struct ExitVerificationSection: View {
                 Text(verification.overall.title)
                     .font(.system(size: 12, weight: .semibold))
                 Spacer()
+                Button { SpeedTestWindowController.shared.show(manager: speedTestManager) } label: {
+                    Image(systemName: "speedometer")
+                }
+                .buttonStyle(.plain)
+                .help("Speed Test")
                 Button { verification.checkNow() } label: {
                     Image(systemName: "arrow.clockwise")
                 }
