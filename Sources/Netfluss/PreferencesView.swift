@@ -685,7 +685,7 @@ struct PreferencesView: View {
                         LText("Country flag")
                     }
                     if menuBarVPNIndicator != "off" || menuBarShowCountryFlag {
-                        LText("Shown to the right of the rates. The VPN indicator also detects VPNs started by other apps. The country flag shows where your public IP is located (looked up via ipify.org and ipwho.is).")
+                        Text("Shown beside the rates. Green requires an allowed public exit IP. Orange means location only; red means mismatch. IPv4 and IPv6 are shown separately as 4 and 6. The country flag is informational.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -907,6 +907,7 @@ struct PreferencesView: View {
                 }
 
                 if selectedPane == .vpn {
+                    ExitVerificationPreferences()
                     VPNPreferencesContent()
                 }
 

@@ -259,6 +259,8 @@ struct MenuBarView: View {
         let visibleSections = orderedSections.filter(isSectionVisible)
         return ScrollView {
             VStack(spacing: 0) {
+                ExitVerificationSection()
+                if !visibleSections.isEmpty { Divider() }
                 ForEach(Array(visibleSections.enumerated()), id: \.element) { index, section in
                     if index > 0 { Divider() }
                     sectionView(

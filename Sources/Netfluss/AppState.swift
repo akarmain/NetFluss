@@ -62,7 +62,7 @@ final class AppState {
             "collectAppStatistics": true,
             "speedTestProvider": "mlab",
             "speedTestMLabConsentAccepted": false,
-            "connectionStatusMode": "flow",
+            "connectionStatusMode": "none",
             "hiddenApps": [],
             "externalIPv6": false,
             "showDNSSwitcher": false,
@@ -70,7 +70,7 @@ final class AppState {
             "wifiLimitEnabled": false,
             "wifiLimitCount": 10,
             "showTotalsHeader": true,
-            "showAdapterList": true,
+            "showAdapterList": false,
             "showUsageSummary": false,
             "showTrafficTimer": false,
             "popoverSectionOrder": PopoverSection.defaultOrder.map(\.rawValue),
@@ -87,7 +87,7 @@ final class AppState {
             "openWRTHost": "",
             "opnsenseEnabled": false,
             "opnsenseHost": "",
-            "automaticUpdateChecksEnabled": true,
+            "automaticUpdateChecksEnabled": false,
             "appLanguage": AppLanguage.system.rawValue,
             "showVPN": false,
             "menuBarVPNIndicator": "off",
@@ -95,12 +95,17 @@ final class AppState {
             "menuBarVPNIndicatorColorHex": "",
             "menuBarVPNShowWhenOff": true,
             "menuBarShowCountryFlag": false,
+            "exitAllowedIPs": "",
+            "exitCountry": "",
+            "exitRegion": "",
+            "exitCheckInterval": 60.0,
             "networkSliceHostsLive": false,
             "networkSliceServicesLive": false,
             "networkSliceAppsLive": false
         ])
         let monitor = NetworkMonitor()
         self.monitor = monitor
+        _ = ExitVerification.shared
         let statisticsManager = StatisticsManager(monitor: monitor)
         self.statisticsManager = statisticsManager
         let speedTestManager = SpeedTestManager(monitor: monitor)

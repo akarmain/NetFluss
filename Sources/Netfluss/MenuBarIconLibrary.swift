@@ -24,6 +24,7 @@ struct MenuBarIconOption: Identifiable, Hashable {
 
 enum MenuBarIconLibrary {
     static let options: [MenuBarIconOption] = [
+        MenuBarIconOption(id: "exit-verification", label: "VPN exit verification"),
         MenuBarIconOption(id: "network", label: "Network"),
         MenuBarIconOption(id: "arrow.up.arrow.down", label: "Arrows"),
         MenuBarIconOption(id: "wifi", label: "Wi-Fi"),
@@ -35,7 +36,10 @@ enum MenuBarIconLibrary {
         options.contains { $0.id == id }
     }
 
-    static func image(for id: String, pointSize: CGFloat) -> NSImage? {
+    @MainActor static func image(for id: String, pointSize: CGFloat) -> NSImage? {
+        if id == "exit-verification" {
+            return exitVerificationImage(networkAvailable: true)
+        }
         if id == "netfluss" {
             return netflussTemplateImage(pointSize: pointSize)
         }
@@ -45,6 +49,35 @@ enum MenuBarIconLibrary {
             systemSymbolName: id,
             accessibilityDescription: "Menu bar icon"
         )?.withSymbolConfiguration(config)
+    }
+
+    /// One compact icon: outer ring = network path, inner dots = IPv4/IPv6 exit checks.
+    @MainActor static func exitVerificationImage(networkAvailable: Bool) -> NSImage {
+        let verifier = ExitVerification.shared
+        let ipv4 = verifier.ipv4
+        let ipv6 = verifier.ipv6
+        let image = NSImage(size: NSSize(width: 20, height: 20), flipped: false) { _ in
+            let ring = NSBezierPath(ovalIn: NSRect(x: 1.5, y: 1.5, width: 17, height: 17))
+            ring.lineWidth = 2
+            (networkAvailable ? NSColor.systemBlue : NSColor.secondaryLabelColor).setStroke()
+            ring.stroke()
+            func color(_ result: ExitFamilyResult) -> NSColor {
+                switch result.verdict {
+                case .matched: return .systemGreen
+                case .regionOnly: return .systemOrange
+                case .mismatch: return .systemRed
+                case .checking, .unavailable, .unconfigured: return .secondaryLabelColor
+                }
+            }
+            let dots: [(CGFloat, ExitFamilyResult)] = [(6, ipv4), (11, ipv6)]
+            for (x, result) in dots {
+                color(result).setFill()
+                NSBezierPath(ovalIn: NSRect(x: x, y: 8, width: 4, height: 4)).fill()
+            }
+            return true
+        }
+        image.isTemplate = false
+        return image
     }
 
     private static func netflussTemplateImage(pointSize: CGFloat) -> NSImage? {

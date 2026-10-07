@@ -24,9 +24,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.2.2</string>
+	<string>2.6.1</string>
 	<key>CFBundleVersion</key>
-	<string>23</string>
+	<string>261</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSUIElement</key>
@@ -38,10 +38,6 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>NetFluss reads the list of nearby Wi-Fi networks to let you switch networks from the menu bar. Your location is never recorded or sent anywhere.</string>
 	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUFeedURL</key>
-	<string>https://github.com/rana-gmbh/NetFluss/releases/latest/download/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>DNHU2zrCBOKm2wQAHU9Rghve2ep7CUkXuDsK1g3HJoo=</string>
+	<false/>
 </dict>
 </plist>

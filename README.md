@@ -8,6 +8,16 @@ A native macOS menubar app showing real-time upload and download rates, router-w
 
 Latest release: **NetFluss 2.6**
 
+## VPN exit verification in this fork
+
+This fork adds a compact IPv4/IPv6 exit check to the original NetFluss menu bar app. The app still shows live network rates and retains the Speed Test window and other upstream features. The **4** and **6** marks beside the rates report each address family separately: green means the public IP matches an allowed literal or CIDR range, orange means only the configured location matches, red means a mismatch, and gray means unconfigured, checking, or unavailable. The popover shows the current public IP, check time, and reason for each family. A detected tunnel or country flag alone never means that the configured exit IP was verified.
+
+The initial popover shows the exit check and live rates in a compact layout. Adapter cards and the network flow remain available in Preferences if you want them. Appearance → Menu bar style → Icon → VPN exit verification provides a single ring icon: the outer ring indicates network availability and the two inner dots show IPv4 and IPv6 results.
+
+Open **Preferences → VPN → VPN exit verification** to enter one IPv4/IPv6 address or CIDR range per line. Multiple entries are supported; the list starts empty. Country code/name and region name are optional. Choose a check interval or press **Check now**. Checks also run after a network or VPN route change. IP lookups use `api.ipify.org` and `api6.ipify.org`; location lookups use `ipwho.is` only when location settings are entered and the IP does not match a listed range. If either service fails, the corresponding family shows an unavailable state.
+
+Build a local Apple Silicon app with `./Packaging/build-local.sh`. Set `INCLUDE_VPN_TOOLS=1` to bundle the OpenVPN and WireGuard command line tools used by NetFluss's built-in VPN client. Copy the resulting `NetFluss.app` to `/Applications` and open it; it runs in the menu bar, without a Dock icon. This local build is ad hoc signed and cannot be notarized without an Apple Developer ID. Built-in VPN helper installation may require a Developer ID signed release; exit verification works with VPNs connected by any other app. This fork disables the upstream auto-update feed, which would replace the modified app with an upstream release. Source and license remain GPL-3.0-or-later; original Rana GmbH copyright notices are retained.
+
 ## NetFluss for Windows — public beta
 
 NetFluss now runs on Windows too: a native Windows 10 and 11 app with the same feature set as NetFluss 2.6 for Mac — live rates on the taskbar, the popover, Bandwidth Statistics, Speed Test, Network Slice, router monitoring and the built-in VPN client.

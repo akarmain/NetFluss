@@ -342,7 +342,7 @@ final class NetworkMonitor: NSObject, ObservableObject {
         let previousUpdate = lastUpdate
         let cachedInterfaceInfo = self.cachedInterfaceInfo
         let cachedWifiInfo = self._cachedWifiInfo
-        let detectVPN = Self.menuBarVPNIndicatorEnabled || Self.menuBarCountryFlagEnabled
+        let detectVPN = true
         forceDetailRefresh = false
 
         refreshQueue.async { [weak self] in
@@ -882,6 +882,7 @@ final class NetworkMonitor: NSObject, ObservableObject {
     /// for the slow periodic poll.
     func forceRefreshExternalIP() {
         updateIPsIfNeeded(force: true)
+        ExitVerification.shared.checkNow()
     }
 
     /// Publishes the VPN state for the menu bar indicator and, when the local
@@ -897,6 +898,13 @@ final class NetworkMonitor: NSObject, ObservableObject {
 
         let previous = lastNetworkFingerprint
         lastNetworkFingerprint = snapshot.fingerprint
+        if previous != snapshot.fingerprint {
+            ExitVerification.shared.checkNow()
+            Task { [weak self] in
+                try? await Task.sleep(nanoseconds: 2_500_000_000)
+                self?.forceRefreshExitVerification()
+            }
+        }
         guard Self.menuBarCountryFlagEnabled else { return }
         guard let previous else {
             // Flag just switched on: the cached public IP may have been
@@ -911,6 +919,10 @@ final class NetworkMonitor: NSObject, ObservableObject {
             try? await Task.sleep(nanoseconds: 2_500_000_000)
             self?.updateExternalIPIfNeeded(force: true)
         }
+    }
+
+    private func forceRefreshExitVerification() {
+        ExitVerification.shared.checkNow()
     }
 
     private func updateIPsIfNeeded(force: Bool) {

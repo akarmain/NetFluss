@@ -79,15 +79,17 @@ private struct MenuBarAccessories {
     enum VPNMark {
         case dot(active: Bool, color: NSColor, diameter: CGFloat)
         case symbol(NSImage)
+        case family(String, NSColor)
     }
 
     let vpn: VPNMark?
+    let families: [VPNMark]
     let flag: String?
     let flagFont: NSFont
 
-    static let none = MenuBarAccessories(vpn: nil, flag: nil, flagFont: .systemFont(ofSize: 10))
+    static let none = MenuBarAccessories(vpn: nil, families: [], flag: nil, flagFont: .systemFont(ofSize: 10))
 
-    var isEmpty: Bool { vpn == nil && flag == nil }
+    var isEmpty: Bool { vpn == nil && families.isEmpty && flag == nil }
 }
 
 private final class MenuBarRatesView: NSView {
@@ -205,6 +207,7 @@ private final class MenuBarRatesView: NSView {
     private static func accessoryItemsWidth(_ accessories: MenuBarAccessories) -> CGFloat {
         var widths: [CGFloat] = []
         if let vpn = accessories.vpn { widths.append(size(of: vpn).width) }
+        widths.append(contentsOf: accessories.families.map { size(of: $0).width })
         if let flag = accessories.flag { widths.append(flagSize(flag, font: accessories.flagFont).width) }
         guard !widths.isEmpty else { return 0 }
         return widths.reduce(0, +) + accessorySpacing * CGFloat(widths.count - 1)
@@ -236,6 +239,8 @@ private final class MenuBarRatesView: NSView {
             return NSSize(width: diameter, height: diameter)
         case .symbol(let image):
             return image.size
+        case .family(let label, _):
+            return (label as NSString).size(withAttributes: [.font: NSFont.boldSystemFont(ofSize: 9)])
         }
     }
 
@@ -266,7 +271,17 @@ private final class MenuBarRatesView: NSView {
                 }
             case .symbol(let image):
                 image.draw(in: rect, from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
+            case .family(let label, let color):
+                (label as NSString).draw(in: rect, withAttributes: [.font: NSFont.boldSystemFont(ofSize: 9), .foregroundColor: color])
             }
+            x += size.width + Self.accessorySpacing
+        }
+
+        for mark in accessories.families {
+            guard case .family(let label, let color) = mark else { continue }
+            let size = Self.size(of: mark)
+            (label as NSString).draw(at: NSPoint(x: x, y: floor(midY - size.height / 2)),
+                                     withAttributes: [.font: NSFont.boldSystemFont(ofSize: 9), .foregroundColor: color])
             x += size.width + Self.accessorySpacing
         }
 
@@ -620,6 +635,12 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
             .sink { [weak self] _ in
                 self?.updateLabel()
             }
+            .store(in: &cancellables)
+
+        ExitVerification.shared.$ipv4
+            .combineLatest(ExitVerification.shared.$ipv6, ExitVerification.shared.$isChecking)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.updateLabel() }
             .store(in: &cancellables)
 
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
@@ -1045,6 +1066,10 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
 
         if mode == "icon" {
             let symbol = normalizedMenuBarIconSymbol()
+            let networkAvailable = monitor.internalIP != "—"
+            let iconKey = symbol == "exit-verification"
+                ? "\(symbol):\(ExitVerification.shared.ipv4.verdict.rawValue):\(ExitVerification.shared.ipv6.verdict.rawValue):\(networkAvailable)"
+                : symbol
             let iconState = MenuBarRenderState(
                 mode: mode,
                 upText: "",
@@ -1057,7 +1082,7 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
                 referenceTotalText: "",
                 fontSize: 0,
                 fontDesign: "",
-                colorKey: symbol,
+                colorKey: iconKey,
                 upTextColorKey: "",
                 downTextColorKey: "",
                 ringProgressBucket: 0
@@ -1068,7 +1093,9 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
                 ratesView.isHidden = true
                 currentMenuBarMode = mode
             }
-            statusItem.button?.image = MenuBarIconLibrary.image(for: symbol, pointSize: 14)
+            statusItem.button?.image = symbol == "exit-verification"
+                ? MenuBarIconLibrary.exitVerificationImage(networkAvailable: networkAvailable)
+                : MenuBarIconLibrary.image(for: symbol, pointSize: 14)
             statusItem.button?.imagePosition = .imageOnly
             if lastStatusItemLength != NSStatusItem.squareLength {
                 statusItem.length = NSStatusItem.squareLength
@@ -1299,7 +1326,8 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
         let indicator = defaults.string(forKey: "menuBarVPNIndicator") ?? "off"
         let showWhenOff = defaults.bool(forKey: "menuBarVPNShowWhenOff")
         let showFlag = defaults.bool(forKey: "menuBarShowCountryFlag")
-        let vpnActive = monitor.vpnActive
+        let verification = ExitVerification.shared
+        let vpnActive = verification.overall == .matched
 
         var vpnMark: MenuBarAccessories.VPNMark?
         var vpnKey = "none"
@@ -1312,13 +1340,19 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
             if colorName == "system", style == .dashboard || style == .dashboardBasic {
                 activeColor = defaultTextColor
             }
-            let color = vpnActive ? activeColor : secondaryTextColor
+            let color: NSColor
+            switch verification.overall {
+            case .matched: color = activeColor
+            case .regionOnly: color = .systemOrange
+            case .mismatch: color = .systemRed
+            case .checking, .unavailable, .unconfigured: color = secondaryTextColor
+            }
 
             if indicator == "dot" {
                 let diameter = max(5, (CGFloat(fontSize) * 0.6).rounded())
                 vpnMark = .dot(active: vpnActive, color: color, diameter: diameter)
             } else {
-                let symbolName = vpnActive ? "lock.shield.fill" : "shield.slash"
+                let symbolName = vpnActive ? "checkmark.shield.fill" : "questionmark.shield"
                 let configuration = NSImage.SymbolConfiguration(pointSize: CGFloat(fontSize) + 1, weight: .medium)
                     .applying(NSImage.SymbolConfiguration(paletteColors: [color]))
                 if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "VPN")?
@@ -1331,12 +1365,25 @@ final class StatusBarController: NSObject, NSPopoverDelegate, NSMenuDelegate {
         }
 
         let flag = showFlag ? CountryFlag.emoji(for: monitor.externalIPCountryCode) : nil
+        func familyColor(_ verdict: ExitVerdict) -> NSColor {
+            switch verdict {
+            case .matched: return .systemGreen
+            case .regionOnly: return .systemOrange
+            case .mismatch: return .systemRed
+            case .checking, .unavailable, .unconfigured: return secondaryTextColor
+            }
+        }
+        let familyMarks: [MenuBarAccessories.VPNMark] = [
+            .family("4●", familyColor(verification.ipv4.verdict)),
+            .family("6●", familyColor(verification.ipv6.verdict))
+        ]
         let accessories = MenuBarAccessories(
             vpn: vpnMark,
+            families: familyMarks,
             flag: flag,
             flagFont: .systemFont(ofSize: CGFloat(fontSize) + 2)
         )
-        return (accessories, "\(vpnKey)|\(flag ?? "")")
+        return (accessories, "\(vpnKey)|\(flag ?? "")|\(verification.ipv4.verdict.rawValue)|\(verification.ipv6.verdict.rawValue)")
     }
 
     private func menuBarFont(size: Double, design: String, weight: NSFont.Weight) -> NSFont {
